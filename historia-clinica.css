@@ -1,0 +1,436 @@
+/* =============================================================
+   HISTORIA CLÍNICA DIGITAL — Stylesheet
+   Estructura objetivo:
+     #app-container
+       #app-header
+       #app-sidebar  (.sidebar-collapsed)
+       #app-content
+   ============================================================= */
+
+/* ── Variables ─────────────────────────────────────────────── */
+:root {
+  --header-height:       60px;
+  --sidebar-width:       250px;
+  --sidebar-width-col:   60px;    /* ancho colapsado            */
+  --sidebar-bg:          #34495e;
+  --sidebar-text:        #ecf0f1;
+  --sidebar-hover-bg:    #2c3e50;
+  --sidebar-active-bg:   #1a252f;
+  --sidebar-active-line: #1abc9c;
+  --header-bg:           #2c3e50;
+  --header-text:         #ffffff;
+  --content-bg:          #ffffff;
+  --body-bg:             #f4f7f6;
+  --transition:          0.25s ease;
+}
+
+
+/* ── 1. ESTILOS GENERALES ───────────────────────────────────── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #2d3748;
+  background-color: var(--body-bg);
+}
+
+/* Contenedor raíz — Flexbox en columna para apilar header + row */
+#app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+
+/* ── 2. HEADER FIJO ─────────────────────────────────────────── */
+
+#app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+
+  height: var(--header-height);
+  background-color: var(--header-bg);
+  color: var(--header-text);
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+/* Zona izquierda: botón hamburguesa + logo */
+#app-header .header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Botón hamburguesa */
+#app-header .btn-toggle {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  transition: background var(--transition);
+}
+#app-header .btn-toggle:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+#app-header .btn-toggle span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--header-text);
+  border-radius: 2px;
+}
+
+/* Logo */
+#app-header .header-logo {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: var(--header-text);
+  text-decoration: none;
+}
+#app-header .header-logo span {
+  color: #1abc9c;   /* acento verde agua */
+}
+
+/* Zona derecha: buscador, notificaciones, usuario */
+#app-header .header-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+#app-header .header-search input {
+  height: 32px;
+  width: 220px;
+  border: none;
+  border-radius: 16px;
+  padding: 0 14px;
+  font-size: 13px;
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--header-text);
+  outline: none;
+  transition: background var(--transition), width var(--transition);
+}
+#app-header .header-search input::placeholder { color: rgba(255,255,255,.55); }
+#app-header .header-search input:focus {
+  background: rgba(255, 255, 255, 0.25);
+  width: 280px;
+}
+
+#app-header .header-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+#app-header .header-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #1abc9c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  color: #fff;
+}
+
+
+/* ── 3. SIDEBAR ─────────────────────────────────────────────── */
+
+#app-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: var(--sidebar-width);
+  z-index: 90;
+
+  background-color: var(--sidebar-bg);
+  color: var(--sidebar-text);
+
+  padding-top: var(--header-height);  /* espacio para el header */
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+
+  /* Transición suave al colapsar */
+  transition: width var(--transition);
+}
+
+/* ── Grupos / etiquetas de sección ── */
+#app-sidebar .sidebar-section-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  color: rgba(255, 255, 255, 0.35);
+  padding: 14px 16px 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: opacity var(--transition);
+}
+
+/* ── Lista de navegación ── */
+#app-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+#app-sidebar ul li {
+  position: relative;
+}
+
+/* ── Ítems de navegación (enlaces) ── */
+#app-sidebar ul li a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  text-decoration: none;
+  color: var(--sidebar-text);
+  white-space: nowrap;
+  overflow: hidden;
+  font-size: 13px;
+  transition: background var(--transition), color var(--transition);
+}
+#app-sidebar ul li a:hover {
+  background-color: var(--sidebar-hover-bg);
+  color: #ffffff;
+}
+
+/* Ítem activo */
+#app-sidebar ul li a.active {
+  background-color: var(--sidebar-active-bg);
+  color: #ffffff;
+  font-weight: 600;
+}
+#app-sidebar ul li a.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--sidebar-active-line);
+  border-radius: 0 3px 3px 0;
+}
+
+/* Ícono dentro del ítem */
+#app-sidebar ul li a .nav-icon {
+  font-size: 17px;
+  width: 22px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* Texto del ítem — se oculta al colapsar */
+#app-sidebar ul li a .nav-label {
+  transition: opacity var(--transition);
+}
+
+/* Badge de conteo */
+#app-sidebar ul li a .nav-badge {
+  margin-left: auto;
+  background: #1abc9c;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 10px;
+  transition: opacity var(--transition);
+}
+
+/* ── Tooltip al colapsar ──
+   Se muestra al hacer hover sobre el ítem cuando el sidebar está colapsado.
+   Requiere que el <a> tenga el atributo data-tooltip="Nombre del ítem". */
+#app-sidebar ul li a[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: calc(var(--sidebar-width-col) + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: #1a252f;
+  color: #fff;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 200;
+  transition: opacity 0.15s;
+}
+
+/* Pie del sidebar */
+#app-sidebar .sidebar-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.25);
+  white-space: nowrap;
+  overflow: hidden;
+  transition: opacity var(--transition);
+}
+
+
+/* ── 4. CONTENIDO PRINCIPAL ─────────────────────────────────── */
+
+#app-content {
+  margin-top: var(--header-height);
+  margin-left: var(--sidebar-width);   /* igual al ancho del sidebar */
+
+  padding: 24px;
+  background-color: var(--content-bg);
+  min-height: calc(100vh - var(--header-height));
+
+  transition: margin-left var(--transition);
+}
+
+
+/* ── 5. ESTADO COLAPSADO ────────────────────────────────────── */
+/*
+  Cómo activar con JavaScript:
+  ─────────────────────────────
+  const sidebar  = document.getElementById('app-sidebar');
+  const content  = document.getElementById('app-content');
+
+  document.getElementById('btn-toggle').addEventListener('click', () => {
+    sidebar.classList.toggle('sidebar-collapsed');
+    content.classList.toggle('content-expanded');
+  });
+
+  Al agregar .sidebar-collapsed al sidebar y .content-expanded al
+  content, el CSS reduce el sidebar a íconos y ajusta el margen del
+  área de contenido de forma animada.
+*/
+
+/* Sidebar reducido a solo íconos */
+#app-sidebar.sidebar-collapsed {
+  width: var(--sidebar-width-col);
+}
+
+/* Ocultar textos, badges y etiquetas de sección */
+#app-sidebar.sidebar-collapsed .nav-label,
+#app-sidebar.sidebar-collapsed .nav-badge,
+#app-sidebar.sidebar-collapsed .sidebar-section-label,
+#app-sidebar.sidebar-collapsed .sidebar-footer {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Mostrar tooltip en hover cuando está colapsado */
+#app-sidebar.sidebar-collapsed ul li a:hover[data-tooltip]::after {
+  opacity: 1;
+}
+
+/* El contenido principal recupera el espacio del sidebar */
+#app-content.content-expanded {
+  margin-left: var(--sidebar-width-col);
+}
+
+
+/* ── 6. COMPONENTES INTERNOS DEL CONTENIDO ──────────────────── */
+
+/* Migas de pan */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 16px;
+}
+.breadcrumb a { color: #2c3e50; text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb .sep { color: #ccc; }
+
+/* Encabezado de página */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  gap: 12px;
+}
+.page-header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #2c3e50;
+}
+.page-header p { font-size: 13px; color: #888; margin-top: 4px; }
+
+/* Botones */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.2s;
+}
+.btn:hover { filter: brightness(1.1); }
+.btn-primary { background: #2c3e50; color: #fff; }
+.btn-outline  {
+  background: transparent;
+  border: 1px solid #d1dce8;
+  color: #2c3e50;
+}
+
+/* Tarjetas de métricas */
+.cards-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.metric-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+}
+.metric-card__icon  { font-size: 26px; margin-bottom: 8px; }
+.metric-card__label { font-size: 12px; color: #888; margin-bottom: 4px; }
+.metric-card__value { font-size: 30px; font-weight: 700; color: #2c3e50; }
+
+/* Placeholder de módulo */
+.module-placeholder {
+  border: 2px dashed #d1dce8;
+  border-radius: 10px;
+  padding: 60px 24px;
+  text-align: center;
+  color: #aaa;
+}
+.module-placeholder .ph-icon { font-size: 52px; margin-bottom: 12px; }
+.module-placeholder h2       { font-size: 16px; color: #999; margin-bottom: 6px; }
+.module-placeholder p        { font-size: 13px; }

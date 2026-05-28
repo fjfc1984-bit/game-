@@ -4,721 +4,224 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Historia Clínica Digital — Imagen Salud</title>
-  <style>
-
-    /* =========================================================
-       1. RESET & BASE
-    ========================================================= */
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    :root {
-      /* Paleta */
-      --color-primary:      #0f5fa8;
-      --color-primary-dark: #0a4070;
-      --color-accent:       #17a98e;
-      --color-bg:           #f0f4f8;
-      --color-sidebar-bg:   #1a2e44;
-      --color-sidebar-text: #c9d8e8;
-      --color-sidebar-hover:#0f5fa8;
-      --color-header-bg:    #ffffff;
-      --color-text:         #2d3748;
-      --color-border:       #d1dce8;
-      --color-white:        #ffffff;
-
-      /* Dimensiones */
-      --header-height:    64px;
-      --sidebar-width:    260px;
-      --sidebar-collapsed: 64px;
-
-      /* Tipografía */
-      --font-base: 'Segoe UI', system-ui, sans-serif;
-      --font-size-base: 14px;
-
-      /* Transición */
-      --transition: 0.25s ease;
-    }
-
-    body {
-      font-family: var(--font-base);
-      font-size: var(--font-size-base);
-      color: var(--color-text);
-      background-color: var(--color-bg);
-      min-height: 100vh;
-    }
-
-    /* =========================================================
-       2. LAYOUT PRINCIPAL — Grid de 3 zonas
-          [header  header ]
-          [sidebar  main  ]
-    ========================================================= */
-    .app-layout {
-      display: grid;
-      grid-template-rows: var(--header-height) 1fr;
-      grid-template-columns: var(--sidebar-width) 1fr;
-      grid-template-areas:
-        "header  header"
-        "sidebar main";
-      min-height: 100vh;
-      transition: grid-template-columns var(--transition);
-    }
-
-    /*
-     * Estado COLAPSADO:
-     * Agrega la clase .app-layout--collapsed al contenedor raíz vía JS.
-     * El sidebar se reduce a íconos; el main recupera el espacio.
-     */
-    .app-layout--collapsed {
-      grid-template-columns: var(--sidebar-collapsed) 1fr;
-    }
-
-    /* =========================================================
-       3. HEADER
-    ========================================================= */
-    .header {
-      grid-area: header;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      height: var(--header-height);
-      background: var(--color-header-bg);
-      border-bottom: 1px solid var(--color-border);
-      display: flex;
-      align-items: center;
-      padding: 0 1.5rem;
-      gap: 1rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,.06);
-    }
-
-    /* Botón hamburguesa */
-    .header__toggle {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 5px;
-      width: 36px;
-      height: 36px;
-      cursor: pointer;
-      border: none;
-      background: transparent;
-      border-radius: 6px;
-      padding: 6px;
-      flex-shrink: 0;
-      transition: background var(--transition);
-    }
-    .header__toggle:hover { background: var(--color-bg); }
-    .header__toggle span {
-      display: block;
-      height: 2px;
-      background: var(--color-text);
-      border-radius: 2px;
-      transition: transform var(--transition), opacity var(--transition);
-    }
-
-    /* Logo */
-    .header__logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      flex-shrink: 0;
-    }
-    .header__logo-icon {
-      width: 36px;
-      height: 36px;
-      background: var(--color-primary);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--color-white);
-      font-weight: 700;
-      font-size: 16px;
-      letter-spacing: -1px;
-    }
-    .header__logo-text {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--color-primary);
-      line-height: 1.1;
-    }
-    .header__logo-text small {
-      display: block;
-      font-size: 10px;
-      font-weight: 400;
-      color: #888;
-      letter-spacing: .5px;
-    }
-
-    /* Búsqueda global */
-    .header__search {
-      flex: 1;
-      max-width: 420px;
-      margin-left: 1rem;
-    }
-    .header__search input {
-      width: 100%;
-      height: 36px;
-      border: 1px solid var(--color-border);
-      border-radius: 20px;
-      padding: 0 1rem 0 2.4rem;
-      font-size: 13px;
-      background: var(--color-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 10px center;
-      outline: none;
-      transition: border-color var(--transition);
-    }
-    .header__search input:focus { border-color: var(--color-primary); }
-
-    /* Zona derecha del header */
-    .header__actions {
-      margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    .header__badge {
-      position: relative;
-      cursor: pointer;
-      color: #666;
-      font-size: 18px;
-    }
-    .header__badge::after {
-      content: "3";
-      position: absolute;
-      top: -4px; right: -6px;
-      background: #e53e3e;
-      color: #fff;
-      font-size: 9px;
-      width: 14px; height: 14px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      line-height: 14px;
-      text-align: center;
-    }
-    .header__user {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-    }
-    .header__avatar {
-      width: 34px;
-      height: 34px;
-      background: var(--color-accent);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-weight: 700;
-      font-size: 13px;
-    }
-    .header__user-info { line-height: 1.2; }
-    .header__user-name { font-size: 13px; font-weight: 600; }
-    .header__user-role { font-size: 11px; color: #888; }
-
-    /* =========================================================
-       4. SIDEBAR
-    ========================================================= */
-    .sidebar {
-      grid-area: sidebar;
-      background: var(--color-sidebar-bg);
-      color: var(--color-sidebar-text);
-      height: calc(100vh - var(--header-height));
-      position: sticky;
-      top: var(--header-height);
-      overflow-x: hidden;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      transition: width var(--transition);
-      width: var(--sidebar-width);
-      scrollbar-width: thin;
-      scrollbar-color: rgba(255,255,255,.1) transparent;
-    }
-
-    /*
-     * Estado COLAPSADO del sidebar:
-     * Se activa por herencia desde .app-layout--collapsed,
-     * o puedes añadir .sidebar--collapsed directamente al <aside>.
-     */
-    .app-layout--collapsed .sidebar {
-      width: var(--sidebar-collapsed);
-    }
-
-    /* Bloque de paciente activo */
-    .sidebar__patient-card {
-      margin: 1rem;
-      padding: .75rem;
-      background: rgba(255,255,255,.07);
-      border: 1px solid rgba(255,255,255,.1);
-      border-radius: 8px;
-      transition: opacity var(--transition);
-    }
-    .sidebar__patient-label {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: .8px;
-      color: rgba(255,255,255,.4);
-      margin-bottom: 4px;
-    }
-    .sidebar__patient-name {
-      font-size: 13px;
-      font-weight: 600;
-      color: #fff;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .sidebar__patient-id {
-      font-size: 11px;
-      color: var(--color-accent);
-      margin-top: 2px;
-    }
-    /* Ocultar texto cuando colapsado */
-    .app-layout--collapsed .sidebar__patient-card { opacity: 0; pointer-events: none; }
-
-    /* Separador de sección */
-    .sidebar__section-label {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: .9px;
-      color: rgba(255,255,255,.3);
-      padding: .5rem 1.1rem .3rem;
-      white-space: nowrap;
-      overflow: hidden;
-      transition: opacity var(--transition);
-    }
-    .app-layout--collapsed .sidebar__section-label { opacity: 0; }
-
-    /* Ítem de navegación */
-    .sidebar__nav { flex: 1; padding-bottom: 1rem; }
-
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: .85rem;
-      padding: .65rem 1.1rem;
-      cursor: pointer;
-      border-radius: 0;
-      text-decoration: none;
-      color: var(--color-sidebar-text);
-      white-space: nowrap;
-      overflow: hidden;
-      transition: background var(--transition), color var(--transition);
-      position: relative;
-    }
-    .nav-item:hover {
-      background: rgba(255,255,255,.08);
-      color: #fff;
-    }
-    .nav-item--active {
-      background: var(--color-primary);
-      color: #fff;
-    }
-    .nav-item--active::before {
-      content: '';
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 3px;
-      background: var(--color-accent);
-      border-radius: 0 3px 3px 0;
-    }
-
-    /* Ícono del ítem */
-    .nav-item__icon {
-      font-size: 18px;
-      width: 24px;
-      text-align: center;
-      flex-shrink: 0;
-    }
-
-    /* Texto del ítem — se oculta al colapsar */
-    .nav-item__label {
-      font-size: 13px;
-      transition: opacity var(--transition), width var(--transition);
-    }
-    .app-layout--collapsed .nav-item__label {
-      opacity: 0;
-      width: 0;
-      overflow: hidden;
-    }
-
-    /* Badge de conteo en ítem */
-    .nav-item__count {
-      margin-left: auto;
-      background: var(--color-accent);
-      color: #fff;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 1px 6px;
-      border-radius: 10px;
-      transition: opacity var(--transition);
-    }
-    .app-layout--collapsed .nav-item__count { opacity: 0; }
-
-    /* Tooltip al colapsar — visible solo en estado colapsado */
-    .nav-item[data-tooltip]::after {
-      content: attr(data-tooltip);
-      position: absolute;
-      left: calc(var(--sidebar-collapsed) + 8px);
-      top: 50%;
-      transform: translateY(-50%);
-      background: #1a2e44;
-      color: #fff;
-      font-size: 12px;
-      padding: 4px 10px;
-      border-radius: 4px;
-      white-space: nowrap;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity .15s;
-      z-index: 200;
-    }
-    .app-layout--collapsed .nav-item:hover[data-tooltip]::after { opacity: 1; }
-
-    /* Pie del sidebar */
-    .sidebar__footer {
-      border-top: 1px solid rgba(255,255,255,.08);
-      padding: .75rem;
-    }
-    .sidebar__version {
-      font-size: 10px;
-      color: rgba(255,255,255,.25);
-      text-align: center;
-      white-space: nowrap;
-      overflow: hidden;
-    }
-    .app-layout--collapsed .sidebar__version { opacity: 0; }
-
-    /* =========================================================
-       5. ÁREA DE CONTENIDO PRINCIPAL
-    ========================================================= */
-    .main-content {
-      grid-area: main;
-      padding: 1.75rem 2rem;
-      overflow-y: auto;
-      min-height: 0;
-    }
-
-    /* Migas de pan */
-    .breadcrumb {
-      display: flex;
-      align-items: center;
-      gap: .4rem;
-      font-size: 12px;
-      color: #888;
-      margin-bottom: 1.25rem;
-    }
-    .breadcrumb a { color: var(--color-primary); text-decoration: none; }
-    .breadcrumb a:hover { text-decoration: underline; }
-    .breadcrumb__sep { color: #bbb; }
-
-    /* Encabezado de página */
-    .page-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 1.5rem;
-      gap: 1rem;
-    }
-    .page-header h1 {
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--color-primary-dark);
-    }
-    .page-header p {
-      font-size: 13px;
-      color: #777;
-      margin-top: 3px;
-    }
-
-    /* Botón primario de ejemplo */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: .4rem;
-      padding: .5rem 1.1rem;
-      border: none;
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: filter var(--transition);
-    }
-    .btn:hover { filter: brightness(1.1); }
-    .btn--primary { background: var(--color-primary); color: #fff; }
-    .btn--outline {
-      background: transparent;
-      border: 1px solid var(--color-border);
-      color: var(--color-text);
-    }
-
-    /* Tarjetas de contenido placeholder */
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-    .card {
-      background: var(--color-white);
-      border: 1px solid var(--color-border);
-      border-radius: 10px;
-      padding: 1.25rem;
-      box-shadow: 0 1px 4px rgba(0,0,0,.05);
-    }
-    .card__icon {
-      font-size: 28px;
-      margin-bottom: .5rem;
-    }
-    .card__title {
-      font-size: 13px;
-      font-weight: 600;
-      color: #555;
-      margin-bottom: .25rem;
-    }
-    .card__value {
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--color-primary-dark);
-    }
-    .card__sub {
-      font-size: 11px;
-      color: #999;
-      margin-top: 4px;
-    }
-
-    /* Placeholder de contenido */
-    .placeholder-block {
-      background: var(--color-white);
-      border: 2px dashed var(--color-border);
-      border-radius: 10px;
-      padding: 3rem 2rem;
-      text-align: center;
-      color: #aaa;
-    }
-    .placeholder-block .placeholder-icon { font-size: 48px; margin-bottom: .75rem; }
-    .placeholder-block h2 { font-size: 16px; color: #999; margin-bottom: .4rem; }
-    .placeholder-block p  { font-size: 13px; }
-
-  </style>
+  <link rel="stylesheet" href="historia-clinica.css" />
 </head>
 <body>
 
 <!-- ============================================================
      CONTENEDOR RAÍZ
-     JS debe alternar la clase  .app-layout--collapsed  aquí
-     para colapsar/expandir el menú lateral.
 ============================================================ -->
-<div class="app-layout" id="appLayout">
+<div id="app-container">
 
-  <!-- ── HEADER ─────────────────────────────────────────── -->
-  <header class="header">
+  <!-- ── HEADER ─────────────────────────────────────────────── -->
+  <header id="app-header">
 
-    <!-- Botón hamburguesa — JS: appLayout.classList.toggle('app-layout--collapsed') -->
-    <button class="header__toggle" id="sidebarToggle" title="Colapsar menú" aria-label="Colapsar menú">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
-
-    <!-- Logo -->
-    <a href="#" class="header__logo">
-      <div class="header__logo-icon">IS</div>
-      <div class="header__logo-text">
-        IMAGEN SALUD
-        <small>[Logo IPS: IMAGEN SALUD]</small>
-      </div>
-    </a>
-
-    <!-- Búsqueda global -->
-    <div class="header__search">
-      <input type="search" placeholder="Buscar paciente, historia, cita…" />
+    <div class="header-left">
+      <!-- Botón hamburguesa -->
+      <button class="btn-toggle" id="btn-toggle" title="Colapsar menú" aria-label="Colapsar menú">
+        <span></span><span></span><span></span>
+      </button>
+      <!-- Logo -->
+      <a href="#" class="header-logo">
+        IMAGEN <span>SALUD</span>
+        <small style="font-size:10px;font-weight:400;opacity:.6;margin-left:6px;">
+          [Logo IPS]
+        </small>
+      </a>
     </div>
 
-    <!-- Acciones del header -->
-    <div class="header__actions">
-      <span class="header__badge" title="Notificaciones">🔔</span>
-      <div class="header__user">
-        <div class="header__avatar">DR</div>
-        <div class="header__user-info">
-          <div class="header__user-name">Dr. Ramírez</div>
-          <div class="header__user-role">[Rol: Médico General]</div>
+    <div class="header-right">
+      <div class="header-search">
+        <input type="search" placeholder="Buscar paciente, historia, cita…" />
+      </div>
+      <span title="Notificaciones" style="cursor:pointer;font-size:18px;position:relative;">
+        🔔
+        <span style="position:absolute;top:-4px;right:-6px;background:#e53e3e;color:#fff;
+                     font-size:9px;width:14px;height:14px;border-radius:50%;
+                     display:flex;align-items:center;justify-content:center;">3</span>
+      </span>
+      <div class="header-user">
+        <div class="header-avatar">DR</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;">Dr. Ramírez</div>
+          <div style="font-size:11px;opacity:.65;">[Rol: Médico General]</div>
         </div>
       </div>
     </div>
 
   </header>
-  <!-- ── FIN HEADER ─────────────────────────────────────── -->
+  <!-- ── FIN HEADER ─────────────────────────────────────────── -->
 
 
-  <!-- ── SIDEBAR ────────────────────────────────────────── -->
+  <!-- ── SIDEBAR ────────────────────────────────────────────── -->
   <!--
-    Clases clave:
-    • .sidebar                  → estado expandido (ancho: --sidebar-width)
-    • .app-layout--collapsed    → aplicada al padre para colapsar
-                                  (reduce a --sidebar-collapsed, oculta textos)
-    • .nav-item--active         → ítem seleccionado actualmente
+    Clases relevantes:
+    • (sin clase extra)           → expandido, 250 px
+    • .sidebar-collapsed          → colapsado, 60 px (solo íconos)
+    • a.active                    → ítem activo resaltado
+    • data-tooltip="Nombre"       → tooltip visible en estado colapsado
   -->
-  <aside class="sidebar" id="sidebar">
+  <aside id="app-sidebar">
 
-    <!-- Paciente activo (se oculta al colapsar) -->
-    <div class="sidebar__patient-card">
-      <div class="sidebar__patient-label">Paciente activo</div>
-      <div class="sidebar__patient-name">[Nombre del Paciente]</div>
-      <div class="sidebar__patient-id">CC: [NDocumento] · HC-[0000]</div>
-    </div>
-
-    <nav class="sidebar__nav">
+    <nav>
 
       <!-- SECCIÓN: PRINCIPAL -->
-      <div class="sidebar__section-label">Principal</div>
-
-      <a href="#" class="nav-item nav-item--active" data-tooltip="Inicio">
-        <span class="nav-item__icon">🏠</span>
-        <span class="nav-item__label">Inicio / Dashboard</span>
-      </a>
-
-      <a href="#" class="nav-item" data-tooltip="Pacientes">
-        <span class="nav-item__icon">👥</span>
-        <span class="nav-item__label">Pacientes</span>
-        <span class="nav-item__count">12</span>
-      </a>
-
-      <a href="#" class="nav-item" data-tooltip="Citas">
-        <span class="nav-item__icon">📅</span>
-        <span class="nav-item__label">Agenda / Citas</span>
-        <span class="nav-item__count">5</span>
-      </a>
+      <div class="sidebar-section-label">Principal</div>
+      <ul>
+        <li>
+          <a href="#" class="active" data-tooltip="Inicio">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Inicio / Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-tooltip="Pacientes">
+            <span class="nav-icon">👥</span>
+            <span class="nav-label">Pacientes</span>
+            <span class="nav-badge">12</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-tooltip="Agenda">
+            <span class="nav-icon">📅</span>
+            <span class="nav-label">Agenda / Citas</span>
+            <span class="nav-badge">5</span>
+          </a>
+        </li>
+      </ul>
 
       <!-- SECCIÓN: HISTORIA CLÍNICA -->
-      <div class="sidebar__section-label">Historia Clínica</div>
-
-      <a href="#" class="nav-item" data-tooltip="Anamnesis">
-        <span class="nav-item__icon">📋</span>
-        <span class="nav-item__label">Anamnesis</span>
-      </a>
-
-      <a href="#" class="nav-item" data-tooltip="Examen físico">
-        <span class="nav-item__icon">🩺</span>
-        <span class="nav-item__label">Examen Físico</span>
-      </a>
-
-      <a href="#" class="nav-item" data-tooltip="Diagnósticos">
-        <span class="nav-item__icon">🔍</span>
-        <span class="nav-item__label">Diagnósticos (CIE-10)</span>
-      </a>
-
-      <a href="#" class="nav-item" data-tooltip="Órdenes">
-        <span class="nav-item__icon">📝</span>
-        <span class="nav-item__label">Órdenes Médicas</span>
-      </a>
-
-      <a href="#" class="nav-item" data-tooltip="Medicamentos">
-        <span class="nav-item__icon">💊</span>
-        <span class="nav-item__label">Medicamentos</span>
-      </a>
+      <div class="sidebar-section-label">Historia Clínica</div>
+      <ul>
+        <li>
+          <a href="#" data-tooltip="Anamnesis">
+            <span class="nav-icon">📋</span>
+            <span class="nav-label">Anamnesis</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-tooltip="Examen Físico">
+            <span class="nav-icon">🩺</span>
+            <span class="nav-label">Examen Físico</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-tooltip="Diagnósticos">
+            <span class="nav-icon">🔍</span>
+            <span class="nav-label">Diagnósticos (CIE-10)</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-tooltip="Órdenes">
+            <span class="nav-icon">📝</span>
+            <span class="nav-label">Órdenes Médicas</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-tooltip="Medicamentos">
+            <span class="nav-icon">💊</span>
+            <span class="nav-label">Medicamentos</span>
+          </a>
+        </li>
+      </ul>
 
       <!-- SECCIÓN: SERVICIOS -->
-      <div class="sidebar__section-label">Servicios</div>
-
-      <a href="#" class="nav-item" data-tooltip="Laboratorio">
-        <span class="nav-item__icon">🧪</span>
-        <span class="nav-item__label">Laboratorio</span>
-      </a>
-
-      <a href="#" class="nav-item" data-tooltip="Imágenes">
-        <span class="nav-item__icon">🩻</span>
-        <span class="nav-item__label">Imágenes Diagnósticas</span>
-      </a>
-
-      <a href="#" class="nav-item" data-tooltip="Procedimientos">
-        <span class="nav-item__icon">⚕️</span>
-        <span class="nav-item__label">Procedimientos</span>
-      </a>
+      <div class="sidebar-section-label">Servicios</div>
+      <ul>
+        <li>
+          <a href="#" data-tooltip="Laboratorio">
+            <span class="nav-icon">🧪</span>
+            <span class="nav-label">Laboratorio</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-tooltip="Imágenes">
+            <span class="nav-icon">🩻</span>
+            <span class="nav-label">Imágenes Diagnósticas</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-tooltip="Procedimientos">
+            <span class="nav-icon">⚕️</span>
+            <span class="nav-label">Procedimientos</span>
+          </a>
+        </li>
+      </ul>
 
       <!-- SECCIÓN: ADMINISTRACIÓN -->
-      <div class="sidebar__section-label">Administración</div>
-
-      <a href="#" class="nav-item" data-tooltip="Reportes">
-        <span class="nav-item__icon">📊</span>
-        <span class="nav-item__label">Reportes</span>
-      </a>
-
-      <a href="#" class="nav-item" data-tooltip="Configuración">
-        <span class="nav-item__icon">⚙️</span>
-        <span class="nav-item__label">Configuración</span>
-      </a>
+      <div class="sidebar-section-label">Administración</div>
+      <ul>
+        <li>
+          <a href="#" data-tooltip="Reportes">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">Reportes</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-tooltip="Configuración">
+            <span class="nav-icon">⚙️</span>
+            <span class="nav-label">Configuración</span>
+          </a>
+        </li>
+      </ul>
 
     </nav>
 
-    <div class="sidebar__footer">
-      <div class="sidebar__version">HC Digital v1.0.0 — [IPS: Imagen Salud]</div>
-    </div>
+    <div class="sidebar-footer">[IPS Imagen Salud] · HC Digital v1.0</div>
 
   </aside>
-  <!-- ── FIN SIDEBAR ────────────────────────────────────── -->
+  <!-- ── FIN SIDEBAR ────────────────────────────────────────── -->
 
 
-  <!-- ── MAIN CONTENT ───────────────────────────────────── -->
-  <main class="main-content">
+  <!-- ── CONTENIDO PRINCIPAL ────────────────────────────────── -->
+  <main id="app-content">
 
     <!-- Migas de pan -->
     <nav class="breadcrumb">
       <a href="#">Inicio</a>
-      <span class="breadcrumb__sep">›</span>
+      <span class="sep">›</span>
       <span>[Módulo Activo]</span>
     </nav>
 
-    <!-- Encabezado de la página activa -->
+    <!-- Encabezado de la página -->
     <div class="page-header">
       <div>
         <h1>[Título del Módulo Activo]</h1>
-        <p>[Descripción breve del módulo o resumen del paciente activo]</p>
+        <p>[Descripción o resumen del paciente activo]</p>
       </div>
-      <div style="display:flex;gap:.5rem;">
-        <button class="btn btn--outline">⬇ Exportar</button>
-        <button class="btn btn--primary">＋ Nueva Consulta</button>
-      </div>
-    </div>
-
-    <!-- Tarjetas de resumen (Dashboard) -->
-    <div class="card-grid">
-      <div class="card">
-        <div class="card__icon">🗂</div>
-        <div class="card__title">Consultas hoy</div>
-        <div class="card__value">8</div>
-        <div class="card__sub">[Placeholder — dato real del sistema]</div>
-      </div>
-      <div class="card">
-        <div class="card__icon">👤</div>
-        <div class="card__title">Pacientes activos</div>
-        <div class="card__value">124</div>
-        <div class="card__sub">[Placeholder — dato real del sistema]</div>
-      </div>
-      <div class="card">
-        <div class="card__icon">⏳</div>
-        <div class="card__title">Citas pendientes</div>
-        <div class="card__value">5</div>
-        <div class="card__sub">[Placeholder — dato real del sistema]</div>
-      </div>
-      <div class="card">
-        <div class="card__icon">🧪</div>
-        <div class="card__title">Resultados por revisar</div>
-        <div class="card__value">3</div>
-        <div class="card__sub">[Placeholder — dato real del sistema]</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-outline">⬇ Exportar</button>
+        <button class="btn btn-primary">＋ Nueva Consulta</button>
       </div>
     </div>
 
-    <!-- Bloque placeholder principal -->
-    <div class="placeholder-block">
-      <div class="placeholder-icon">📄</div>
+    <!-- Tarjetas de métricas -->
+    <div class="cards-row">
+      <div class="metric-card">
+        <div class="metric-card__icon">🗂</div>
+        <div class="metric-card__label">Consultas hoy</div>
+        <div class="metric-card__value">8</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-card__icon">👤</div>
+        <div class="metric-card__label">Pacientes activos</div>
+        <div class="metric-card__value">124</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-card__icon">⏳</div>
+        <div class="metric-card__label">Citas pendientes</div>
+        <div class="metric-card__value">5</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-card__icon">🧪</div>
+        <div class="metric-card__label">Resultados por revisar</div>
+        <div class="metric-card__value">3</div>
+      </div>
+    </div>
+
+    <!-- Placeholder del módulo activo -->
+    <div class="module-placeholder">
+      <div class="ph-icon">📄</div>
       <h2>[Área de contenido del módulo seleccionado]</h2>
       <p>
         Selecciona un ítem del menú lateral para cargar el módulo correspondiente.<br/>
@@ -727,38 +230,41 @@
     </div>
 
   </main>
-  <!-- ── FIN MAIN CONTENT ───────────────────────────────── -->
+  <!-- ── FIN CONTENIDO PRINCIPAL ────────────────────────────── -->
 
 </div>
-<!-- FIN .app-layout -->
+<!-- FIN #app-container -->
 
 
 <!-- ============================================================
-     JAVASCRIPT — Toggle del sidebar
-     (Mínimo necesario; expandir según necesidades del proyecto)
+     JAVASCRIPT — Toggle sidebar
+     Alterna .sidebar-collapsed en #app-sidebar
+     y  .content-expanded  en  #app-content
 ============================================================ -->
 <script>
-  const layout = document.getElementById('appLayout');
-  const toggleBtn = document.getElementById('sidebarToggle');
+  const sidebar   = document.getElementById('app-sidebar');
+  const content   = document.getElementById('app-content');
+  const toggleBtn = document.getElementById('btn-toggle');
 
   toggleBtn.addEventListener('click', () => {
-    layout.classList.toggle('app-layout--collapsed');
-    // Persistir estado en localStorage (opcional)
-    const collapsed = layout.classList.contains('app-layout--collapsed');
-    localStorage.setItem('sidebar-collapsed', collapsed);
+    sidebar.classList.toggle('sidebar-collapsed');
+    content.classList.toggle('content-expanded');
+    localStorage.setItem('sidebar-collapsed',
+      sidebar.classList.contains('sidebar-collapsed'));
   });
 
-  // Restaurar estado al cargar
+  // Restaurar estado guardado
   if (localStorage.getItem('sidebar-collapsed') === 'true') {
-    layout.classList.add('app-layout--collapsed');
+    sidebar.classList.add('sidebar-collapsed');
+    content.classList.add('content-expanded');
   }
 
-  // Activar ítem del menú al hacer clic
-  document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', e => {
+  // Activar ítem del menú
+  document.querySelectorAll('#app-sidebar a').forEach(link => {
+    link.addEventListener('click', e => {
       e.preventDefault();
-      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('nav-item--active'));
-      item.classList.add('nav-item--active');
+      document.querySelectorAll('#app-sidebar a').forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
     });
   });
 </script>
