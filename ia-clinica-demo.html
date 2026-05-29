@@ -34,9 +34,16 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px;
   background: rgba(255,255,255,.15); white-space: nowrap;
 }
 
+@keyframes toastIn {
+  from { opacity:0; transform:translateX(20px); }
+  to   { opacity:1; transform:translateX(0); }
+}
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
 .tabs {
   display: flex; gap: 4px; padding: 12px 32px;
-  background: #fff; border-bottom: 1px solid var(--border); flex-wrap: wrap;
+  background: #fff; border-bottom: 1px solid var(--border);
+  flex-wrap: wrap; overflow-x: auto;
 }
 .tab {
   padding: 8px 18px; border-radius: 6px; cursor: pointer; font-weight: 600;
@@ -263,19 +270,19 @@ textarea { resize: vertical; min-height: 80px; }
 
 <!-- ── TABS ───────────────────────────────────────── -->
 <div class="tabs">
-  <div class="tab active" onclick="showPanel('p1')">
+  <div class="tab active" onclick="showPanel('p1', this)">
     <span class="tab-phase">FASE 1 · Anti-Glosa</span>
     🧾 Auditor Pre-Facturación
   </div>
-  <div class="tab" onclick="showPanel('p2')">
+  <div class="tab" onclick="showPanel('p2', this)">
     <span class="tab-phase">FASE 2 · Seguridad</span>
     🛑 Alerta Temprana Contraste
   </div>
-  <div class="tab" onclick="showPanel('p3')">
+  <div class="tab" onclick="showPanel('p3', this)">
     <span class="tab-phase">FASE 3 · Eficiencia</span>
     🎙 Asistente de Dictado
   </div>
-  <div class="tab" onclick="showPanel('p4')">
+  <div class="tab" onclick="showPanel('p4', this)">
     <span class="tab-phase">FASE 4 · Datos</span>
     📊 Epidemiología Local
   </div>
@@ -576,12 +583,62 @@ textarea { resize: vertical; min-height: 80px; }
      JAVASCRIPT
 ═══════════════════════════════════════════════ -->
 <script>
+/* ── Toast system ──────────────────────────────── */
+function showToast(message, type = 'info') {
+  const icons = { success:'✅', error:'❌', warn:'⚠️', info:'ℹ️' };
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.style.cssText = 'position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;';
+    document.body.appendChild(container);
+  }
+  const toast = document.createElement('div');
+  toast.style.cssText = `background:#1a2e44;color:#fff;padding:12px 16px;border-radius:8px;font-size:13px;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,.25);pointer-events:all;display:flex;align-items:center;gap:10px;min-width:260px;max-width:360px;animation:toastIn .3s ease;border-left:4px solid ${{success:'#16a34a',error:'#dc2626',warn:'#d97706',info:'#3b82f6'}[type]||'#3b82f6'};`;
+  toast.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span style="flex:1">${message}</span><span style="margin-left:auto;cursor:pointer;opacity:.6;font-size:16px;" onclick="this.parentElement.remove()">✕</span>`;
+  container.appendChild(toast);
+  setTimeout(() => { toast.style.opacity='0'; toast.style.transform='translateX(20px)'; toast.style.transition='all .3s'; setTimeout(()=>toast.remove(),350); }, 4000);
+}
+
+/* ── Modal system ──────────────────────────────── */
+function showModal(title, bodyHTML, buttons = []) {
+  let overlay = document.getElementById('globalModalOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'globalModalOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s ease;';
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', e => { if(e.target===overlay) overlay.remove(); });
+  }
+  overlay.innerHTML = `
+    <div style="background:#fff;border-radius:12px;width:100%;max-width:520px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #d1dce8;">
+        <h2 style="font-size:16px;font-weight:700;color:#1a2e44;">${title}</h2>
+        <button onclick="document.getElementById('globalModalOverlay').remove()" style="cursor:pointer;font-size:20px;color:#888;background:none;border:none;">✕</button>
+      </div>
+      <div style="padding:20px;">${bodyHTML}</div>
+      <div style="padding:14px 20px;border-top:1px solid #d1dce8;display:flex;justify-content:flex-end;gap:10px;" id="modalBtns"></div>
+    </div>`;
+  const btnContainer = overlay.querySelector('#modalBtns');
+  buttons.forEach(b => {
+    const btn = document.createElement('button');
+    btn.style.cssText = `display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:${b.cls?.includes('outline') ? '1px solid #d1dce8' : 'none'};border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;background:${b.cls?.includes('primary') ? '#0f5fa8' : b.cls?.includes('danger') ? '#dc2626' : '#fff'};color:${b.cls?.includes('primary')||b.cls?.includes('danger') ? '#fff' : '#2d3748'};`;
+    btn.textContent = b.label;
+    btn.onclick = b.action;
+    btnContainer.appendChild(btn);
+  });
+}
+
 /* ── Tabs ──────────────────────────────────────── */
-function showPanel(id) {
+const activeTimeouts = {};
+
+function showPanel(id, tabEl) {
+  // Cancelar timeouts pendientes al cambiar de pestaña
+  Object.values(activeTimeouts).forEach(clearTimeout);
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  event.currentTarget.classList.add('active');
+  if (tabEl) tabEl.classList.add('active');
 }
 
 /* ════════════════════════════════════════════════
@@ -647,8 +704,8 @@ function detectarInconsistencias(tipo, cups, cie10, texto) {
         <div class="alert-actions">
           <button class="a-btn-blue" onclick="mostrarSugerenciaCIE('C64')">✏️ Corregir a C64 — Tumor riñón</button>
           <button class="a-btn-blue" onclick="mostrarSugerenciaCIE('D41.0')">✏️ Sugerir D41.0 — Tumor incierto riñón</button>
-          <button class="a-btn-warn" onclick="alert('Notificación enviada al jefe de calidad')">📧 Enviar a revisión de calidad</button>
-          <button class="a-btn-ghost" onclick="alert('Facturación bloqueada hasta resolución')">🔒 Bloquear facturación</button>
+          <button class="a-btn-warn" onclick="showToast('Expediente enviado a revisión de calidad','warn')">📧 Enviar a revisión de calidad</button>
+          <button class="a-btn-ghost" onclick="showToast('Facturación bloqueada. Expediente en cola de revisión.','error')">🔒 Bloquear facturación</button>
         </div>
       </div>`;
   }
@@ -676,7 +733,7 @@ function detectarInconsistencias(tipo, cups, cie10, texto) {
         <span class="factor f-ok">✅ Sin términos de riesgo oncológico no codificado</span>
       </div>
       <div class="alert-actions">
-        <button class="a-btn-blue" onclick="alert('Historia aprobada para facturación')">🧾 Aprobar para facturación</button>
+        <button class="a-btn-blue" onclick="showToast('Expediente aprobado para facturación. Registro auditado.','success')">🧾 Aprobar para facturación</button>
       </div>
     </div>`;
 }
@@ -750,7 +807,7 @@ function calcularRiesgo() {
     if (comorbSel.includes('mieloma'))         { score += 10; factores.push({t:'Mieloma múltiple',c:'f-red'}); }
     if (comorbSel.includes('deshidratacion'))  { score += 10; factores.push({t:'Deshidratación / ayuno prolongado',c:'f-warn'}); }
     if (comorbSel.includes('nefropatia_prev')) { score += 20; factores.push({t:'Nefropatía previa por contraste',c:'f-red'}); }
-    if (comorbSel.includes('hta'))             { score += 5; factores.push({t:'Hipertensión arterial',c:'f-ok'}); }
+    if (comorbSel.includes('hta'))             { score += 5; factores.push({t:'Hipertensión arterial',c:'f-warn'}); }
 
     // Volumen relativo (ratio volumen/TFG × 100)
     const ratioVol = (vol / Math.max(tfg,1)) * 100;
@@ -788,14 +845,14 @@ function calcularRiesgo() {
         </ul>
         <div class="alert-actions">
           ${score >= 70 ? `
-            <button class="a-btn-red" onclick="alert('Contraste bloqueado. Radiólogo notificado.')">🔒 Bloquear contraste + Notificar radiólogo</button>
-            <button class="a-btn-blue" onclick="alert('Protocolo de hidratación IV activado. Enfermería notificada.')">💉 Activar protocolo hidratación IV</button>
+            <button class="a-btn-red" onclick="bloquearContraste()">🔒 Bloquear contraste + Notificar radiólogo</button>
+            <button class="a-btn-blue" onclick="activarHidratacion()">💉 Activar protocolo hidratación IV</button>
           ` : score >= 40 ? `
-            <button class="a-btn-warn" onclick="alert('Consulta solicitada al radiólogo.')">⚠ Consultar al radiólogo antes de inyectar</button>
-            <button class="a-btn-blue" onclick="alert('Protocolo de precaución activado.')">🛡 Activar protocolo precaución</button>
-            <button class="a-btn-ghost" onclick="alert('Decisión registrada como aceptada con riesgo conocido.')">Proceder (acepto el riesgo)</button>
+            <button class="a-btn-warn" onclick="consultarRadiologo()">⚠ Consultar al radiólogo antes de inyectar</button>
+            <button class="a-btn-blue" onclick="showToast('Protocolo de precaución activado. Enfermería notificada.','warn')">🛡 Activar protocolo precaución</button>
+            <button class="a-btn-ghost" onclick="procederConRiesgo()">Proceder (acepto el riesgo)</button>
           ` : `
-            <button class="a-btn-blue" onclick="alert('Autorizado. Registro auditado.')">✅ Autorizar contraste</button>
+            <button class="a-btn-blue" onclick="showToast('Contraste autorizado. Registro auditado con timestamp.','success')">✅ Autorizar contraste</button>
           `}
         </div>
       </div>`;
@@ -952,84 +1009,242 @@ function procesarDictado(texto, tipo) {
       </div>`}
 
       <div class="btn-row">
-        <button class="btn btn-success" onclick="alert('Informe guardado como borrador. Listo para revisión y firma del radiólogo.')">💾 Guardar borrador estructurado</button>
-        <button class="btn btn-outline" onclick="alert('Dictado original conservado. Puedes editarlo manualmente.')">✏️ Editar manualmente</button>
+        <button class="btn btn-success" id="btnGuardarBorrador" onclick="guardarBorradorDictado(this)">💾 Guardar borrador estructurado</button>
+        <button class="btn btn-outline" onclick="showToast('Modo edición manual activado en el área de dictado','info')">✏️ Editar manualmente</button>
+        <button class="btn btn-primary" onclick="mostrarFirmaInforme()">🖊 Firmar y publicar</button>
       </div>
     </div>`;
 }
 
 function aceptarClasificacion(sistema, cat) {
-  alert(`✅ Clasificación registrada: ${sistema} ${cat}\n\nEl campo "Sistema de clasificación" del informe ha sido completado automáticamente. Puedes modificarlo antes de firmar.`);
+  showToast(`✅ ${sistema} ${cat} registrado en el informe. Editable antes de firmar.`, 'success');
+}
+
+function bloquearContraste() {
+  showModal('🔒 Bloquear contraste — Confirmar', `
+    <p style="margin-bottom:12px;font-size:13px;">Esta acción bloqueará la administración del contraste y notificará al radiólogo. Ingresa la justificación:</p>
+    <div style="margin-bottom:10px;">
+      <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Radiólogo a notificar</label>
+      <select style="width:100%;padding:7px;border:1px solid #d1dce8;border-radius:5px;font-size:13px;">
+        <option>Dr. Suárez (Radiólogo de turno)</option>
+        <option>Dra. Martínez</option>
+        <option>Dr. López</option>
+      </select>
+    </div>
+    <div>
+      <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Justificación clínica</label>
+      <textarea style="width:100%;padding:8px;border:1px solid #d1dce8;border-radius:5px;font-size:13px;resize:vertical;min-height:80px;" placeholder="Ej: TFG 45 + Metformina activa + Edad > 65. Score de riesgo 78%. Protocolo de hidratación requerido."></textarea>
+    </div>
+  `, [
+    { label: 'Cancelar', action: () => document.getElementById('globalModalOverlay').remove() },
+    { label: '🔒 Confirmar bloqueo', cls: 'btn-primary', action: () => {
+      document.getElementById('globalModalOverlay').remove();
+      showToast('Contraste bloqueado. Radiólogo notificado. Registro auditado.', 'error');
+    }}
+  ]);
+}
+
+function activarHidratacion() {
+  showModal('💉 Protocolo de Hidratación IV — ESUR', `
+    <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:12px;font-size:13px;line-height:1.8;">
+      <strong>Protocolo estándar (ESUR Guidelines):</strong><br>
+      • Solución: NaCl 0.9%<br>
+      • Tasa: 1 mL/kg/hora<br>
+      • Inicio: 6 horas ANTES del procedimiento<br>
+      • Duración POST: 6 horas después de la administración<br>
+      • En ICC: ajustar a 0.5 mL/kg/h — consultar cardiología<br>
+    </div>
+    <div style="margin-top:12px;">
+      <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Enfermera responsable</label>
+      <input type="text" placeholder="Nombre de la enfermera..." style="width:100%;padding:7px;border:1px solid #d1dce8;border-radius:5px;font-size:13px;"/>
+    </div>
+  `, [
+    { label: 'Cerrar', action: () => document.getElementById('globalModalOverlay').remove() },
+    { label: '✅ Activar protocolo', cls: 'btn-primary', action: () => {
+      document.getElementById('globalModalOverlay').remove();
+      showToast('Protocolo de hidratación IV activado. Enfermería notificada.', 'success');
+    }}
+  ]);
+}
+
+function consultarRadiologo() {
+  showModal('⚠ Consulta al Radiólogo', `
+    <p style="margin-bottom:12px;font-size:13px;">El sistema detectó riesgo moderado-alto. Envía una consulta al radiólogo antes de proceder:</p>
+    <div style="margin-bottom:10px;">
+      <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Radiólogo</label>
+      <select style="width:100%;padding:7px;border:1px solid #d1dce8;border-radius:5px;font-size:13px;">
+        <option>Dr. Suárez (en turno)</option><option>Dra. Martínez</option>
+      </select>
+    </div>
+    <div>
+      <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Mensaje</label>
+      <textarea style="width:100%;padding:8px;border:1px solid #d1dce8;border-radius:5px;font-size:13px;resize:vertical;min-height:80px;">Paciente con TFG 45, en tratamiento con Metformina, edad 68 años. Score IA: riesgo moderado. Solicito autorización para proceder con contraste yodado o indicación de protocolo alternativo.</textarea>
+    </div>
+  `, [
+    { label: 'Cancelar', action: () => document.getElementById('globalModalOverlay').remove() },
+    { label: '📨 Enviar consulta', cls: 'btn-primary', action: () => {
+      document.getElementById('globalModalOverlay').remove();
+      showToast('Consulta enviada al radiólogo. Esperando respuesta.', 'warn');
+    }}
+  ]);
+}
+
+function procederConRiesgo() {
+  showModal('⚠ Aceptar riesgo — Registro de responsabilidad', `
+    <div style="background:#fffbeb;border:1px solid #fbbf24;border-radius:8px;padding:12px;font-size:13px;margin-bottom:12px;">
+      Esta acción queda registrada con tu nombre, fecha y hora como evidencia de decisión clínica informada.
+    </div>
+    <div style="margin-bottom:10px;">
+      <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Justificación clínica obligatoria</label>
+      <textarea id="justificacionRiesgo" style="width:100%;padding:8px;border:1px solid #d1dce8;border-radius:5px;font-size:13px;resize:vertical;min-height:80px;" placeholder="Describe la razón clínica para proceder a pesar del riesgo identificado..."></textarea>
+    </div>
+    <div>
+      <label style="font-size:12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+        <input type="checkbox" id="chkRiesgo"/> Confirmo que soy consciente del riesgo y asumo la responsabilidad clínica
+      </label>
+    </div>
+  `, [
+    { label: 'Cancelar', action: () => document.getElementById('globalModalOverlay').remove() },
+    { label: '⚠ Proceder con riesgo aceptado', cls: 'btn-primary', action: () => {
+      const just = document.getElementById('justificacionRiesgo')?.value.trim();
+      const chk  = document.getElementById('chkRiesgo')?.checked;
+      if (!just) { showToast('La justificación clínica es obligatoria','error'); return; }
+      if (!chk)  { showToast('Debes confirmar que eres consciente del riesgo','error'); return; }
+      document.getElementById('globalModalOverlay').remove();
+      showToast('Decisión registrada con auditoría. Puede proceder.', 'warn');
+    }}
+  ]);
 }
 
 /* ════════════════════════════════════════════════
    PANEL 4 — HEATMAP Y GRÁFICOS
 ════════════════════════════════════════════════ */
 function generarReporte(n) {
-  alert(`📄 Generando reporte ${n === 1 ? 'epidemiológico para Secretaría de Salud' : 'mensual de calidad'}...\n\nEl PDF se descargará en breve con:\n• Período: 1–31 mayo 2025\n• Firmado digitalmente por el Jefe de Calidad\n• Formato estándar para entes de control`);
+  const nombre = n === 1 ? 'Epidemiológico para Secretaría de Salud' : 'Mensual de Calidad IPS';
+  showModal(`📄 Reporte ${nombre}`, `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+      <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Fecha inicio</label>
+        <input type="date" value="2025-05-01" style="width:100%;padding:7px;border:1px solid #d1dce8;border-radius:5px;font-size:13px;"/></div>
+      <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Fecha fin</label>
+        <input type="date" value="2025-05-29" style="width:100%;padding:7px;border:1px solid #d1dce8;border-radius:5px;font-size:13px;"/></div>
+    </div>
+    <div style="background:#f8fafc;border:1px solid #d1dce8;border-radius:6px;padding:12px;font-size:12px;color:#555;line-height:1.8;">
+      <strong>Vista previa:</strong><br>
+      IPS Imagen Salud — Reporte ${nombre}<br>
+      Período: 01/05/2025 – 29/05/2025<br>
+      Estudios procesados: 1.247 · Alertas generadas: 2<br>
+      Tasa de eventos adversos: 0.4% (meta &lt; 1%) ✅<br>
+      Generado por: Jefe de Calidad · Firmado digitalmente
+    </div>
+  `, [
+    { label: 'Cancelar', action: () => document.getElementById('globalModalOverlay').remove() },
+    { label: '⬇ Descargar PDF', cls: 'btn-primary', action: () => {
+      document.getElementById('globalModalOverlay').remove();
+      showToast('Generando PDF...', 'info');
+      setTimeout(() => showToast(`Reporte descargado: Reporte_${nombre.replace(/ /g,'_')}_mayo2025.pdf`, 'success'), 1800);
+    }}
+  ]);
 }
 
-// Heatmap
-(function buildHeatmap() {
+function mostrarSugerenciaCIE(codigo) {
+  showToast(`CIE-10 actualizado a ${codigo}. Cambio auditado con timestamp.`, 'success');
+}
+
+function guardarBorradorDictado(btn) {
+  const dictado = document.getElementById('dictadoLibre')?.value.trim();
+  if (!dictado) { showToast('No hay contenido para guardar','error'); return; }
+  try { localStorage.setItem('hcd_borrador_dictado', JSON.stringify({ texto: dictado, fecha: new Date().toISOString() })); } catch(e) {}
+  btn.textContent = '✅ Borrador guardado';
+  btn.disabled = true;
+  showToast('Borrador guardado localmente','success');
+}
+
+function mostrarFirmaInforme() {
+  showModal('🖊 Firmar y Publicar Informe', `
+    <div style="background:#fef2f2;border:1px solid #f87171;border-radius:8px;padding:12px;font-size:13px;margin-bottom:14px;">
+      ⚠ <strong>Esta acción es irreversible.</strong> El informe será publicado y el paciente podrá verlo en su portal.
+    </div>
+    <div style="margin-bottom:10px;">
+      <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Confirma tu contraseña de firma</label>
+      <input type="password" id="claveFirema" placeholder="••••••••" style="width:100%;padding:8px;border:1px solid #d1dce8;border-radius:5px;font-size:13px;"/>
+    </div>
+    <label style="font-size:12px;display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:8px;">
+      <input type="checkbox" id="chkPublicarPortal"/> Publicar informe amigable en el portal del paciente simultáneamente
+    </label>
+  `, [
+    { label: 'Cancelar', action: () => document.getElementById('globalModalOverlay').remove() },
+    { label: '🖊 Firmar y publicar', cls: 'btn-primary', action: () => {
+      const clave = document.getElementById('claveFirema')?.value;
+      if (!clave) { showToast('Ingresa tu contraseña de firma','error'); return; }
+      document.getElementById('globalModalOverlay').remove();
+      showToast('Informe firmado digitalmente y publicado','success');
+    }}
+  ]);
+}
+
+// Inicialización DOM-safe
+document.addEventListener('DOMContentLoaded', function() {
+  actualizarPlaceholder(); // Fix #4: inicializar placeholder al cargar
+});
+
+// Heatmap y gráfico — DOM-safe
+document.addEventListener('DOMContentLoaded', function() {
+
+  // Heatmap
   const dias = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
   const horas = ['8–10h','10–12h','12–14h','14–16h','16–18h'];
-  const datos = [
+  const datosHM = [
     [18,32,28,22,20,8,3],
     [22,45,41,30,25,10,2],
     [20,38,35,28,22,9,2],
     [19,28,30,26,20,7,1],
     [15,22,25,20,18,5,1],
   ];
-  const max = 45;
-
+  const maxHM = 45;
   const grid = document.getElementById('heatmapGrid');
-  if (!grid) return;
-  grid.className = 'heatmap';
-
-  // Encabezados
-  grid.innerHTML += '<div class="hm-label"></div>';
-  dias.forEach(d => grid.innerHTML += `<div class="hm-label" style="justify-content:center;">${d}</div>`);
-
-  horas.forEach((h, hi) => {
-    grid.innerHTML += `<div class="hm-label">${h}</div>`;
-    datos[hi].forEach(v => {
-      const pct = v / max;
-      const r = Math.round(239 + (220 - 239) * pct);
-      const g = Math.round(246 + (38 - 246) * pct);
-      const b = Math.round(255 + (38 - 255) * pct);
-      const color = `rgb(${r},${g},${b})`;
-      const textColor = pct > 0.55 ? '#fff' : '#374151';
-      grid.innerHTML += `<div class="hm-cell" style="background:${color};color:${textColor}">${v}</div>`;
+  if (grid) {
+    grid.className = 'heatmap';
+    grid.innerHTML = '<div class="hm-label"></div>';
+    dias.forEach(d => grid.innerHTML += `<div class="hm-label" style="justify-content:center;">${d}</div>`);
+    horas.forEach((h, hi) => {
+      grid.innerHTML += `<div class="hm-label">${h}</div>`;
+      datosHM[hi].forEach(v => {
+        const pct = v / maxHM;
+        const r = Math.round(239 + (220 - 239) * pct);
+        const g = Math.round(246 + (38 - 246) * pct);
+        const b = Math.round(255 + (38 - 255) * pct);
+        const textColor = pct > 0.55 ? '#fff' : '#374151';
+        grid.innerHTML += `<div class="hm-cell" style="background:rgb(${r},${g},${b});color:${textColor}">${v}</div>`;
+      });
     });
-  });
-})();
+  }
 
-// Gráfico de barras de hallazgos incidentales
-(function buildChart() {
-  const datos = [
-    { label: 'Esteatosis hepática', val: 34, color: '#f59e0b' },
-    { label: 'Nódulo pulmonar (Lung-RADS 3)', val: 18, color: '#ef4444' },
-    { label: 'Quistes renales simples', val: 15, color: '#3b82f6' },
-    { label: 'Litiasis vesicular asx.', val: 12, color: '#8b5cf6' },
-    { label: 'Angiomiolipoma renal', val: 7, color: '#10b981' },
-    { label: 'Nódulo tiroideo (TI-RADS ≥3)', val: 6, color: '#f97316' },
+  // Gráfico de barras
+  const datosChart = [
+    { label:'Esteatosis hepática', val:34, color:'#f59e0b' },
+    { label:'Nódulo pulmonar (Lung-RADS 3)', val:18, color:'#ef4444' },
+    { label:'Quistes renales simples', val:15, color:'#3b82f6' },
+    { label:'Litiasis vesicular asx.', val:12, color:'#8b5cf6' },
+    { label:'Angiomiolipoma renal', val:7, color:'#10b981' },
+    { label:'Nódulo tiroideo (TI-RADS ≥3)', val:6, color:'#f97316' },
   ];
-  const max = 34;
-  const el = document.getElementById('chartIncidentales');
-  if (!el) return;
-
-  el.innerHTML = datos.map(d => `
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:12px;">
-      <div style="width:180px;text-align:right;color:#555;flex-shrink:0;">${d.label}</div>
-      <div style="flex:1;background:#e5e7eb;border-radius:4px;height:24px;overflow:hidden;">
-        <div style="width:${(d.val/max*100).toFixed(0)}%;background:${d.color};height:100%;
-                    border-radius:4px;display:flex;align-items:center;padding-left:8px;
-                    color:#fff;font-weight:700;font-size:11px;transition:width .8s ease;">
-          ${d.val}
+  const maxChart = 34;
+  const chartEl = document.getElementById('chartIncidentales');
+  if (chartEl) {
+    chartEl.innerHTML = datosChart.map(d => `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:12px;">
+        <div style="width:200px;text-align:right;color:#555;flex-shrink:0;">${d.label}</div>
+        <div style="flex:1;background:#e5e7eb;border-radius:4px;height:24px;overflow:hidden;">
+          <div style="width:${(d.val/maxChart*100).toFixed(0)}%;background:${d.color};height:100%;
+                      border-radius:4px;display:flex;align-items:center;padding-left:8px;
+                      color:#fff;font-weight:700;font-size:11px;transition:width .8s ease;">
+            ${d.val}
+          </div>
         </div>
-      </div>
-    </div>`).join('');
-})();
+      </div>`).join('');
+  }
+
+});
 </script>
 
 </body>
