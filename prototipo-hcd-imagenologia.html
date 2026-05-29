@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Prototipo HCD — IPS Imagenología</title>
+<style>
+  :root {
+    --blue:    #0f5fa8;
+    --teal:    #17a98e;
+    --dark:    #1a2e44;
+    --light:   #f0f4f8;
+    --border:  #d1dce8;
+    --text:    #2d3748;
+    --ai:      #7c3aed;
+    --warn:    #d97706;
+    --danger:  #dc2626;
+    --success: #16a34a;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;
+       color:var(--text);background:#fff;line-height:1.6}
+
+  /* ── Portada ── */
+  .cover{background:linear-gradient(135deg,var(--dark) 0%,var(--blue) 100%);
+         color:#fff;padding:64px 48px;text-align:center}
+  .cover h1{font-size:32px;font-weight:800;letter-spacing:-.5px;margin-bottom:10px}
+  .cover p{font-size:16px;opacity:.8;max-width:680px;margin:0 auto}
+  .cover .meta{display:flex;justify-content:center;gap:32px;margin-top:32px;font-size:12px;opacity:.65}
+
+  /* ── Navegación de módulos ── */
+  .toc{background:var(--light);border-bottom:1px solid var(--border);
+       padding:12px 48px;display:flex;gap:8px;flex-wrap:wrap;position:sticky;top:0;z-index:50}
+  .toc a{font-size:12px;font-weight:600;padding:5px 12px;border-radius:20px;
+         text-decoration:none;color:var(--blue);background:#fff;
+         border:1px solid var(--border);white-space:nowrap;transition:all .2s}
+  .toc a:hover{background:var(--blue);color:#fff}
+
+  /* ── Módulo ── */
+  .module{padding:48px;border-bottom:3px solid var(--light);max-width:960px;margin:0 auto}
+  .module-header{display:flex;align-items:center;gap:14px;margin-bottom:8px}
+  .module-num{width:40px;height:40px;border-radius:50%;background:var(--blue);
+              color:#fff;font-weight:800;font-size:16px;
+              display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .module-header h2{font-size:22px;font-weight:800;color:var(--dark)}
+  .module-role{font-size:12px;color:#888;margin-bottom:24px;padding-left:54px}
+  .module-role span{background:var(--light);border:1px solid var(--border);
+                    border-radius:12px;padding:2px 10px;margin-right:6px;
+                    font-size:11px;font-weight:600;color:var(--blue)}
+
+  /* ── Pantalla ── */
+  .screen{background:var(--light);border:1px solid var(--border);border-radius:12px;
+          margin-bottom:24px;overflow:hidden}
+  .screen-title{background:var(--dark);color:#fff;padding:10px 16px;
+                font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+  .screen-body{padding:20px}
+
+  /* ── Zonas UI ── */
+  .ui-zone{border:1px solid var(--border);border-radius:8px;padding:14px 16px;
+           margin-bottom:12px;background:#fff}
+  .ui-zone-label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;
+                 color:#888;margin-bottom:8px;font-weight:700}
+
+  /* ── Fichas de elementos ── */
+  .el-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-top:8px}
+  .el{border:1px solid var(--border);border-radius:6px;padding:10px 12px;background:#fafafa;font-size:12px}
+  .el-tag{display:inline-block;padding:1px 7px;border-radius:4px;font-size:10px;
+          font-weight:700;margin-bottom:4px}
+  .tag-btn   {background:#dbeafe;color:#1e40af}
+  .tag-field {background:#fef9c3;color:#854d0e}
+  .tag-table {background:#dcfce7;color:#166534}
+  .tag-alert {background:#fee2e2;color:#991b1b}
+  .tag-ai    {background:#ede9fe;color:#5b21b6}
+  .tag-flow  {background:#ffedd5;color:#92400e}
+  .el strong{display:block;font-size:12px;color:var(--text);margin-bottom:3px}
+  .el p{color:#555;line-height:1.4}
+
+  /* ── AI call-out ── */
+  .ai-box{background:#faf5ff;border:1px solid #c4b5fd;border-radius:8px;
+          padding:12px 14px;margin:10px 0;font-size:12px}
+  .ai-box-title{color:var(--ai);font-weight:700;font-size:11px;
+                text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+  .ai-box p{color:#4c1d95;line-height:1.5}
+
+  /* ── Alerta ── */
+  .alert-box{border-radius:8px;padding:12px 14px;margin:10px 0;font-size:12px}
+  .alert-warn{background:#fffbeb;border:1px solid #fbbf24}
+  .alert-danger{background:#fef2f2;border:1px solid #f87171}
+  .alert-success{background:#f0fdf4;border:1px solid #86efac}
+  .alert-box strong{display:block;margin-bottom:3px}
+
+  /* ── Flujo de pasos ── */
+  .flow{display:flex;flex-wrap:wrap;gap:0;margin:12px 0;align-items:center}
+  .flow-step{background:var(--blue);color:#fff;font-size:11px;font-weight:600;
+             padding:6px 14px;border-radius:4px;white-space:nowrap}
+  .flow-arrow{color:#aaa;font-size:16px;padding:0 4px}
+  .flow-step.step-ai{background:var(--ai)}
+  .flow-step.step-warn{background:var(--warn)}
+  .flow-step.step-ok{background:var(--success)}
+
+  /* ── DB ref ── */
+  .db-ref{font-size:11px;color:#94a3b8;font-style:italic;margin-top:10px;
+          border-top:1px dashed var(--border);padding-top:8px}
+
+  /* ── Separador de sección ── */
+  h3{font-size:14px;font-weight:700;color:var(--dark);margin:20px 0 8px;
+     padding-bottom:4px;border-bottom:2px solid var(--light)}
+
+  .badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;
+         border-radius:12px;vertical-align:middle;margin-left:6px}
+  .badge-ai{background:#ede9fe;color:#5b21b6}
+  .badge-new{background:#dcfce7;color:#15803d}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     PORTADA
+══════════════════════════════════════════════ -->
+<div class="cover">
+  <h1>Historia Clínica Digital para IPS de Imagenología</h1>
+  <p>Prototipo de Interacción y Especificación Visual — Documento de referencia para Spec Driven Development</p>
+  <div class="meta">
+    <span>Metodología: SDD</span>
+    <span>Módulos: 6</span>
+    <span>Roles: 5</span>
+    <span>IA integrada en cada módulo</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     TABLA DE CONTENIDO
+══════════════════════════════════════════════ -->
+<nav class="toc">
+  <a href="#m1">① Admisiones</a>
+  <a href="#m2">② Anamnesis y Seguridad</a>
+  <a href="#m3">③ Registro Técnico</a>
+  <a href="#m4">④ Diagnóstico Radiológico</a>
+  <a href="#m5">⑤ Portal del Paciente</a>
+  <a href="#m6">⑥ Calidad y Dashboard</a>
+</nav>
+
+
+<!-- ══════════════════════════════════════════════
+     MÓDULO 1 — GESTIÓN DE PACIENTES Y ADMISIONES
+══════════════════════════════════════════════ -->
+<section class="module" id="m1">
+  <div class="module-header">
+    <div class="module-num">1</div>
+    <h2>Gestión de Pacientes y Admisiones</h2>
+  </div>
+  <div class="module-role">
+    Roles principales: <span>Personal Administrativo</span><span>Admisiones</span>
+  </div>
+
+  <!-- PANTALLA 1.1 -->
+  <div class="screen">
+    <div class="screen-title">🔍 Pantalla 1.1 — Búsqueda y Registro de Paciente</div>
+    <div class="screen-body">
+
+      <div class="ui-zone">
+        <div class="ui-zone-label">Barra de búsqueda global inteligente</div>
+        <div class="el-grid">
+          <div class="el">
+            <span class="el-tag tag-field">[Campo de Texto]</span>
+            <strong>Buscar paciente</strong>
+            <p>Acepta: nombre, número de documento, fecha de nacimiento o teléfono. Búsqueda difusa: "Gonsalez" encuentra "González".</p>
+          </div>
+          <div class="el">
+            <span class="el-tag tag-ai">[IA — Autocompletar]</span>
+            <strong>Sugerencias en tiempo real</strong>
+            <p>Después de 3 caracteres despliega dropdown con hasta 5 coincidencias ordenadas por frecuencia de visita. Muestra foto (si existe), nombre, documento y última visita.</p>
+          </div>
+          <div class="el">
+            <span class="el-tag tag-btn">[Botón] Nuevo Paciente</span>
+            <strong>Habilitado condicionalmente</strong>
+            <p>Se activa solo si la búsqueda no arroja resultados. Prellenado automático con los datos que el usuario ya escribió en el campo.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-box">
+        <div class="ai-box-title">🤖 IA — Detección de Duplicados</div>
+        <p>Al registrar un paciente nuevo, el sistema compara nombre + fecha de nacimiento contra la base existente. Si la similitud supera el 85 %, muestra un aviso: <em>"¿Es este el mismo paciente? [Ramón González, CC 12345, nacido 1978-03-14]"</em> con botones [Sí, es el mismo] / [No, crear nuevo]. Evita duplicaciones de historia clínica.</p>
+      </div>
+
+      <h3>Formulario de Registro / Edición de Paciente</h3>
+      <div class="ui-zone">
+        <div class="ui-zone-label">Campos del formulario — comportamiento dinámico</div>
+        <div class="el-grid">
+          <div class="el">
+            <span class="el-tag tag-field">[Campo] Número de documento</span>
+            <strong>Validación de formato en tiempo real</strong>
+            <p>Verifica dígito de verificación para CC colombiana. Formato rojo/verde al lado del campo.</p>
+          </div>
+          <div class="el">
+            <span class="el-tag tag-field">[Campo] Correo electrónico</span>
+            <strong>Vinculado al Portal del Paciente</strong>
+            <p>Al ingresarlo se activa el toggle [Activar acceso portal]. Validación de formato @dominio.tld instantánea.</p>
+          </div>
+          <div class="el">
+            <span class="el-tag tag-field">[Campos] Peso y Talla</span>
+            <strong>IMC calculado automáticamente</strong>
+            <p>Muestra el IMC y categoría (Normal / Sobrepeso / Obesidad) debajo de los campos, relevante para protocolos de contraste.</p>
+          </div>
+          <div class="el">
+            <span class="el-tag tag-field">[Campo] Sexo biológico</span>
+            <strong>Afecta el cuestionario de seguridad</strong>
+            <p>Si es "Femenino" y edad entre 12–55 años, el módulo 2 habilitará automáticamente la pregunta de embarazo.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="db-ref">📦 Tablas BD: <code>Pacientes</code> (id_paciente, nombre_completo, numero_documento, fecha_nacimiento, sexo, peso_kg, talla_cm, email)</div>
+    </div>
+  </div>
+
+  <!-- PANTALLA 1.2 -->
+  <div class="screen">
+    <div class="screen-title">📅 Pantalla 1.2 — Agendamiento y Apertura de Estudio</div>
+    <div class="screen-body">
+
+      <div class="flow">
+        <div class="flow-step">Seleccionar paciente</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">Elegir tipo de estudio</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step step-ai">IA valida convenio</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">Asignar fecha/equipo</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step step-ok">Abrir estudio</div>
+      </div>
+
+      <div class="el-grid">
+        <div class="el">
+          <span class="el-tag tag-field">[Selector] Tipo de estudio</span>
+          <strong>Lista jerárquica filtrable</strong>
+          <p>Rayos X → Tórax PA / Columna / …; Resonancia → Cerebro / Rodilla / …; Ecografía → …. Filtra con texto libre.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-ai">[IA] Validación de convenio</span>
+          <strong>Cobertura en tiempo real</strong>
+          <p>Al seleccionar el estudio, consulta el convenio del paciente y muestra: ✅ Cubierto / ⚠ Requiere autorización / ❌ No cubierto + copago estimado.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-field">[Campo] Diagnóstico presuntivo / CIE-10</span>
+          <strong>Autocompletado por código o texto</strong>
+          <p>Escribe "neumo" y sugiere todos los CIE-10 relacionados. El campo acepta ambos formatos.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-field">[Área] Resumen clínico</span>
+          <strong>Pre-análisis por IA</strong>
+          <p>Al pegar o escribir el resumen clínico, la IA subraya términos clave (alergias, comorbilidades, medicamentos) y los propaga al módulo de seguridad.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-btn">[Botón] Abrir Estudio</span>
+          <strong>Habilitado solo si campos obligatorios completos</strong>
+          <p>Genera el id_estudio y redirige al módulo de Anamnesis con estado "En proceso".</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-btn">[Botón] Enviar Recordatorio</span>
+          <strong>Automático por email/SMS</strong>
+          <p>Envía instrucciones de preparación específicas al tipo de estudio (ej.: "Ayuno 4 horas para ecografía abdominal").</p>
+        </div>
+      </div>
+
+      <div class="db-ref">📦 Tablas BD: <code>Estudios</code> (id_estudio, id_paciente, tipo_estudio, diagnostico_presuntivo, cie10, resumen_clinico, estado_estudio)</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     MÓDULO 2 — ANAMNESIS Y SEGURIDAD
+══════════════════════════════════════════════ -->
+<section class="module" id="m2">
+  <div class="module-header">
+    <div class="module-num">2</div>
+    <h2>Anamnesis y Seguridad del Paciente</h2>
+  </div>
+  <div class="module-role">
+    Roles principales: <span>Tecnólogo en Imágenes Diagnósticas</span><span>Enfermería</span>
+  </div>
+
+  <!-- PANTALLA 2.1 -->
+  <div class="screen">
+    <div class="screen-title">🛡 Pantalla 2.1 — Cuestionario Dinámico de Seguridad</div>
+    <div class="screen-body">
+
+      <div class="ui-zone">
+        <div class="ui-zone-label">Encabezado de contexto — siempre visible</div>
+        <div class="el-grid">
+          <div class="el">
+            <span class="el-tag tag-flow">[Panel fijo superior]</span>
+            <strong>Ficha del paciente + estudio activo</strong>
+            <p>Nombre, documento, edad calculada en tiempo real, tipo de estudio. Barra de progreso del cuestionario (Paso X de N).</p>
+          </div>
+          <div class="el">
+            <span class="el-tag tag-alert">[Indicador] Estado de alerta</span>
+            <strong>Semáforo de riesgo</strong>
+            <p>🟢 Sin riesgo / 🟡 Riesgo moderado / 🔴 Riesgo alto. Se actualiza en tiempo real conforme se responde el formulario.</p>
+          </div>
+        </div>
+      </div>
+
+      <h3>Preguntas de seguridad adaptativas</h3>
+      <div class="el-grid">
+        <div class="el">
+          <span class="el-tag tag-field">[Toggle] ¿Posibilidad de embarazo?</span>
+          <strong>Visible solo si: sexo femenino + edad 12–55</strong>
+          <p>Si "Sí": bloquea el botón [Iniciar estudio con contraste] y activa flujo de consentimiento adicional. Si "No confirmar": solicita firma digital de declaración.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-field">[Toggle] ¿Alergia a medios de contraste?</span>
+          <strong>Visible si: estudio requiere contraste</strong>
+          <p>Si "Sí" o "No sé": despliega subpregunta "¿Qué tipo de reacción?" con opciones + campo libre. Activa alerta naranja y sugiere premedicación.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-field">[Toggle] ¿Insuficiencia renal?</span>
+          <strong>Condicional a uso de contraste</strong>
+          <p>Si "Sí": aparece campo [Valor de creatinina (mg/dL)] + fecha del examen. Si creatinina > 1.5 o desconocida: alerta roja, bloquea contraste yodado.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-field">[Checklist] Implantes / cuerpos metálicos</span>
+          <strong>Visible si: estudio = RM</strong>
+          <p>Marcapasos / Prótesis metálica / Clips vasculares / Stents / DIU / Tatoos con tintas metálicas. Cada "Sí" genera alerta específica con protocolo de acción.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-field">[Área] Observaciones de seguridad</span>
+          <strong>Dictado por voz disponible</strong>
+          <p>Ícono 🎤 activa reconocimiento de voz. La IA transcribe y luego resume en bullet points los puntos de atención.</p>
+        </div>
+      </div>
+
+      <div class="ai-box">
+        <div class="ai-box-title">🤖 IA — Detección de riesgo cruzado</div>
+        <p>Al completar el cuestionario, la IA cruza las respuestas con el resumen clínico del Módulo 1 y el historial de estudios anteriores. Ejemplo: si el paciente declaró "sin alergias" pero en un estudio previo se registró "reacción leve al contraste yodado", aparece un aviso: <em>"⚠ Advertencia: en el estudio del 12-ene-2024 se registró reacción al contraste. ¿Confirmar o actualizar?"</em></p>
+      </div>
+
+      <div class="alert-box alert-danger">
+        <strong>🔴 Ejemplo de alerta roja generada dinámicamente</strong>
+        El sistema detecta: creatinina 2.1 + contraste yodado programado. Muestra: <em>"No se puede proceder con contraste yodado. Creatinina fuera de rango seguro (2.1 mg/dL > 1.5). Acciones sugeridas: [Solicitar nueva creatinina] [Cambiar a protocolo sin contraste] [Notificar al radiólogo]."</em>
+      </div>
+
+      <h3>Consentimiento informado digital</h3>
+      <div class="el-grid">
+        <div class="el">
+          <span class="el-tag tag-btn">[Botón] Generar consentimiento</span>
+          <strong>Prellenado con datos del estudio</strong>
+          <p>Genera PDF personalizado con nombre del paciente, tipo de estudio, riesgos específicos identificados en el cuestionario.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-ai">[IA] Resumen en lenguaje simple</span>
+          <strong>Para el paciente</strong>
+          <p>Botón [Explicar en lenguaje sencillo] genera un resumen del consentimiento a nivel de comprensión lectora básica. Disponible en modo tableta para mostrar al paciente.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-field">[Campo] Firma digital</span>
+          <strong>Canvas táctil o firma por clave</strong>
+          <p>El paciente firma con el dedo en tableta o con código de 4 dígitos enviado por SMS. Timestamp + IP registrados.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-btn">[Botón] Continuar al Registro Técnico</span>
+          <strong>Bloqueado hasta: firma registrada + alertas críticas resueltas</strong>
+          <p>Si hay alerta roja sin resolver muestra tooltip: "Resuelve las alertas de seguridad antes de continuar".</p>
+        </div>
+      </div>
+
+      <div class="db-ref">📦 Tablas BD: <code>CuestionarioSeguridad</code> · <code>Consentimientos</code></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     MÓDULO 3 — REGISTRO TÉCNICO
+══════════════════════════════════════════════ -->
+<section class="module" id="m3">
+  <div class="module-header">
+    <div class="module-num">3</div>
+    <h2>Registro Técnico del Procedimiento</h2>
+  </div>
+  <div class="module-role">
+    Roles principales: <span>Tecnólogo en Imágenes Diagnósticas</span>
+  </div>
+
+  <div class="screen">
+    <div class="screen-title">⚙️ Pantalla 3.1 — Formulario Técnico del Estudio</div>
+    <div class="screen-body">
+
+      <div class="flow">
+        <div class="flow-step">Seleccionar equipo</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step step-ai">IA sugiere protocolo</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">Registrar contraste</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step step-warn">Vigilar eventos adversos</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step step-ok">Finalizar + enviar al radiólogo</div>
+      </div>
+
+      <div class="el-grid">
+        <div class="el">
+          <span class="el-tag tag-field">[Selector] Equipo utilizado</span>
+          <strong>Inventario en tiempo real</strong>
+          <p>Lista de equipos disponibles con estado (✅ Disponible / 🔧 En mantenimiento / ⚡ En uso). Al seleccionar, carga los protocolos disponibles para ese equipo.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-ai">[IA] Protocolo sugerido</span>
+          <strong>Basado en: tipo de estudio + hallazgos previos + peso del paciente</strong>
+          <p>Muestra el protocolo recomendado con justificación. El tecnólogo puede aceptarlo con un clic o modificarlo. La modificación queda auditada.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-field">[Selector] Tipo de contraste</span>
+          <strong>Condicional a la seguridad</strong>
+          <p>Si el cuestionario de seguridad marcó alergia o creatinina elevada, el selector omite los contrastes contraindicados y los muestra en gris con tooltip explicativo.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-field">[Campo] Volumen de contraste (ml)</span>
+          <strong>Validación por peso del paciente</strong>
+          <p>Rango sugerido calculado automáticamente: [peso_kg × factor_protocolo]. Si el valor ingresado excede el 120 % del máximo: alerta naranja. Si excede el 150 %: alerta roja bloqueante.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-field">[Checklist] Eventos adversos</span>
+          <strong>Visible siempre; obligatorio si se usó contraste</strong>
+          <p>Opciones: Sin eventos / Náusea leve / Urticaria / Broncoespasmo / Anafilaxia. Al seleccionar evento mayor: despliega formulario de reporte urgente y notifica al médico de guardia.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-btn">[Botón] Finalizar y Enviar al Radiólogo</span>
+          <strong>Activa notificación push al radiólogo asignado</strong>
+          <p>El estudio pasa a estado "Pendiente de informe". El radiólogo recibe alerta con resumen del caso y prioridad calculada por IA.</p>
+        </div>
+      </div>
+
+      <div class="ai-box">
+        <div class="ai-box-title">🤖 IA — Priorización automática de cola</div>
+        <p>Al finalizar el registro técnico, el sistema calcula la prioridad del estudio para el radiólogo considerando: urgencia clínica del diagnóstico presuntivo, tiempo en espera, tipo de estudio y carga actual del radiólogo. Asigna prioridad 🔴 Alta / 🟡 Media / 🟢 Normal visible en la bandeja del radiólogo.</p>
+      </div>
+
+      <div class="db-ref">📦 Tablas BD: <code>RegistroTecnico</code> (id_registro_tecnico, id_estudio, id_tecnologo, equipo_utilizado, protocolo_aplicado, tipo_contraste, volumen_contraste_ml, eventos_adversos)</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     MÓDULO 4 — DIAGNÓSTICO Y REPORTE RADIOLÓGICO
+══════════════════════════════════════════════ -->
+<section class="module" id="m4">
+  <div class="module-header">
+    <div class="module-num">4</div>
+    <h2>Diagnóstico y Reporte Radiológico</h2>
+  </div>
+  <div class="module-role">
+    Roles principales: <span>Médico Radiólogo</span>
+  </div>
+
+  <!-- PANTALLA 4.1 -->
+  <div class="screen">
+    <div class="screen-title">🩻 Pantalla 4.1 — Bandeja de Estudios del Radiólogo</div>
+    <div class="screen-body">
+
+      <div class="ui-zone">
+        <div class="ui-zone-label">Lista de estudios pendientes — tabla interactiva</div>
+        <div class="el-grid">
+          <div class="el">
+            <span class="el-tag tag-table">[Tabla] Cola de estudios</span>
+            <strong>Columnas: Prioridad · Paciente · Tipo de estudio · Tecnólogo · Tiempo en espera · Alertas de seguridad</strong>
+            <p>Ordenable por cualquier columna. Filtros rápidos por tipo de estudio, prioridad, equipo. Resaltado de filas con alerta de seguridad activa.</p>
+          </div>
+          <div class="el">
+            <span class="el-tag tag-ai">[IA] Resumen previo al clic</span>
+            <strong>Tooltip inteligente al hacer hover</strong>
+            <p>Al pasar el cursor sobre una fila, muestra tarjeta emergente con: diagnóstico presuntivo, alertas de seguridad relevantes, estudios previos del mismo paciente y su conclusión.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PANTALLA 4.2 -->
+  <div class="screen">
+    <div class="screen-title">📝 Pantalla 4.2 — Redacción del Informe Radiológico</div>
+    <div class="screen-body">
+
+      <div class="ui-zone">
+        <div class="ui-zone-label">Layout de 3 columnas</div>
+        <div class="el-grid">
+          <div class="el">
+            <span class="el-tag tag-flow">[Panel izquierdo] Contexto clínico</span>
+            <strong>Solo lectura, siempre visible</strong>
+            <p>Ficha del paciente, diagnóstico presuntivo, CIE-10, resumen clínico, alertas de seguridad, estudios previos con miniatura y conclusión anterior.</p>
+          </div>
+          <div class="el">
+            <span class="el-tag tag-field">[Panel central] Editor de informe</span>
+            <strong>Editor de texto enriquecido con comandos de IA</strong>
+            <p>Secciones estructuradas: Técnica / Hallazgos / Conclusión. Cada sección tiene su propio asistente de IA.</p>
+          </div>
+          <div class="el">
+            <span class="el-tag tag-ai">[Panel derecho] Asistente IA</span>
+            <strong>Contextual a la sección activa</strong>
+            <p>Cambia automáticamente según dónde esté el cursor: sugiere hallazgos frecuentes para el tipo de estudio, terminología RADS, comparativa con estudios previos.</p>
+          </div>
+        </div>
+      </div>
+
+      <h3>Funcionalidades de IA en el editor</h3>
+      <div class="el-grid">
+        <div class="el">
+          <span class="el-tag tag-ai">[IA] Plantillas inteligentes</span>
+          <strong>Adaptadas al tipo de estudio</strong>
+          <p>Botón [Cargar plantilla] sugiere la plantilla más usada por ese radiólogo para el mismo tipo de estudio. Preguntas guía desplegables (ej: "¿Evaluaste el mediastino?").</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-ai">[IA] Dictado + transcripción</span>
+          <strong>Reconocimiento de voz médico</strong>
+          <p>Ícono 🎤 en cada sección. Vocabulario médico especializado. Post-procesamiento: estructura el dictado libre en secciones del informe automáticamente.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-ai">[IA] Sugerencias de hallazgos</span>
+          <strong>Basadas en tipo de estudio e historial</strong>
+          <p>En la sección "Hallazgos", la IA propone descriptores frecuentes. Ej. para Tórax PA: "Índice cardiotorácico aumentado / Consolidación bibasal / Derrame pleural". Un clic inserta el texto.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-ai">[IA] Sistema de clasificación automático</span>
+          <strong>BI-RADS / TI-RADS / PI-RADS / LI-RADS</strong>
+          <p>Detecta el tipo de estudio y sugiere la categoría según el texto de hallazgos. Ej: si escribe "nódulo espiculado de 1.5 cm", sugiere BI-RADS 4B con enlace a la guía ACR.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-ai">[IA] Comparativa con estudio previo</span>
+          <strong>Análisis de progresión</strong>
+          <p>Si existe estudio previo del mismo tipo, botón [Comparar con anterior] abre vista dividida: informe anterior vs. actual. La IA destaca diferencias y sugiere frases de evolución.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-ai">[IA] Coherencia diagnóstica</span>
+          <strong>Validación antes de firmar</strong>
+          <p>Al hacer clic en [Firmar informe], la IA verifica coherencia entre hallazgos y conclusión. Si detecta inconsistencia (ej: "hallazgos normales" + conclusión con patología), alerta para revisión.</p>
+        </div>
+      </div>
+
+      <div class="ui-zone">
+        <div class="ui-zone-label">Botonera de acciones del informe</div>
+        <div class="el-grid">
+          <div class="el">
+            <span class="el-tag tag-btn">[Botón] Guardar borrador</span>
+            <p>Autoguardado cada 60 seg. También manual. No notifica al paciente ni al área clínica.</p>
+          </div>
+          <div class="el">
+            <span class="el-tag tag-btn">[Botón] Solicitar segunda opinión</span>
+            <p>Envía el borrador a otro radiólogo del sistema con campo de nota. El estado cambia a "En revisión por par".</p>
+          </div>
+          <div class="el">
+            <span class="el-tag tag-btn">[Botón] Generar informe para paciente</span>
+            <strong>Activa IA de traducción</strong>
+            <p>Genera borrador de informe_amigable automáticamente. El radiólogo puede revisar y ajustar antes de aprobar.</p>
+          </div>
+          <div class="el">
+            <span class="el-tag tag-btn">[Botón] Firmar y Publicar</span>
+            <strong>Acción irreversible con confirmación</strong>
+            <p>Requiere contraseña o biometría. Publica el informe, notifica al médico remitente y activa el acceso en el portal del paciente.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="db-ref">📦 Tablas BD: <code>InformesRadiologicos</code> · <code>InformesPaciente</code></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     MÓDULO 5 — PORTAL DEL PACIENTE
+══════════════════════════════════════════════ -->
+<section class="module" id="m5">
+  <div class="module-header">
+    <div class="module-num">5</div>
+    <h2>Acceso a Resultados — Portal del Paciente</h2>
+  </div>
+  <div class="module-role">
+    Roles principales: <span>Paciente</span>
+  </div>
+
+  <div class="screen">
+    <div class="screen-title">📱 Pantalla 5.1 — Inicio de sesión y Dashboard del Paciente</div>
+    <div class="screen-body">
+
+      <div class="el-grid">
+        <div class="el">
+          <span class="el-tag tag-field">[Campo] Acceso por documento + clave / link mágico</span>
+          <strong>Sin contraseña compleja</strong>
+          <p>Opción de link de un solo uso enviado al email registrado. Acceso con huella en dispositivos compatibles.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-flow">[Panel] Mis estudios</span>
+          <strong>Lista cronológica</strong>
+          <p>Tarjeta por estudio con: tipo, fecha, estado (🟡 Procesando / ✅ Disponible / 📋 Requiere cita). Solo estudios con informe firmado son visibles.</p>
+        </div>
+      </div>
+
+      <h3>Vista de Resultado — Informe Amigable</h3>
+      <div class="el-grid">
+        <div class="el">
+          <span class="el-tag tag-ai">[IA] Informe en lenguaje sencillo</span>
+          <strong>Tab "Mi resultado" (lenguaje simple)</strong>
+          <p>Traducción automática del informe técnico a lenguaje de 6to grado. Usa analogías visuales. Ej: "Se encontró una pequeña sombra en el pulmón izquierdo, del tamaño de un guisante."</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-flow">[Tab] "Informe técnico"</span>
+          <strong>PDF original firmado</strong>
+          <p>Disponible para el paciente o su médico tratante. Descargable, con código QR de verificación de autenticidad.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-ai">[IA] Chat de preguntas sobre el resultado</span>
+          <strong>"¿Qué significa esto?"</strong>
+          <p>El paciente puede hacer preguntas sobre su informe. La IA responde en lenguaje simple, limitada al contenido del informe aprobado. Incluye disclaimer: "Consulta a tu médico para decisiones clínicas".</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-btn">[Botón] Compartir con mi médico</span>
+          <strong>Link seguro con expiración</strong>
+          <p>Genera URL de acceso temporal (72h configurable) para que el médico tratante vea el informe completo sin necesidad de cuenta en el sistema.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-btn">[Botón] Agendar cita de seguimiento</span>
+          <strong>Visible si: informe indica seguimiento recomendado</strong>
+          <p>La IA detecta frases como "control en 6 meses" y activa el botón con la fecha sugerida prellenada en el agendador.</p>
+        </div>
+      </div>
+
+      <div class="ai-box">
+        <div class="ai-box-title">🤖 IA — Personalización del contenido amigable</div>
+        <p>El contenido del informe amigable se adapta al perfil del paciente: edad, nivel educativo (inferido por el historial de interacción), idioma preferido. Para pacientes mayores de 70 años, aumenta el tamaño de fuente automáticamente y simplifica aún más el vocabulario. Disponible traducción al inglés para pacientes extranjeros.</p>
+      </div>
+
+      <div class="db-ref">📦 Tablas BD: <code>InformesPaciente</code> (contenido_amigable, aprobado_radiologo) · <code>Pacientes</code></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     MÓDULO 6 — ADMINISTRACIÓN Y CALIDAD
+══════════════════════════════════════════════ -->
+<section class="module" id="m6">
+  <div class="module-header">
+    <div class="module-num">6</div>
+    <h2>Administración y Calidad</h2>
+  </div>
+  <div class="module-role">
+    Roles principales: <span>Jefe de Calidad</span><span>Administración</span>
+  </div>
+
+  <div class="screen">
+    <div class="screen-title">📊 Pantalla 6.1 — Dashboard de Calidad con Insights de IA</div>
+    <div class="screen-body">
+
+      <div class="ui-zone">
+        <div class="ui-zone-label">KPI Cards — fila superior (métricas en tiempo real)</div>
+        <div class="el-grid">
+          <div class="el">
+            <span class="el-tag tag-table">[Tarjeta] Tiempo promedio de informe</span>
+            <p>Desde finalización técnica hasta firma del radiólogo. Tendencia sparkline. Alerta si supera el SLA configurado.</p>
+          </div>
+          <div class="el">
+            <span class="el-tag tag-table">[Tarjeta] Tasa de alertas de seguridad</span>
+            <p>% de estudios con al menos una alerta. Desglosado por tipo (embarazo, contraste, implantes).</p>
+          </div>
+          <div class="el">
+            <span class="el-tag tag-table">[Tarjeta] Satisfacción del paciente</span>
+            <p>Promedio de encuesta NPS enviada automáticamente post-resultado. Comparado con mes anterior.</p>
+          </div>
+          <div class="el">
+            <span class="el-tag tag-table">[Tarjeta] Eventos adversos</span>
+            <p>Conteo mensual. Sparkline de tendencia. Clic navega a lista detallada filtrable.</p>
+          </div>
+        </div>
+      </div>
+
+      <h3>Análisis e Insights de IA</h3>
+      <div class="ai-box">
+        <div class="ai-box-title">🤖 IA — Resumen ejecutivo diario</div>
+        <p>Cada mañana el sistema genera un párrafo de resumen ejecutivo: <em>"Ayer se procesaron 47 estudios. El tiempo promedio de informe fue 38 min (↓12% vs. semana anterior). Se registraron 3 alertas de contraste, todas resueltas sin eventos adversos. Radiólogo con mayor carga: Dr. Suárez (18 informes). Recomendación: redistribuir 5 estudios de RM al turno de la tarde."</em></p>
+      </div>
+
+      <div class="el-grid">
+        <div class="el">
+          <span class="el-tag tag-ai">[IA] Detección de patrones de riesgo</span>
+          <strong>Alertas proactivas de calidad</strong>
+          <p>Detecta: aumento en tasa de eventos adversos, concentración de errores en un tecnólogo o turno, discrepancias frecuentes entre diagnóstico presuntivo y conclusión del radiólogo.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-table">[Gráfico] Heatmap de carga por hora</span>
+          <strong>Planificación de turnos</strong>
+          <p>Mapa de calor: X = hora del día, Y = día de semana, intensidad = número de estudios. La IA resalta los cuellos de botella históricos.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-table">[Tabla] Auditoría de accesos</span>
+          <strong>Trazabilidad completa</strong>
+          <p>Quién vio qué historia clínica, cuándo, desde qué dispositivo/IP. Filtros por usuario, rango de fechas, tipo de dato accedido.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-btn">[Botón] Exportar reporte de calidad</span>
+          <strong>Para entes de control (Supersalud, etc.)</strong>
+          <p>Genera PDF o Excel con indicadores del periodo seleccionado. Formato estandarizado para reportes obligatorios.</p>
+        </div>
+      </div>
+
+      <h3>Herramientas de auditoría de informes</h3>
+      <div class="el-grid">
+        <div class="el">
+          <span class="el-tag tag-ai">[IA] Revisión de concordancia</span>
+          <strong>Estadística de diagnósticos</strong>
+          <p>Compara diagnósticos presuntivos de admisiones vs. conclusiones de informes. Identifica categorías de estudios donde la concordancia es baja y sugiere capacitación.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-field">[Filtros] Búsqueda de estudios para auditoría</span>
+          <strong>Por radiólogo / período / tipo / alerta</strong>
+          <p>Selección múltiple para auditoría aleatoria. Botón [Asignar para revisión de par] con notificación automática.</p>
+        </div>
+      </div>
+
+      <div class="db-ref">📦 Tablas BD: <code>Estudios</code> · <code>RegistroTecnico</code> · <code>InformesRadiologicos</code> · <code>CuestionarioSeguridad</code> · <code>Usuarios</code></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     APÉNDICE — PATRONES DE INTERACCIÓN GLOBALES
+══════════════════════════════════════════════ -->
+<section class="module" id="apendice">
+  <div class="module-header">
+    <div class="module-num" style="background:var(--teal)">A</div>
+    <h2>Patrones de Interacción Globales</h2>
+  </div>
+
+  <div class="screen">
+    <div class="screen-title">🔁 Flujos y Convenciones Transversales</div>
+    <div class="screen-body">
+
+      <h3>Estados del estudio y transiciones bloqueantes</h3>
+      <div class="flow">
+        <div class="flow-step">Agendado</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">Cuestionario firmado</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">Registro técnico completo</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">En diagnóstico</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step step-ok">Informe publicado</div>
+      </div>
+      <p style="font-size:12px;color:#666;margin-top:8px">Cada flecha es una puerta bloqueante: no se puede avanzar al siguiente estado sin completar los requisitos del estado anterior.</p>
+
+      <h3 style="margin-top:20px">Convenciones visuales de IA en toda la aplicación</h3>
+      <div class="el-grid">
+        <div class="el">
+          <span class="el-tag tag-ai">✨ Ícono IA</span>
+          <strong>Todo contenido sugerido por IA lleva este ícono</strong>
+          <p>El usuario siempre sabe qué fue escrito por él y qué fue generado por IA. El contenido IA es editable y la aceptación queda auditada.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-alert">🔴 Alertas rojas</span>
+          <strong>Bloqueantes — requieren acción antes de continuar</strong>
+          <p>Modal con descripción del riesgo, normativa de referencia y acciones concretas disponibles.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-field">🟡 Alertas naranjas</span>
+          <strong>Advertencias — no bloquean pero requieren confirmación</strong>
+          <p>Banner en la parte superior del formulario con opción [Confirmar que soy consciente del riesgo] + campo de justificación.</p>
+        </div>
+        <div class="el">
+          <span class="el-tag tag-btn">Botones primarios azules</span>
+          <strong>Acciones que avanzan el flujo</strong>
+          <p>Siempre en la esquina inferior derecha. Deshabilitados (gris) mientras faltan requisitos; tooltip explica qué falta.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

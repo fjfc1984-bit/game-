@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Historia Clínica Digital — Imagen Salud</title>
+  <link rel="stylesheet" href="historia-clinica.css"/>
+</head>
+<body>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<!-- Overlay para sidebar en móvil -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Modal global -->
+<div class="modal-overlay hidden" id="globalModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalTitle">Título</h2>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+
+<div id="app-container">
+
+  <!-- ── HEADER ──────────────────────────────── -->
+  <header id="app-header">
+    <div class="header-left">
+      <button class="btn-toggle" id="btn-toggle" aria-label="Colapsar menú">
+        <span></span><span></span><span></span>
+      </button>
+      <a href="#" class="header-logo" onclick="loadModule('dashboard');return false;">
+        IMAGEN <span>SALUD</span>
+      </a>
+    </div>
+
+    <div class="header-search">
+      <input type="search" id="globalSearch" placeholder="Buscar paciente, historia, cita…"/>
+    </div>
+
+    <div class="header-right">
+      <div class="notification-badge" id="notifBell" title="Notificaciones">
+        🔔 <span class="badge-count" id="notifCount">3</span>
+      </div>
+      <div class="header-user" id="headerUser">
+        <div class="header-avatar">DR</div>
+        <div class="header-user-info">
+          <div class="name">Dr. Ramírez</div>
+          <div class="role">Médico General</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── SIDEBAR ─────────────────────────────── -->
+  <aside id="app-sidebar">
+    <nav>
+
+      <div class="sidebar-section-label">Principal</div>
+      <ul>
+        <li><a href="#" data-module="dashboard" data-tooltip="Inicio">
+          <span class="nav-icon">🏠</span><span class="nav-label">Inicio / Dashboard</span>
+        </a></li>
+        <li><a href="#" data-module="pacientes" data-tooltip="Pacientes">
+          <span class="nav-icon">👥</span><span class="nav-label">Pacientes</span>
+          <span class="nav-badge" id="badge-pacientes">12</span>
+        </a></li>
+        <li><a href="#" data-module="agenda" data-tooltip="Agenda">
+          <span class="nav-icon">📅</span><span class="nav-label">Agenda / Citas</span>
+          <span class="nav-badge" id="badge-agenda">5</span>
+        </a></li>
+      </ul>
+
+      <div class="sidebar-section-label">Historia Clínica</div>
+      <ul>
+        <li><a href="#" data-module="anamnesis" data-tooltip="Anamnesis">
+          <span class="nav-icon">📋</span><span class="nav-label">Anamnesis</span>
+        </a></li>
+        <li><a href="#" data-module="examen" data-tooltip="Examen Físico">
+          <span class="nav-icon">🩺</span><span class="nav-label">Examen Físico</span>
+        </a></li>
+        <li><a href="#" data-module="diagnosticos" data-tooltip="Diagnósticos">
+          <span class="nav-icon">🔍</span><span class="nav-label">Diagnósticos (CIE-10)</span>
+        </a></li>
+        <li><a href="#" data-module="ordenes" data-tooltip="Órdenes">
+          <span class="nav-icon">📝</span><span class="nav-label">Órdenes Médicas</span>
+        </a></li>
+        <li><a href="#" data-module="medicamentos" data-tooltip="Medicamentos">
+          <span class="nav-icon">💊</span><span class="nav-label">Medicamentos</span>
+        </a></li>
+      </ul>
+
+      <div class="sidebar-section-label">Servicios</div>
+      <ul>
+        <li><a href="#" data-module="laboratorio" data-tooltip="Laboratorio">
+          <span class="nav-icon">🧪</span><span class="nav-label">Laboratorio</span>
+        </a></li>
+        <li><a href="#" data-module="imagenes" data-tooltip="Imágenes">
+          <span class="nav-icon">🩻</span><span class="nav-label">Imágenes Diagnósticas</span>
+        </a></li>
+        <li><a href="#" data-module="procedimientos" data-tooltip="Procedimientos">
+          <span class="nav-icon">⚕️</span><span class="nav-label">Procedimientos</span>
+        </a></li>
+      </ul>
+
+      <div class="sidebar-section-label">Administración</div>
+      <ul>
+        <li><a href="#" data-module="reportes" data-tooltip="Reportes">
+          <span class="nav-icon">📊</span><span class="nav-label">Reportes</span>
+        </a></li>
+        <li><a href="#" data-module="configuracion" data-tooltip="Configuración">
+          <span class="nav-icon">⚙️</span><span class="nav-label">Configuración</span>
+        </a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer">HC Digital v2.0 · Imagen Salud IPS</div>
+  </aside>
+
+  <!-- ── CONTENIDO PRINCIPAL ─────────────────── -->
+  <main id="app-content">
+
+    <!-- ═══ MÓDULO: DASHBOARD ══════════════════ -->
+    <div class="module-view active" id="mod-dashboard">
+      <nav class="breadcrumb"><a href="#" onclick="loadModule('dashboard');return false;">Inicio</a></nav>
+      <div class="page-header">
+        <div>
+          <h1>Dashboard</h1>
+          <p>Resumen del día — miércoles 29 de mayo de 2025</p>
+        </div>
+        <div class="actions">
+          <button class="btn btn-outline" onclick="showNotifications()">🔔 Notificaciones</button>
+          <button class="btn btn-primary" onclick="loadModule('pacientes')">＋ Nueva consulta</button>
+        </div>
+      </div>
+      <div class="cards-row">
+        <div class="metric-card" onclick="loadModule('agenda')">
+          <div class="metric-card__icon">🗂</div>
+          <div class="metric-card__label">Consultas hoy</div>
+          <div class="metric-card__value">8</div>
+          <div class="metric-card__trend">3 pendientes · 5 atendidas</div>
+        </div>
+        <div class="metric-card" onclick="loadModule('pacientes')">
+          <div class="metric-card__icon">👤</div>
+          <div class="metric-card__label">Pacientes activos</div>
+          <div class="metric-card__value">124</div>
+          <div class="metric-card__trend up">↑ 4 nuevos esta semana</div>
+        </div>
+        <div class="metric-card" onclick="loadModule('agenda')">
+          <div class="metric-card__icon">⏳</div>
+          <div class="metric-card__label">Citas pendientes</div>
+          <div class="metric-card__value">5</div>
+          <div class="metric-card__trend">Próxima: 10:30 am</div>
+        </div>
+        <div class="metric-card" onclick="loadModule('laboratorio')">
+          <div class="metric-card__icon">🧪</div>
+          <div class="metric-card__label">Resultados por revisar</div>
+          <div class="metric-card__value">3</div>
+          <div class="metric-card__trend up">↑ 1 urgente</div>
+        </div>
+      </div>
+      <div class="table-card">
+        <div class="table-card-header">
+          <h3>Citas de hoy</h3>
+          <button class="btn btn-outline" style="font-size:12px;padding:5px 12px;" onclick="loadModule('agenda')">Ver todas →</button>
+        </div>
+        <table class="data-table">
+          <thead><tr><th>Hora</th><th>Paciente</th><th>Motivo</th><th>Estado</th><th>Acción</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>08:00</td><td>García López, María</td><td>Control hipertensión</td>
+              <td><span class="badge badge-done">Atendida</span></td>
+              <td><button class="btn btn-outline" style="font-size:11px;padding:4px 8px;" onclick="abrirHC('García López, María')">Ver HC</button></td>
+            </tr>
+            <tr>
+              <td>09:30</td><td>Martínez Ruiz, Carlos</td><td>Dolor lumbar</td>
+              <td><span class="badge badge-done">Atendida</span></td>
+              <td><button class="btn btn-outline" style="font-size:11px;padding:4px 8px;" onclick="abrirHC('Martínez Ruiz, Carlos')">Ver HC</button></td>
+            </tr>
+            <tr>
+              <td>10:30</td><td>Rodríguez Pérez, Ana</td><td>Seguimiento diabetes</td>
+              <td><span class="badge badge-pending">Pendiente</span></td>
+              <td><button class="btn btn-primary" style="font-size:11px;padding:4px 8px;" onclick="iniciarConsulta('Rodríguez Pérez, Ana')">Iniciar</button></td>
+            </tr>
+            <tr>
+              <td>11:30</td><td>Gómez Torres, Luis</td><td>Cefalea recurrente</td>
+              <td><span class="badge badge-pending">Pendiente</span></td>
+              <td><button class="btn btn-outline" style="font-size:11px;padding:4px 8px;" onclick="iniciarConsulta('Gómez Torres, Luis')">Iniciar</button></td>
+            </tr>
+            <tr>
+              <td>15:00</td><td>Hernández Silva, Rosa</td><td>Primera consulta</td>
+              <td><span class="badge badge-pending">Pendiente</span></td>
+              <td><button class="btn btn-outline" style="font-size:11px;padding:4px 8px;" onclick="iniciarConsulta('Hernández Silva, Rosa')">Iniciar</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ MÓDULO: PACIENTES ══════════════════ -->
+    <div class="module-view" id="mod-pacientes">
+      <nav class="breadcrumb">
+        <a href="#" onclick="loadModule('dashboard');return false;">Inicio</a>
+        <span class="sep">›</span><span>Pacientes</span>
+      </nav>
+      <div class="page-header">
+        <div><h1>Pacientes</h1><p>Gestión del registro de pacientes</p></div>
+        <div class="actions">
+          <button class="btn btn-outline" onclick="showFiltros()">🔽 Filtros</button>
+          <button class="btn btn-primary" onclick="mostrarFormNuevoPaciente()">＋ Nuevo paciente</button>
+        </div>
+      </div>
+      <div class="table-card">
+        <div class="table-card-header">
+          <h3>Listado de pacientes</h3>
+          <div class="table-search">
+            <input type="search" id="searchPacientes" placeholder="Buscar paciente…" oninput="filtrarPacientes(this.value)"/>
+          </div>
+        </div>
+        <table class="data-table" id="tablaPacientes">
+          <thead>
+            <tr>
+              <th onclick="sortTable('tablaPacientes',0)">Nombre ⇅</th>
+              <th onclick="sortTable('tablaPacientes',1)">Documento ⇅</th>
+              <th onclick="sortTable('tablaPacientes',2)">Edad ⇅</th>
+              <th>Última visita</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="pacientesBody">
+            <!-- JS renderiza las filas -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ MÓDULO: AGENDA ═════════════════════ -->
+    <div class="module-view" id="mod-agenda">
+      <nav class="breadcrumb">
+        <a href="#" onclick="loadModule('dashboard');return false;">Inicio</a>
+        <span class="sep">›</span><span>Agenda</span>
+      </nav>
+      <div class="page-header">
+        <div><h1>Agenda / Citas</h1><p>Programación de citas médicas</p></div>
+        <div class="actions">
+          <button class="btn btn-outline" onclick="loadModule('agenda')">◀ Anterior</button>
+          <button class="btn btn-outline" id="agendaFechaLabel" style="min-width:140px;">29 mayo 2025</button>
+          <button class="btn btn-outline" onclick="loadModule('agenda')">Siguiente ▶</button>
+          <button class="btn btn-primary" onclick="mostrarFormCita()">＋ Nueva cita</button>
+        </div>
+      </div>
+      <div class="table-card">
+        <div class="table-card-header"><h3>Citas del día</h3></div>
+        <table class="data-table">
+          <thead><tr><th>Hora</th><th>Paciente</th><th>Tipo</th><th>Médico</th><th>Estado</th><th>Acción</th></tr></thead>
+          <tbody>
+            <tr><td>08:00</td><td>García López, María</td><td>Control</td><td>Dr. Ramírez</td><td><span class="badge badge-done">Atendida</span></td><td><button class="btn btn-outline" style="font-size:11px;padding:4px 8px;" onclick="showToast('Historia clínica abierta','info')">HC</button></td></tr>
+            <tr><td>09:30</td><td>Martínez Ruiz, Carlos</td><td>Urgencia</td><td>Dr. Ramírez</td><td><span class="badge badge-done">Atendida</span></td><td><button class="btn btn-outline" style="font-size:11px;padding:4px 8px;" onclick="showToast('Historia clínica abierta','info')">HC</button></td></tr>
+            <tr><td>10:30</td><td>Rodríguez Pérez, Ana</td><td>Seguimiento</td><td>Dr. Ramírez</td><td><span class="badge badge-pending">Pendiente</span></td><td><button class="btn btn-primary" style="font-size:11px;padding:4px 8px;" onclick="iniciarConsulta('Rodríguez Pérez, Ana')">▶ Iniciar</button></td></tr>
+            <tr><td>11:30</td><td>Gómez Torres, Luis</td><td>Primera vez</td><td>Dr. Ramírez</td><td><span class="badge badge-pending">Pendiente</span></td><td><button class="btn btn-outline" style="font-size:11px;padding:4px 8px;" onclick="iniciarConsulta('Gómez Torres, Luis')">▶ Iniciar</button></td></tr>
+            <tr><td>14:00</td><td>López Vargas, Pedro</td><td>Control</td><td>Dra. Gómez</td><td><span class="badge badge-pending">Pendiente</span></td><td><button class="btn btn-outline" style="font-size:11px;padding:4px 8px;" onclick="showToast('Reasignado a Dra. Gómez','warn')">Ver</button></td></tr>
+            <tr><td>15:00</td><td>Hernández Silva, Rosa</td><td>Primera vez</td><td>Dr. Ramírez</td><td><span class="badge badge-pending">Pendiente</span></td><td><button class="btn btn-outline" style="font-size:11px;padding:4px 8px;" onclick="iniciarConsulta('Hernández Silva, Rosa')">▶ Iniciar</button></td></tr>
+            <tr><td>16:30</td><td>Díaz Moreno, Jorge</td><td>Seguimiento</td><td>Dr. Ramírez</td><td><span class="badge badge-cancelled">Cancelada</span></td><td><button class="btn btn-outline" style="font-size:11px;padding:4px 8px;" onclick="reagendarCita('Díaz Moreno, Jorge')">Reagendar</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ MÓDULO: ANAMNESIS ══════════════════ -->
+    <div class="module-view" id="mod-anamnesis">
+      <nav class="breadcrumb">
+        <a href="#" onclick="loadModule('dashboard');return false;">Inicio</a>
+        <span class="sep">›</span><span>Anamnesis</span>
+      </nav>
+      <div class="page-header">
+        <div><h1>Anamnesis</h1><p id="anamnesisSubtitulo">Paciente: Rodríguez Pérez, Ana · CC: 52.114.887</p></div>
+        <div class="actions">
+          <button class="btn btn-outline" onclick="showToast('Borrador guardado','success')">💾 Guardar borrador</button>
+          <button class="btn btn-primary" onclick="finalizarAnamnesis()">Finalizar ✓</button>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Motivo de consulta</div>
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <label>Motivo principal</label>
+            <input type="text" id="motivoConsulta" placeholder="Ej: Dolor abdominal de 3 días de evolución"/>
+          </div>
+          <div class="form-group">
+            <label>Tiempo de evolución</label>
+            <input type="text" placeholder="Ej: 3 días"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Descripción del motivo (ALICIA: Aparición, Localización, Intensidad, Características, Irradiación, Agravantes)</label>
+            <textarea id="descripcionMotivo" placeholder="Describe con detalle el motivo de consulta..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Antecedentes personales</div>
+        <div class="form-row cols-3">
+          <div class="form-group">
+            <label>Antecedentes patológicos</label>
+            <textarea placeholder="HTA, DM, asma, etc." style="min-height:60px;"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Antecedentes quirúrgicos</label>
+            <textarea placeholder="Cirugías previas y fechas..." style="min-height:60px;"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Alergias conocidas</label>
+            <textarea id="alergias" placeholder="Medicamentos, alimentos, otros..." style="min-height:60px;"></textarea>
+          </div>
+        </div>
+        <div class="form-row cols-3">
+          <div class="form-group">
+            <label>Medicamentos actuales</label>
+            <textarea id="medicamentosActuales" placeholder="Nombre, dosis, frecuencia..." style="min-height:60px;"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Antecedentes familiares</label>
+            <textarea placeholder="Patologías familiares relevantes..." style="min-height:60px;"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Hábitos y estilos de vida</label>
+            <textarea placeholder="Tabaquismo, alcohol, actividad física..." style="min-height:60px;"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Revisión por sistemas</div>
+        <div class="form-row cols-4">
+          <div class="form-group">
+            <label>Cardiovascular</label>
+            <select><option>Sin alteraciones</option><option>Con hallazgos</option></select>
+          </div>
+          <div class="form-group">
+            <label>Respiratorio</label>
+            <select><option>Sin alteraciones</option><option>Con hallazgos</option></select>
+          </div>
+          <div class="form-group">
+            <label>Digestivo</label>
+            <select><option value="hallazgos">Con hallazgos</option><option>Sin alteraciones</option></select>
+          </div>
+          <div class="form-group">
+            <label>Neurológico</label>
+            <select><option>Sin alteraciones</option><option>Con hallazgos</option></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Observaciones adicionales</label>
+            <textarea placeholder="Información relevante no capturada en los campos anteriores..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;">
+        <button class="btn btn-outline" onclick="loadModule('dashboard')">← Cancelar</button>
+        <button class="btn btn-success" onclick="finalizarAnamnesis()">Guardar y continuar →</button>
+      </div>
+    </div>
+
+    <!-- ═══ MÓDULO: EXAMEN FÍSICO ══════════════ -->
+    <div class="module-view" id="mod-examen">
+      <nav class="breadcrumb">
+        <a href="#" onclick="loadModule('dashboard');return false;">Inicio</a>
+        <span class="sep">›</span><span>Examen Físico</span>
+      </nav>
+      <div class="page-header">
+        <div><h1>Examen Físico</h1><p>Rodríguez Pérez, Ana · CC: 52.114.887</p></div>
+        <div class="actions">
+          <button class="btn btn-outline" onclick="showToast('Borrador guardado','success')">💾 Guardar</button>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Signos vitales</div>
+        <div class="form-row cols-4">
+          <div class="form-group">
+            <label>PA sistólica (mmHg)</label>
+            <input type="number" id="paSistolica" placeholder="120" oninput="validarPA()"/>
+          </div>
+          <div class="form-group">
+            <label>PA diastólica (mmHg)</label>
+            <input type="number" id="paDiastolica" placeholder="80" oninput="validarPA()"/>
+          </div>
+          <div class="form-group">
+            <label>FC (lpm)</label>
+            <input type="number" placeholder="72"/>
+          </div>
+          <div class="form-group">
+            <label>FR (rpm)</label>
+            <input type="number" placeholder="16"/>
+          </div>
+        </div>
+        <div class="form-row cols-4">
+          <div class="form-group">
+            <label>Temperatura (°C)</label>
+            <input type="number" step="0.1" placeholder="36.5"/>
+          </div>
+          <div class="form-group">
+            <label>SpO₂ (%)</label>
+            <input type="number" placeholder="98"/>
+          </div>
+          <div class="form-group">
+            <label>Peso (kg)</label>
+            <input type="number" step="0.1" id="pesoExamen" placeholder="65" oninput="calcularIMC()"/>
+          </div>
+          <div class="form-group">
+            <label>Talla (cm)</label>
+            <input type="number" id="tallaExamen" placeholder="162" oninput="calcularIMC()"/>
+          </div>
+        </div>
+        <div id="imcAlerta" class="alert-inline alert-warn-inline hidden">
+          ⚠ <span id="imcTexto"></span>
+        </div>
+        <div id="paAlerta" class="alert-inline alert-danger-inline hidden">
+          🔴 <span id="paTexto"></span>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Examen físico por sistemas</div>
+        <div class="form-row cols-2">
+          <div class="form-group"><label>Estado general</label><textarea placeholder="Paciente consciente, orientada, en regular estado general..." style="min-height:60px;"></textarea></div>
+          <div class="form-group"><label>Cabeza y cuello</label><textarea placeholder="Normocéfalo, escleras anictéricas, mucosas húmedas..." style="min-height:60px;"></textarea></div>
+          <div class="form-group"><label>Tórax y pulmones</label><textarea placeholder="Murmullo vesicular conservado, sin ruidos sobreagregados..." style="min-height:60px;"></textarea></div>
+          <div class="form-group"><label>Abdomen</label><textarea placeholder="Blando, depresible, doloroso en FID, sin masas palpables..." style="min-height:60px;"></textarea></div>
+          <div class="form-group"><label>Extremidades</label><textarea placeholder="Sin edemas, pulsos periféricos presentes..." style="min-height:60px;"></textarea></div>
+          <div class="form-group"><label>Neurológico</label><textarea placeholder="Glasgow 15/15, reflejos normales..." style="min-height:60px;"></textarea></div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;">
+        <button class="btn btn-outline" onclick="loadModule('anamnesis')">← Anamnesis</button>
+        <button class="btn btn-success" onclick="showToast('Examen físico guardado','success');loadModule('diagnosticos')">Guardar y continuar →</button>
+      </div>
+    </div>
+
+    <!-- ═══ MÓDULO: DIAGNÓSTICOS ═══════════════ -->
+    <div class="module-view" id="mod-diagnosticos">
+      <nav class="breadcrumb">
+        <a href="#" onclick="loadModule('dashboard');return false;">Inicio</a>
+        <span class="sep">›</span><span>Diagnósticos</span>
+      </nav>
+      <div class="page-header">
+        <div><h1>Diagnósticos CIE-10</h1><p>Rodríguez Pérez, Ana · CC: 52.114.887</p></div>
+        <div class="actions">
+          <button class="btn btn-primary" onclick="agregarDiagnostico()">＋ Agregar diagnóstico</button>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Buscar diagnóstico CIE-10</div>
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <label>Buscar por código o descripción</label>
+            <input type="search" id="searchCIE10" placeholder="Ej: E11 o diabetes mellitus…" oninput="buscarCIE10(this.value)"/>
+          </div>
+          <div class="form-group">
+            <label>Tipo de diagnóstico</label>
+            <select id="tipoDx">
+              <option value="principal">Principal</option>
+              <option value="secundario">Secundario / Comorbilidad</option>
+              <option value="presuntivo">Presuntivo</option>
+            </select>
+          </div>
+        </div>
+        <div id="sugerenciasCIE10" style="display:none;background:#f8fafc;border:1px solid var(--border);border-radius:6px;margin-top:4px;overflow:hidden;"></div>
+      </div>
+      <div class="table-card">
+        <div class="table-card-header"><h3>Diagnósticos registrados</h3></div>
+        <table class="data-table">
+          <thead><tr><th>Código</th><th>Descripción</th><th>Tipo</th><th>Fecha</th><th>Acción</th></tr></thead>
+          <tbody id="listaDiagnosticos">
+            <tr>
+              <td><strong>E11.9</strong></td>
+              <td>Diabetes mellitus tipo 2 sin complicaciones</td>
+              <td><span class="badge badge-active">Principal</span></td>
+              <td>29/05/2025</td>
+              <td><button class="btn btn-outline" style="font-size:11px;padding:3px 8px;" onclick="eliminarDiagnostico(this)">✕ Eliminar</button></td>
+            </tr>
+            <tr>
+              <td><strong>I10</strong></td>
+              <td>Hipertensión esencial (primaria)</td>
+              <td><span class="badge badge-draft">Secundario</span></td>
+              <td>29/05/2025</td>
+              <td><button class="btn btn-outline" style="font-size:11px;padding:3px 8px;" onclick="eliminarDiagnostico(this)">✕ Eliminar</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ MÓDULO: ÓRDENES MÉDICAS ════════════ -->
+    <div class="module-view" id="mod-ordenes">
+      <nav class="breadcrumb">
+        <a href="#" onclick="loadModule('dashboard');return false;">Inicio</a>
+        <span class="sep">›</span><span>Órdenes Médicas</span>
+      </nav>
+      <div class="page-header">
+        <div><h1>Órdenes Médicas</h1><p>Rodríguez Pérez, Ana · CC: 52.114.887</p></div>
+        <div class="actions">
+          <button class="btn btn-outline" onclick="generarOrdenPDF()">🖨 Imprimir orden</button>
+          <button class="btn btn-primary" onclick="agregarOrden()">＋ Nueva orden</button>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Nueva orden</div>
+        <div class="form-row cols-3">
+          <div class="form-group">
+            <label>Tipo de orden</label>
+            <select id="tipoOrden" onchange="actualizarFormOrden()">
+              <option value="">Seleccionar...</option>
+              <option value="lab">Laboratorio clínico</option>
+              <option value="imagen">Imagen diagnóstica</option>
+              <option value="interconsulta">Interconsulta</option>
+              <option value="procedimiento">Procedimiento</option>
+              <option value="terapia">Terapia / Rehabilitación</option>
+            </select>
+          </div>
+          <div class="form-group" id="campoEspecialidad" style="display:none;">
+            <label>Especialidad</label>
+            <select><option>Cardiología</option><option>Endocrinología</option><option>Nefrología</option><option>Neurología</option><option>Gastroenterología</option></select>
+          </div>
+          <div class="form-group">
+            <label>Urgencia</label>
+            <select id="urgenciaOrden">
+              <option value="rutina">Rutina</option>
+              <option value="urgente">Urgente (24h)</option>
+              <option value="stat">STAT (inmediato)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Descripción / Exámenes solicitados</label>
+            <textarea id="descripcionOrden" placeholder="Ej: Hemograma completo, glucosa en ayunas, HbA1c, perfil lipídico, creatinina, parcial de orina..."></textarea>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Indicaciones clínicas / Justificación</label>
+            <textarea placeholder="Paciente con DM2, seguimiento de control metabólico y función renal..."></textarea>
+          </div>
+        </div>
+        <div class="form-footer">
+          <button class="btn btn-outline">Limpiar</button>
+          <button class="btn btn-primary" onclick="guardarOrden()">＋ Agregar orden</button>
+        </div>
+      </div>
+      <div class="table-card">
+        <div class="table-card-header"><h3>Órdenes de esta consulta</h3></div>
+        <table class="data-table">
+          <thead><tr><th>Tipo</th><th>Descripción</th><th>Urgencia</th><th>Estado</th><th>Acción</th></tr></thead>
+          <tbody id="listaOrdenes">
+            <tr>
+              <td>Laboratorio</td>
+              <td>Hemograma, HbA1c, perfil lipídico, creatinina</td>
+              <td><span class="badge badge-pending">Rutina</span></td>
+              <td><span class="badge badge-active">Generada</span></td>
+              <td><button class="btn btn-outline" style="font-size:11px;padding:3px 8px;" onclick="showToast('Orden impresa','success')">🖨</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ MÓDULO: MEDICAMENTOS ═══════════════ -->
+    <div class="module-view" id="mod-medicamentos">
+      <nav class="breadcrumb">
+        <a href="#" onclick="loadModule('dashboard');return false;">Inicio</a>
+        <span class="sep">›</span><span>Medicamentos</span>
+      </nav>
+      <div class="page-header">
+        <div><h1>Medicamentos</h1><p>Rodríguez Pérez, Ana · CC: 52.114.887</p></div>
+        <div class="actions">
+          <button class="btn btn-outline" onclick="showToast('Receta generada en PDF','success')">🖨 Generar receta</button>
+          <button class="btn btn-primary" onclick="prescribirMedicamento()">＋ Prescribir</button>
+        </div>
+      </div>
+      <div id="alertaInteraccion" class="alert-inline alert-danger-inline hidden">
+        🔴 <strong>Interacción detectada:</strong> Metformina + contraste yodado. Suspender 48h antes de estudio con contraste.
+      </div>
+      <div class="table-card">
+        <div class="table-card-header"><h3>Medicamentos activos</h3></div>
+        <table class="data-table">
+          <thead><tr><th>Medicamento</th><th>Dosis</th><th>Frecuencia</th><th>Vía</th><th>Duración</th><th>Prescrito por</th><th>Acción</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Metformina</strong> 850 mg</td>
+              <td>1 tableta</td><td>Cada 12h con comidas</td><td>Oral</td><td>Continuo</td><td>Dr. Ramírez</td>
+              <td>
+                <button class="btn btn-outline" style="font-size:11px;padding:3px 6px;" onclick="showToast('Medicamento suspendido','warn')">Suspender</button>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Losartán</strong> 50 mg</td>
+              <td>1 tableta</td><td>Cada 24h</td><td>Oral</td><td>Continuo</td><td>Dr. Ramírez</td>
+              <td><button class="btn btn-outline" style="font-size:11px;padding:3px 6px;" onclick="showToast('Medicamento suspendido','warn')">Suspender</button></td>
+            </tr>
+            <tr>
+              <td><strong>Atorvastatina</strong> 20 mg</td>
+              <td>1 tableta</td><td>Al acostarse</td><td>Oral</td><td>Continuo</td><td>Dr. Ramírez</td>
+              <td><button class="btn btn-outline" style="font-size:11px;padding:3px 6px;" onclick="showToast('Medicamento suspendido','warn')">Suspender</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ MÓDULOS SIMPLES (Lab, Imágenes, etc.) ══ -->
+    <div class="module-view" id="mod-laboratorio">
+      <nav class="breadcrumb"><a href="#" onclick="loadModule('dashboard');return false;">Inicio</a><span class="sep">›</span><span>Laboratorio</span></nav>
+      <div class="page-header">
+        <div><h1>Laboratorio</h1><p>Resultados de exámenes de laboratorio</p></div>
+        <div class="actions"><button class="btn btn-primary" onclick="loadModule('ordenes')">＋ Nueva orden de lab</button></div>
+      </div>
+      <div class="table-card">
+        <div class="table-card-header"><h3>Resultados recientes</h3></div>
+        <table class="data-table">
+          <thead><tr><th>Fecha</th><th>Examen</th><th>Resultado</th><th>Referencia</th><th>Estado</th><th>Acción</th></tr></thead>
+          <tbody>
+            <tr><td>27/05/2025</td><td>HbA1c</td><td style="color:var(--danger);font-weight:700;">8.2%</td><td>&lt; 7.0%</td><td><span class="badge badge-cancelled">Fuera de rango</span></td><td><button class="btn btn-outline" style="font-size:11px;padding:3px 8px;" onclick="verResultado('HbA1c')">Ver</button></td></tr>
+            <tr><td>27/05/2025</td><td>Glucosa en ayunas</td><td style="color:var(--warn);font-weight:700;">165 mg/dL</td><td>70–100</td><td><span class="badge badge-cancelled">Fuera de rango</span></td><td><button class="btn btn-outline" style="font-size:11px;padding:3px 8px;" onclick="verResultado('Glucosa')">Ver</button></td></tr>
+            <tr><td>27/05/2025</td><td>Creatinina</td><td>0.9 mg/dL</td><td>0.5–1.1</td><td><span class="badge badge-active">Normal</span></td><td><button class="btn btn-outline" style="font-size:11px;padding:3px 8px;" onclick="verResultado('Creatinina')">Ver</button></td></tr>
+            <tr><td>27/05/2025</td><td>Colesterol LDL</td><td style="color:var(--warn);font-weight:700;">142 mg/dL</td><td>&lt; 100</td><td><span class="badge badge-cancelled">Fuera de rango</span></td><td><button class="btn btn-outline" style="font-size:11px;padding:3px 8px;" onclick="verResultado('LDL')">Ver</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="module-view" id="mod-imagenes">
+      <nav class="breadcrumb"><a href="#" onclick="loadModule('dashboard');return false;">Inicio</a><span class="sep">›</span><span>Imágenes</span></nav>
+      <div class="page-header"><div><h1>Imágenes Diagnósticas</h1><p>Estudios radiológicos del paciente</p></div><div class="actions"><button class="btn btn-primary" onclick="loadModule('ordenes')">＋ Nueva orden</button></div></div>
+      <div class="empty-state"><div class="icon">🩻</div><h3>Sin estudios disponibles</h3><p>Cuando el radiólogo publique el informe, aparecerá aquí.</p></div>
+    </div>
+
+    <div class="module-view" id="mod-procedimientos">
+      <nav class="breadcrumb"><a href="#" onclick="loadModule('dashboard');return false;">Inicio</a><span class="sep">›</span><span>Procedimientos</span></nav>
+      <div class="page-header"><div><h1>Procedimientos</h1></div><div class="actions"><button class="btn btn-primary" onclick="showToast('Formulario de procedimiento abierto','info')">＋ Registrar procedimiento</button></div></div>
+      <div class="empty-state"><div class="icon">⚕️</div><h3>Sin procedimientos registrados</h3><p>Los procedimientos realizados aparecerán en este listado.</p></div>
+    </div>
+
+    <div class="module-view" id="mod-reportes">
+      <nav class="breadcrumb"><a href="#" onclick="loadModule('dashboard');return false;">Inicio</a><span class="sep">›</span><span>Reportes</span></nav>
+      <div class="page-header"><div><h1>Reportes</h1><p>Generación de informes administrativos y clínicos</p></div></div>
+      <div class="cards-row">
+        <div class="metric-card" onclick="showToast('Generando reporte de consultas...','info')"><div class="metric-card__icon">📋</div><div class="metric-card__label">Consultas del mes</div><div class="metric-card__value">127</div></div>
+        <div class="metric-card" onclick="showToast('Generando reporte de pacientes...','info')"><div class="metric-card__icon">👥</div><div class="metric-card__label">Pacientes nuevos</div><div class="metric-card__value">18</div></div>
+        <div class="metric-card" onclick="showToast('Generando reporte de glosas...','info')"><div class="metric-card__icon">🧾</div><div class="metric-card__label">Glosas detectadas</div><div class="metric-card__value" style="color:var(--warn);">3</div></div>
+        <div class="metric-card" onclick="showToast('Generando reporte de calidad...','info')"><div class="metric-card__icon">✅</div><div class="metric-card__label">Indicadores de calidad</div><div class="metric-card__value" style="color:var(--success);">98%</div></div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="generarReporte('consultas')">📄 Reporte de consultas</button>
+        <button class="btn btn-outline" onclick="generarReporte('glosas')">📄 Reporte anti-glosas</button>
+        <button class="btn btn-outline" onclick="generarReporte('calidad')">📄 Indicadores de calidad</button>
+        <button class="btn btn-outline" onclick="generarReporte('cie10')">📄 Morbilidad CIE-10</button>
+      </div>
+    </div>
+
+    <div class="module-view" id="mod-configuracion">
+      <nav class="breadcrumb"><a href="#" onclick="loadModule('dashboard');return false;">Inicio</a><span class="sep">›</span><span>Configuración</span></nav>
+      <div class="page-header"><div><h1>Configuración</h1><p>Preferencias del sistema</p></div></div>
+      <div class="form-section">
+        <div class="form-section-title">Perfil del usuario</div>
+        <div class="form-row cols-2">
+          <div class="form-group"><label>Nombre completo</label><input type="text" value="Dr. Carlos Ramírez Mendez"/></div>
+          <div class="form-group"><label>Registro médico</label><input type="text" value="RM-2024-4578"/></div>
+          <div class="form-group"><label>Especialidad</label><input type="text" value="Medicina General"/></div>
+          <div class="form-group"><label>Correo electrónico</label><input type="email" value="c.ramirez@imagensalud.co"/></div>
+        </div>
+        <div class="form-footer">
+          <button class="btn btn-primary" onclick="showToast('Perfil actualizado','success')">Guardar cambios</button>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Preferencias de la aplicación</div>
+        <div class="form-row cols-2">
+          <div class="form-group"><label>Idioma</label><select><option>Español</option><option>English</option></select></div>
+          <div class="form-group"><label>Filas por página en tablas</label><select><option>10</option><option>20</option><option>50</option></select></div>
+        </div>
+        <div class="form-footer">
+          <button class="btn btn-primary" onclick="showToast('Preferencias guardadas','success')">Guardar preferencias</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════ -->
+<script>
+/* ── Toast system ─────────────────────────── */
+function showToast(message, type = 'info') {
+  const icons = { success:'✅', error:'❌', warn:'⚠️', info:'ℹ️' };
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `<span>${icons[type] || 'ℹ️'}</span><span style="flex:1;">${message}</span><span class="toast-close" onclick="this.parentElement.remove()">✕</span>`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.classList.add('hiding');
+    setTimeout(() => toast.remove(), 350);
+  }, 4000);
+}
+
+/* ── Modal system ─────────────────────────── */
+function showModal(title, bodyHTML, buttons = []) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = bodyHTML;
+  const footer = document.getElementById('modalFooter');
+  footer.innerHTML = '';
+  buttons.forEach(b => {
+    const btn = document.createElement('button');
+    btn.className = `btn ${b.cls || 'btn-outline'}`;
+    btn.textContent = b.label;
+    btn.onclick = b.action;
+    footer.appendChild(btn);
+  });
+  document.getElementById('globalModal').classList.remove('hidden');
+}
+function closeModal() {
+  document.getElementById('globalModal').classList.add('hidden');
+}
+
+/* ── Sidebar toggle ───────────────────────── */
+const sidebar  = document.getElementById('app-sidebar');
+const content  = document.getElementById('app-content');
+const overlay  = document.getElementById('sidebarOverlay');
+const toggleBtn= document.getElementById('btn-toggle');
+
+function isMobile() { return window.innerWidth <= 768; }
+
+toggleBtn.addEventListener('click', () => {
+  if (isMobile()) {
+    sidebar.classList.toggle('mobile-open');
+    overlay.classList.toggle('visible');
+  } else {
+    sidebar.classList.toggle('sidebar-collapsed');
+    content.classList.toggle('content-expanded');
+    localStorage.setItem('sidebar-collapsed', sidebar.classList.contains('sidebar-collapsed'));
+  }
+});
+
+overlay.addEventListener('click', () => {
+  sidebar.classList.remove('mobile-open');
+  overlay.classList.remove('visible');
+});
+
+// Restaurar estado guardado (solo desktop)
+if (!isMobile() && localStorage.getItem('sidebar-collapsed') === 'true') {
+  sidebar.classList.add('sidebar-collapsed');
+  content.classList.add('content-expanded');
+}
+
+/* ── Navegación de módulos ────────────────── */
+function loadModule(moduleId) {
+  // Ocultar todos los módulos
+  document.querySelectorAll('.module-view').forEach(m => m.classList.remove('active'));
+  // Mostrar el seleccionado
+  const mod = document.getElementById('mod-' + moduleId);
+  if (mod) {
+    mod.classList.add('active');
+  } else {
+    // Módulo no implementado aún
+    showToast(`Módulo "${moduleId}" en desarrollo`, 'warn');
+    document.getElementById('mod-dashboard').classList.add('active');
+    return;
+  }
+  // Actualizar sidebar activo
+  document.querySelectorAll('#app-sidebar ul li a').forEach(link => {
+    link.classList.toggle('active', link.dataset.module === moduleId);
+  });
+  // Cerrar sidebar en móvil
+  if (isMobile()) {
+    sidebar.classList.remove('mobile-open');
+    overlay.classList.remove('visible');
+  }
+  // Scroll al top
+  content.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Vincular todos los links del sidebar
+document.querySelectorAll('#app-sidebar ul li a[data-module]').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    loadModule(link.dataset.module);
+  });
+});
+
+// Modal close
+document.getElementById('modalClose').addEventListener('click', closeModal);
+document.getElementById('globalModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('globalModal')) closeModal();
+});
+
+/* ── Búsqueda global ──────────────────────── */
+document.getElementById('globalSearch').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const q = e.target.value.trim();
+    if (q) {
+      showToast(`Buscando: "${q}"...`, 'info');
+      loadModule('pacientes');
+      setTimeout(() => {
+        const inp = document.getElementById('searchPacientes');
+        if (inp) { inp.value = q; filtrarPacientes(q); }
+      }, 200);
+    }
+  }
+});
+
+/* ── Notificaciones ───────────────────────── */
+document.getElementById('notifBell').addEventListener('click', showNotifications);
+function showNotifications() {
+  showModal('Notificaciones', `
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="padding:10px;background:#fef2f2;border-radius:6px;border:1px solid #fca5a5;font-size:13px;">
+        🔴 <strong>Resultado urgente:</strong> HbA1c de Rodríguez Pérez, Ana — 8.2% (fuera de rango)
+        <br><small style="color:#888;">Hace 2 horas</small>
+      </div>
+      <div style="padding:10px;background:#fffbeb;border-radius:6px;border:1px solid #fbbf24;font-size:13px;">
+        ⚠️ <strong>Cita en 30 min:</strong> Rodríguez Pérez, Ana — 10:30 am
+        <br><small style="color:#888;">Hace 5 minutos</small>
+      </div>
+      <div style="padding:10px;background:#f0fdf4;border-radius:6px;border:1px solid #86efac;font-size:13px;">
+        ✅ <strong>Orden de laboratorio procesada:</strong> Martínez Ruiz, Carlos
+        <br><small style="color:#888;">Hace 1 hora</small>
+      </div>
+    </div>
+  `, [
+    { label:'Cerrar', cls:'btn-outline', action: closeModal },
+    { label:'Ver laboratorio', cls:'btn-primary', action: () => { closeModal(); loadModule('laboratorio'); } }
+  ]);
+  document.getElementById('notifCount').textContent = '0';
+  document.getElementById('notifBell').querySelector('.badge-count').style.display = 'none';
+}
+
+/* ── Pacientes ────────────────────────────── */
+const pacientesData = [
+  { nombre:'García López, María',    doc:'CC 52.001.234', edad:45, visita:'28/05/2025', estado:'active'    },
+  { nombre:'Martínez Ruiz, Carlos',  doc:'CC 80.345.678', edad:38, visita:'28/05/2025', estado:'active'    },
+  { nombre:'Rodríguez Pérez, Ana',   doc:'CC 52.114.887', edad:52, visita:'Hoy',        estado:'active'    },
+  { nombre:'Gómez Torres, Luis',     doc:'CC 79.555.100', edad:29, visita:'15/05/2025', estado:'active'    },
+  { nombre:'Hernández Silva, Rosa',  doc:'CC 31.888.000', edad:61, visita:'Primera vez', estado:'pending'  },
+  { nombre:'López Vargas, Pedro',    doc:'CC 79.001.555', edad:47, visita:'10/05/2025', estado:'active'    },
+  { nombre:'Díaz Moreno, Jorge',     doc:'CC 80.222.333', edad:34, visita:'02/05/2025', estado:'cancelled' },
+  { nombre:'Torres Medina, Carmen',  doc:'CC 41.777.999', edad:58, visita:'25/04/2025', estado:'active'    },
+  { nombre:'Sánchez Ramos, Diego',   doc:'CC 80.100.200', edad:22, visita:'18/04/2025', estado:'active'    },
+  { nombre:'Vargas Castillo, Lucia', doc:'CC 52.500.600', edad:67, visita:'11/04/2025', estado:'active'    },
+];
+
+const estadoBadge = { active:'badge-active', pending:'badge-pending', cancelled:'badge-cancelled' };
+const estadoLabel = { active:'Activo', pending:'Nuevo', cancelled:'Inactivo' };
+
+function renderPacientes(data) {
+  const tbody = document.getElementById('pacientesBody');
+  if (!tbody) return;
+  tbody.innerHTML = data.map(p => `
+    <tr>
+      <td><strong>${p.nombre}</strong></td>
+      <td>${p.doc}</td>
+      <td>${p.edad} años</td>
+      <td>${p.visita}</td>
+      <td><span class="badge ${estadoBadge[p.estado]}">${estadoLabel[p.estado]}</span></td>
+      <td style="display:flex;gap:4px;">
+        <button class="btn btn-outline" style="font-size:11px;padding:3px 8px;" onclick="abrirHC('${p.nombre}')">Ver HC</button>
+        <button class="btn btn-primary" style="font-size:11px;padding:3px 8px;" onclick="iniciarConsulta('${p.nombre}')">Consultar</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filtrarPacientes(q) {
+  const filtered = q.length < 2 ? pacientesData
+    : pacientesData.filter(p =>
+        p.nombre.toLowerCase().includes(q.toLowerCase()) ||
+        p.doc.toLowerCase().includes(q.toLowerCase())
+      );
+  renderPacientes(filtered);
+}
+
+function sortTable(tableId, col) {
+  // Ordena la tabla por la columna indicada
+  const table = document.getElementById(tableId);
+  if (!table) return;
+  const tbody = table.querySelector('tbody');
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+  const asc = table.dataset.sortCol == col && table.dataset.sortDir !== 'asc';
+  table.dataset.sortCol = col;
+  table.dataset.sortDir = asc ? 'asc' : 'desc';
+  rows.sort((a, b) => {
+    const va = a.cells[col]?.textContent.trim() || '';
+    const vb = b.cells[col]?.textContent.trim() || '';
+    return asc ? va.localeCompare(vb, 'es') : vb.localeCompare(va, 'es');
+  });
+  rows.forEach(r => tbody.appendChild(r));
+}
+
+function mostrarFormNuevoPaciente() {
+  showModal('Nuevo Paciente', `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-group"><label>Nombre completo</label><input type="text" placeholder="Apellido, Nombre"/></div>
+      <div class="form-group"><label>Tipo de documento</label><select><option>Cédula de ciudadanía</option><option>Pasaporte</option><option>Cédula de extranjería</option><option>NUIP</option></select></div>
+      <div class="form-group"><label>Número de documento</label><input type="text" placeholder="Ej: 52.001.234"/></div>
+      <div class="form-group"><label>Fecha de nacimiento</label><input type="date"/></div>
+      <div class="form-group"><label>Sexo biológico</label><select><option>Femenino</option><option>Masculino</option></select></div>
+      <div class="form-group"><label>Correo electrónico</label><input type="email" placeholder="paciente@email.com"/></div>
+      <div class="form-group"><label>Celular</label><input type="text" placeholder="300 000 0000"/></div>
+      <div class="form-group"><label>EPS / Aseguradora</label><select><option>Sura EPS</option><option>Compensar</option><option>Nueva EPS</option><option>Sanitas</option><option>Particular</option></select></div>
+    </div>
+  `, [
+    { label:'Cancelar', cls:'btn-outline', action: closeModal },
+    { label:'Registrar paciente', cls:'btn-primary', action: () => {
+      closeModal();
+      showToast('Paciente registrado exitosamente','success');
+      loadModule('pacientes');
+    }}
+  ]);
+}
+
+function abrirHC(nombre) {
+  document.getElementById('anamnesisSubtitulo').textContent = `Paciente: ${nombre}`;
+  showToast(`Abriendo HC de ${nombre}`, 'info');
+  loadModule('anamnesis');
+}
+
+function iniciarConsulta(nombre) {
+  document.getElementById('anamnesisSubtitulo').textContent = `Paciente: ${nombre}`;
+  showToast(`Consulta iniciada — ${nombre}`, 'success');
+  loadModule('anamnesis');
+}
+
+/* ── Agenda ───────────────────────────────── */
+function mostrarFormCita() {
+  showModal('Nueva Cita', `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-group" style="grid-column:1/-1;"><label>Paciente</label><input type="search" placeholder="Buscar paciente..."/></div>
+      <div class="form-group"><label>Fecha</label><input type="date"/></div>
+      <div class="form-group"><label>Hora</label><input type="time"/></div>
+      <div class="form-group"><label>Tipo de consulta</label><select><option>Primera vez</option><option>Control</option><option>Seguimiento</option><option>Urgencia</option></select></div>
+      <div class="form-group"><label>Médico</label><select><option>Dr. Ramírez</option><option>Dra. Gómez</option><option>Dr. López</option></select></div>
+      <div class="form-group" style="grid-column:1/-1;"><label>Motivo de consulta</label><input type="text" placeholder="Breve descripción..."/></div>
+    </div>
+  `, [
+    { label:'Cancelar', cls:'btn-outline', action: closeModal },
+    { label:'Agendar cita', cls:'btn-primary', action: () => {
+      closeModal(); showToast('Cita agendada y confirmación enviada al paciente','success');
+    }}
+  ]);
+}
+
+function reagendarCita(nombre) {
+  showModal(`Reagendar cita — ${nombre}`, `
+    <p style="font-size:13px;margin-bottom:14px;">Selecciona la nueva fecha y hora:</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-group"><label>Nueva fecha</label><input type="date"/></div>
+      <div class="form-group"><label>Nueva hora</label><input type="time"/></div>
+      <div class="form-group" style="grid-column:1/-1;"><label>Motivo del reagendamiento</label><textarea style="width:100%;"></textarea></div>
+    </div>
+  `, [
+    { label:'Cancelar', cls:'btn-outline', action: closeModal },
+    { label:'Confirmar reagendamiento', cls:'btn-primary', action: () => {
+      closeModal(); showToast(`Cita de ${nombre} reagendada. Se notificó al paciente.`,'success');
+    }}
+  ]);
+}
+
+/* ── Anamnesis ────────────────────────────── */
+function finalizarAnamnesis() {
+  const motivo = document.getElementById('motivoConsulta').value.trim();
+  if (!motivo) { showToast('Ingresa el motivo de consulta para continuar','error'); return; }
+  showToast('Anamnesis guardada correctamente','success');
+  loadModule('examen');
+}
+
+/* ── Examen físico ────────────────────────── */
+function calcularIMC() {
+  const peso = parseFloat(document.getElementById('pesoExamen').value);
+  const talla = parseFloat(document.getElementById('tallaExamen').value) / 100;
+  if (!peso || !talla) return;
+  const imc = (peso / (talla * talla)).toFixed(1);
+  const el = document.getElementById('imcAlerta');
+  const txt = document.getElementById('imcTexto');
+  let cat = '';
+  if (imc < 18.5) cat = `IMC: ${imc} — Bajo peso`;
+  else if (imc < 25) { el.classList.add('hidden'); return; }
+  else if (imc < 30) cat = `IMC: ${imc} — Sobrepeso`;
+  else cat = `IMC: ${imc} — Obesidad`;
+  txt.textContent = cat;
+  el.classList.remove('hidden');
+}
+
+function validarPA() {
+  const sis = parseInt(document.getElementById('paSistolica').value);
+  const dia = parseInt(document.getElementById('paDiastolica').value);
+  const el  = document.getElementById('paAlerta');
+  const txt = document.getElementById('paTexto');
+  if (!sis || !dia) { el.classList.add('hidden'); return; }
+  if (sis >= 180 || dia >= 120) {
+    txt.textContent = `PA ${sis}/${dia} mmHg — Crisis hipertensiva. Evaluar manejo urgente.`;
+    el.classList.remove('hidden');
+    el.className = 'alert-inline alert-danger-inline';
+  } else if (sis >= 140 || dia >= 90) {
+    txt.textContent = `PA ${sis}/${dia} mmHg — Hipertensión grado 2. Ajustar tratamiento.`;
+    el.classList.remove('hidden');
+    el.className = 'alert-inline alert-warn-inline';
+  } else {
+    el.classList.add('hidden');
+  }
+}
+
+/* ── Diagnósticos CIE-10 ──────────────────── */
+const cie10DB = [
+  { code:'E11.9', desc:'Diabetes mellitus tipo 2 sin complicaciones' },
+  { code:'E11.6', desc:'Diabetes mellitus tipo 2 con otras complicaciones' },
+  { code:'I10',   desc:'Hipertensión esencial (primaria)' },
+  { code:'I25.1', desc:'Enfermedad cardíaca aterosclerótica' },
+  { code:'K21.0', desc:'Enfermedad por reflujo gastroesofágico con esofagitis' },
+  { code:'J18.9', desc:'Neumonía no especificada' },
+  { code:'M54.5', desc:'Lumbago no especificado' },
+  { code:'R10.9', desc:'Dolor abdominal no especificado' },
+  { code:'R51',   desc:'Cefalea' },
+  { code:'Z12.3', desc:'Examen de detección de enfermedades del cuello uterino' },
+  { code:'N40',   desc:'Hiperplasia de próstata' },
+  { code:'E78.5', desc:'Hiperlipidemia no especificada' },
+  { code:'F32.9', desc:'Episodio depresivo no especificado' },
+  { code:'J00',   desc:'Rinofaringitis aguda (resfriado común)' },
+  { code:'L30.9', desc:'Dermatitis no especificada' },
+];
+
+function buscarCIE10(q) {
+  const box = document.getElementById('sugerenciasCIE10');
+  if (!q || q.length < 2) { box.style.display = 'none'; return; }
+  const results = cie10DB.filter(c =>
+    c.code.toLowerCase().includes(q.toLowerCase()) ||
+    c.desc.toLowerCase().includes(q.toLowerCase())
+  ).slice(0, 6);
+  if (!results.length) { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  box.innerHTML = results.map(c => `
+    <div style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid #f0f0f0;"
+         onmouseover="this.style.background='#f0f7ff'"
+         onmouseout="this.style.background=''"
+         onclick="seleccionarCIE10('${c.code}','${c.desc.replace(/'/g,"\\'")}')">
+      <strong>${c.code}</strong> — ${c.desc}
+    </div>
+  `).join('');
+}
+
+function seleccionarCIE10(code, desc) {
+  document.getElementById('searchCIE10').value = `${code} — ${desc}`;
+  document.getElementById('sugerenciasCIE10').style.display = 'none';
+}
+
+function agregarDiagnostico() {
+  const input = document.getElementById('searchCIE10').value.trim();
+  const tipo  = document.getElementById('tipoDx').value;
+  if (!input || !input.includes(' — ')) { showToast('Selecciona un diagnóstico de la lista','error'); return; }
+  const [code, ...rest] = input.split(' — ');
+  const desc = rest.join(' — ');
+  const tbody = document.getElementById('listaDiagnosticos');
+  const badgeMap = { principal:'badge-active', secundario:'badge-draft', presuntivo:'badge-pending' };
+  const labelMap = { principal:'Principal', secundario:'Secundario', presuntivo:'Presuntivo' };
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><strong>${code}</strong></td>
+    <td>${desc}</td>
+    <td><span class="badge ${badgeMap[tipo]}">${labelMap[tipo]}</span></td>
+    <td>${new Date().toLocaleDateString('es-CO')}</td>
+    <td><button class="btn btn-outline" style="font-size:11px;padding:3px 8px;" onclick="eliminarDiagnostico(this)">✕ Eliminar</button></td>
+  `;
+  tbody.appendChild(tr);
+  document.getElementById('searchCIE10').value = '';
+  showToast(`Diagnóstico ${code} agregado`,'success');
+}
+
+function eliminarDiagnostico(btn) {
+  btn.closest('tr').remove();
+  showToast('Diagnóstico eliminado','warn');
+}
+
+/* ── Órdenes ──────────────────────────────── */
+function actualizarFormOrden() {
+  const tipo = document.getElementById('tipoOrden').value;
+  const campoEsp = document.getElementById('campoEspecialidad');
+  campoEsp.style.display = tipo === 'interconsulta' ? 'flex' : 'none';
+}
+
+function guardarOrden() {
+  const tipo = document.getElementById('tipoOrden').value;
+  const desc = document.getElementById('descripcionOrden').value.trim();
+  const urgencia = document.getElementById('urgenciaOrden').value;
+  if (!tipo || !desc) { showToast('Completa el tipo y la descripción de la orden','error'); return; }
+  const tbody = document.getElementById('listaOrdenes');
+  const urgBadge = { rutina:'badge-pending', urgente:'badge-cancelled', stat:'badge-cancelled' };
+  const urgLabel = { rutina:'Rutina', urgente:'Urgente 24h', stat:'STAT' };
+  const tipoLabel = { lab:'Laboratorio', imagen:'Imagen', interconsulta:'Interconsulta', procedimiento:'Procedimiento', terapia:'Terapia' };
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>${tipoLabel[tipo] || tipo}</td>
+    <td>${desc}</td>
+    <td><span class="badge ${urgBadge[urgencia]}">${urgLabel[urgencia]}</span></td>
+    <td><span class="badge badge-active">Generada</span></td>
+    <td><button class="btn btn-outline" style="font-size:11px;padding:3px 8px;" onclick="showToast('Orden impresa','success')">🖨</button></td>
+  `;
+  tbody.appendChild(tr);
+  document.getElementById('descripcionOrden').value = '';
+  document.getElementById('tipoOrden').value = '';
+  showToast('Orden médica generada','success');
+}
+
+function generarOrdenPDF() {
+  showToast('Generando PDF de órdenes médicas...','info');
+  setTimeout(() => showToast('Orden lista para imprimir','success'), 1500);
+}
+
+/* ── Medicamentos ─────────────────────────── */
+function prescribirMedicamento() {
+  showModal('Prescribir Medicamento', `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-group" style="grid-column:1/-1;"><label>Medicamento (nombre genérico)</label><input type="search" id="nomMed" placeholder="Ej: Metformina, Losartán..."/></div>
+      <div class="form-group"><label>Concentración</label><input type="text" placeholder="Ej: 850 mg"/></div>
+      <div class="form-group"><label>Forma farmacéutica</label><select><option>Tableta</option><option>Cápsula</option><option>Jarabe</option><option>Inyectable</option><option>Crema</option></select></div>
+      <div class="form-group"><label>Dosis</label><input type="text" placeholder="Ej: 1 tableta"/></div>
+      <div class="form-group"><label>Frecuencia</label><input type="text" placeholder="Ej: cada 12 horas"/></div>
+      <div class="form-group"><label>Vía de administración</label><select><option>Oral</option><option>Intravenosa</option><option>Intramuscular</option><option>Tópica</option><option>Inhalatoria</option></select></div>
+      <div class="form-group"><label>Duración</label><input type="text" placeholder="Ej: 30 días / Continuo"/></div>
+      <div class="form-group" style="grid-column:1/-1;"><label>Indicaciones especiales</label><input type="text" placeholder="Ej: Tomar con los alimentos"/></div>
+    </div>
+    <div id="alertaMed" class="alert-inline alert-warn-inline hidden" style="margin-top:10px;">
+      ⚠️ <strong>Posible interacción:</strong> <span id="textoAlertaMed"></span>
+    </div>
+  `, [
+    { label:'Cancelar', cls:'btn-outline', action: closeModal },
+    { label:'Prescribir', cls:'btn-primary', action: () => {
+      closeModal(); showToast('Medicamento prescrito y receta actualizada','success');
+      document.getElementById('alertaInteraccion').classList.remove('hidden');
+    }}
+  ]);
+
+  // Detectar posible interacción
+  setTimeout(() => {
+    const input = document.getElementById('nomMed');
+    if (input) {
+      input.addEventListener('input', function() {
+        const val = this.value.toLowerCase();
+        const alerta = document.getElementById('alertaMed');
+        const texto  = document.getElementById('textoAlertaMed');
+        if (val.includes('ibuprofeno') || val.includes('naproxeno')) {
+          texto.textContent = 'AINEs con Losartán pueden reducir efecto antihipertensivo y aumentar riesgo renal.';
+          alerta.classList.remove('hidden');
+        } else if (val.includes('amiodarona')) {
+          texto.textContent = 'Amiodarona con Atorvastatina aumenta riesgo de miopatía.';
+          alerta.classList.remove('hidden');
+        } else {
+          alerta.classList.add('hidden');
+        }
+      });
+    }
+  }, 100);
+}
+
+/* ── Laboratorio ──────────────────────────── */
+function verResultado(examen) {
+  const datos = {
+    'HbA1c': { val:'8.2%', ref:'< 7.0%', interp:'Control glucémico deficiente. Revisar adherencia a tratamiento y considerar ajuste de dosis de Metformina o adición de segundo agente hipoglucemiante.', accion:'Ajustar dosis de Metformina 850mg c/8h. Control en 3 meses.' },
+    'Glucosa': { val:'165 mg/dL', ref:'70–100 mg/dL', interp:'Hiperglucemia en ayunas. Consistente con mal control de DM2.', accion:'Reforzar adherencia. Dieta y ejercicio.' },
+    'Creatinina': { val:'0.9 mg/dL', ref:'0.5–1.1 mg/dL', interp:'Función renal normal. TFG estimada: 72 mL/min/1.73m².', accion:'Sin cambios en manejo renal.' },
+    'LDL': { val:'142 mg/dL', ref:'< 100 mg/dL en DM2', interp:'LDL elevado para paciente diabética. Meta < 70 mg/dL en pacientes de alto riesgo cardiovascular.', accion:'Aumentar dosis de Atorvastatina a 40 mg o cambiar a rosuvastatina.' },
+  };
+  const d = datos[examen];
+  if (!d) return;
+  showModal(`Resultado: ${examen}`, `
+    <div style="text-align:center;padding:10px 0;">
+      <div style="font-size:36px;font-weight:800;color:${d.ref.includes('<') ? 'var(--danger)' : 'var(--success)'};">${d.val}</div>
+      <div style="font-size:12px;color:#888;margin-top:4px;">Referencia: ${d.ref}</div>
+    </div>
+    <div class="alert-inline ${d.ref.includes('<') ? 'alert-danger-inline' : 'alert-success-inline'}" style="margin:12px 0;">
+      📋 <strong>Interpretación:</strong> ${d.interp}
+    </div>
+    <div style="background:#f8fafc;border-radius:6px;padding:12px;font-size:13px;">
+      <strong>Acción sugerida:</strong> ${d.accion}
+    </div>
+  `, [
+    { label:'Cerrar', cls:'btn-outline', action: closeModal },
+    { label:'Agregar a notas', cls:'btn-primary', action: () => { closeModal(); showToast('Resultado agregado a notas de consulta','success'); } }
+  ]);
+}
+
+/* ── Reportes ─────────────────────────────── */
+function generarReporte(tipo) {
+  const nombres = { consultas:'Consultas del mes', glosas:'Anti-glosas', calidad:'Indicadores de calidad', cie10:'Morbilidad CIE-10' };
+  showModal(`Reporte: ${nombres[tipo]}`, `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+      <div class="form-group"><label>Fecha inicio</label><input type="date" value="2025-05-01"/></div>
+      <div class="form-group"><label>Fecha fin</label><input type="date" value="2025-05-29"/></div>
+    </div>
+    <div style="background:#f8fafc;border:1px solid var(--border);border-radius:6px;padding:12px;font-size:12px;color:#555;">
+      <strong>Vista previa:</strong><br><br>
+      Imagen Salud IPS — Reporte ${nombres[tipo]}<br>
+      Período: 01/05/2025 – 29/05/2025<br>
+      Total registros: 127 · Generado por: Dr. Ramírez<br>
+      <br>[...contenido del reporte...]
+    </div>
+  `, [
+    { label:'Cancelar', cls:'btn-outline', action: closeModal },
+    { label:'⬇ Descargar PDF', cls:'btn-primary', action: () => {
+      closeModal();
+      showToast('Generando PDF...','info');
+      setTimeout(() => showToast(`Reporte "${nombres[tipo]}" descargado`,'success'), 1800);
+    }}
+  ]);
+}
+
+/* ── Inicialización ───────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  renderPacientes(pacientesData);
+  loadModule('dashboard');
+});
+</script>
+</body>
+</html>
