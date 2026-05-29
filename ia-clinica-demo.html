@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>IA en Historia Clínica — Demo Interactivo</title>
+<title>IA en Historia Clinica — Demo Interactivo</title>
 <style>
 :root {
   --blue:    #0f5fa8;
@@ -21,65 +21,43 @@
 body { font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px;
        color: var(--text); background: var(--light); }
 
-/* ── Tabs de navegación de opciones ─────────────────── */
+/* Header */
 .app-header {
   background: var(--dark); color: #fff;
   padding: 16px 32px; display: flex; align-items: center; gap: 20px;
-  position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,.3);
+  position: sticky; top: 0; z-index: 200; box-shadow: 0 2px 8px rgba(0,0,0,.3);
 }
 .app-header h1 { font-size: 18px; font-weight: 800; white-space: nowrap; }
 .app-header h1 span { color: #a78bfa; }
-.phase-badge {
-  font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 12px;
-  background: rgba(255,255,255,.15); white-space: nowrap;
-}
+.phase-badge { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 12px;
+  background: rgba(255,255,255,.15); white-space: nowrap; }
 
-@keyframes toastIn {
-  from { opacity:0; transform:translateX(20px); }
-  to   { opacity:1; transform:translateX(0); }
-}
-@keyframes fadeIn { from{opacity:0} to{opacity:1} }
-
-.tabs {
-  display: flex; gap: 4px; padding: 12px 32px;
-  background: #fff; border-bottom: 1px solid var(--border);
-  flex-wrap: wrap; overflow-x: auto;
-}
-.tab {
-  padding: 8px 18px; border-radius: 6px; cursor: pointer; font-weight: 600;
+/* Tabs */
+.tabs-wrapper { background: #fff; border-bottom: 1px solid var(--border); overflow-x: auto; white-space: nowrap; }
+.tabs { display: inline-flex; gap: 4px; padding: 12px 32px; }
+.tab { padding: 8px 18px; border-radius: 6px; cursor: pointer; font-weight: 600;
   font-size: 13px; border: 2px solid transparent; transition: all .2s;
-  background: var(--light); color: #666;
-}
+  background: var(--light); color: #666; white-space: nowrap; user-select: none; }
 .tab:hover { background: #e2e8f0; }
 .tab.active { background: var(--ai); color: #fff; border-color: var(--ai); }
-.tab .tab-phase {
-  font-size: 10px; font-weight: 700; display: block;
-  opacity: .75; margin-bottom: 2px;
-}
+.tab .tab-phase { font-size: 10px; font-weight: 700; display: block; opacity: .75; margin-bottom: 2px; }
 
-/* ── Panel principal ─────────────────────────────── */
+/* Panels */
 .panel { display: none; padding: 32px; max-width: 1000px; margin: 0 auto; }
 .panel.active { display: block; }
-
 .panel-header { margin-bottom: 24px; }
 .panel-header h2 { font-size: 22px; font-weight: 800; color: var(--dark); }
 .panel-header p { font-size: 13px; color: #666; margin-top: 6px; max-width: 680px; line-height: 1.6; }
-.how-it-works {
-  background: #ede9fe; border: 1px solid #c4b5fd; border-radius: 8px;
-  padding: 10px 14px; margin-top: 10px; font-size: 12px; color: #5b21b6;
-}
+.how-it-works { background: #ede9fe; border: 1px solid #c4b5fd; border-radius: 8px;
+  padding: 10px 14px; margin-top: 10px; font-size: 12px; color: #5b21b6; }
 
-/* ── Tarjetas de formulario ──────────────────────── */
-.card {
-  background: #fff; border: 1px solid var(--border); border-radius: 10px;
-  padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.05);
-}
-.card-title {
-  font-size: 12px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: .8px; color: #888; margin-bottom: 14px;
-}
+/* Cards */
+.card { background: #fff; border: 1px solid var(--border); border-radius: 10px;
+  padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.05); }
+.card-title { font-size: 12px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .8px; color: #888; margin-bottom: 14px; }
 
-/* ── Formulario ──────────────────────────────────── */
+/* Forms */
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
 .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
 .form-row.full  { grid-template-columns: 1fr; }
@@ -93,328 +71,300 @@ input, select, textarea {
 input:focus, select:focus, textarea:focus { border-color: var(--blue); }
 textarea { resize: vertical; min-height: 80px; }
 
-/* ── Botones ─────────────────────────────────────── */
-.btn {
-  display: inline-flex; align-items: center; gap: 6px;
+/* Buttons */
+.btn { display: inline-flex; align-items: center; gap: 6px;
   padding: 9px 18px; border: none; border-radius: 6px; font-size: 13px;
-  font-weight: 700; cursor: pointer; transition: filter .2s, transform .1s;
-}
+  font-weight: 700; cursor: pointer; transition: filter .2s, transform .1s; }
 .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
 .btn:active { transform: translateY(0); }
+.btn:disabled { opacity: .55; cursor: not-allowed; transform: none; filter: none; }
 .btn-primary { background: var(--blue); color: #fff; }
 .btn-ai      { background: var(--ai); color: #fff; }
 .btn-danger  { background: var(--danger); color: #fff; }
 .btn-success { background: var(--success); color: #fff; }
-.btn-outline {
-  background: #fff; border: 2px solid var(--border); color: var(--text);
-}
+.btn-warn    { background: var(--warn); color: #fff; }
+.btn-outline { background: #fff; border: 2px solid var(--border); color: var(--text); }
 .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
 
-/* ── Alertas ─────────────────────────────────────── */
-.alert {
-  border-radius: 8px; padding: 14px 16px; margin-top: 16px;
-  font-size: 13px; line-height: 1.6; display: none;
-  animation: slideDown .3s ease;
-}
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+/* Alerts */
+.alert { border-radius: 8px; padding: 14px 16px; margin-top: 16px;
+  font-size: 13px; line-height: 1.6; display: none; animation: slideDown .3s ease; }
+@keyframes slideDown { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
 .alert.show { display: block; }
 .alert-danger  { background: #fef2f2; border: 2px solid #f87171; }
 .alert-warn    { background: #fffbeb; border: 2px solid #fbbf24; }
 .alert-success { background: #f0fdf4; border: 2px solid #86efac; }
 .alert-ai      { background: #faf5ff; border: 2px solid #c4b5fd; }
-.alert-title { font-weight: 800; font-size: 14px; margin-bottom: 6px; }
+.alert-title   { font-weight: 800; font-size: 14px; margin-bottom: 6px; }
 .alert-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-.alert-actions button {
-  padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
-  cursor: pointer; border: none; transition: filter .2s;
-}
-.alert-actions button:hover { filter: brightness(1.1); }
-.a-btn-red    { background: var(--danger); color: #fff; }
-.a-btn-warn   { background: var(--warn); color: #fff; }
-.a-btn-blue   { background: var(--blue); color: #fff; }
-.a-btn-ghost  { background: #e5e7eb; color: #374151; }
+.alert-actions button { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
+  cursor: pointer; border: none; transition: filter .2s, transform .1s; }
+.alert-actions button:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.a-btn-red   { background: var(--danger); color: #fff; }
+.a-btn-warn  { background: var(--warn); color: #fff; }
+.a-btn-blue  { background: var(--blue); color: #fff; }
+.a-btn-green { background: var(--success); color: #fff; }
+.a-btn-ghost { background: #e5e7eb; color: #374151; }
 
-/* ── Score / gauge ───────────────────────────────── */
-.score-display {
-  display: flex; align-items: center; gap: 16px; margin: 14px 0;
-}
-.score-ring {
-  width: 80px; height: 80px; border-radius: 50%; flex-shrink: 0;
+/* Score ring */
+.score-display { display: flex; align-items: center; gap: 16px; margin: 14px 0; }
+.score-ring { width: 80px; height: 80px; border-radius: 50%; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
-  font-size: 20px; font-weight: 900; color: #fff;
-  box-shadow: 0 4px 12px rgba(0,0,0,.2);
-}
+  font-size: 20px; font-weight: 900; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,.2); }
 .score-ring.low    { background: var(--success); }
 .score-ring.medium { background: var(--warn); }
 .score-ring.high   { background: var(--danger); }
 .score-detail { font-size: 12px; line-height: 1.8; }
 .score-detail strong { display: block; font-size: 16px; margin-bottom: 4px; }
 
-/* ── Factor chips ────────────────────────────────── */
+/* Factors */
 .factors { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.factor {
-  padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700;
-}
-.f-red   { background: #fee2e2; color: #991b1b; }
-.f-warn  { background: #fef3c7; color: #92400e; }
-.f-ok    { background: #d1fae5; color: #065f46; }
+.factor { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
+.f-red  { background: #fee2e2; color: #991b1b; }
+.f-warn { background: #fef3c7; color: #92400e; }
+.f-ok   { background: #d1fae5; color: #065f46; }
 
-/* ── Dictado / transcripción ─────────────────────── */
-.dictation-box {
-  background: #1a2e44; border-radius: 10px; padding: 20px; color: #e2e8f0;
-  margin-bottom: 14px; font-family: monospace; font-size: 13px;
-  min-height: 120px; line-height: 1.8; position: relative;
-}
-.dictation-box .cursor { display: inline-block; width: 2px; height: 15px;
-  background: #7c3aed; margin-left: 2px; vertical-align: middle;
-  animation: blink 1s infinite; }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-.mic-btn {
-  position: absolute; right: 14px; top: 14px;
-  background: var(--ai); border: none; border-radius: 50%; width: 36px; height: 36px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; font-size: 16px; color: #fff;
-}
-.mic-btn.recording { background: var(--danger); animation: pulse 1s infinite; }
-@keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.4)}
-                   70%{box-shadow:0 0 0 10px rgba(220,38,38,0)} }
+/* Structured output */
+.structured-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+.struct-box { background: var(--light); border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px; font-size: 12px; line-height: 1.6; }
+.struct-label { font-size: 10px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .8px; color: var(--ai); margin-bottom: 6px; }
 
-/* ── Structured output ───────────────────────────── */
-.structured-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;
-}
-.struct-box {
-  background: var(--light); border: 1px solid var(--border); border-radius: 8px;
-  padding: 12px; font-size: 12px; line-height: 1.6;
-}
-.struct-label {
-  font-size: 10px; font-weight: 800; text-transform: uppercase;
-  letter-spacing: .8px; color: var(--ai); margin-bottom: 6px;
-}
-.struct-box.highlight { border-color: var(--ai); background: #faf5ff; }
-
-/* ── Mapa epidemiológico ─────────────────────────── */
-.epi-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
-  gap: 14px; margin-bottom: 20px;
-}
-.kpi-card {
-  background: #fff; border: 1px solid var(--border); border-radius: 10px;
-  padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.05);
-}
+/* Epidemiology */
+.epi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 14px; margin-bottom: 20px; }
+.kpi-card { background: #fff; border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.05); }
 .kpi-label { font-size: 11px; color: #888; font-weight: 600; margin-bottom: 4px; }
 .kpi-val   { font-size: 28px; font-weight: 800; color: var(--dark); }
 .kpi-trend { font-size: 11px; margin-top: 4px; }
 .up   { color: var(--danger); }
 .down { color: var(--success); }
 
-.heatmap {
-  display: grid; grid-template-columns: auto repeat(7,1fr);
-  gap: 4px; font-size: 11px; margin-top: 10px;
-}
+.heatmap { display: grid; grid-template-columns: auto repeat(7,1fr); gap: 4px; font-size: 11px; margin-top: 10px; }
 .hm-label { color: #888; font-weight: 600; display: flex; align-items: center;
-            justify-content: flex-end; padding-right: 8px; }
-.hm-cell {
-  height: 36px; border-radius: 4px; display: flex; align-items: center;
-  justify-content: center; font-size: 11px; font-weight: 700; color: #fff;
-}
+  justify-content: flex-end; padding-right: 8px; }
+.hm-cell { height: 36px; border-radius: 4px; display: flex; align-items: center;
+  justify-content: center; font-size: 11px; font-weight: 700; }
 
-/* ── AI chat bubbles ─────────────────────────────── */
-.ai-bubble {
-  background: #ede9fe; border: 1px solid #c4b5fd; border-radius: 12px 12px 12px 0;
-  padding: 12px 14px; margin: 10px 0; font-size: 13px; line-height: 1.6;
-  max-width: 85%; display: none;
-}
-.ai-bubble.show { display: block; animation: slideDown .3s ease; }
-.ai-bubble-label {
-  font-size: 10px; font-weight: 800; text-transform: uppercase;
-  letter-spacing: .8px; color: var(--ai); margin-bottom: 5px;
-}
-
-/* ── Progress bar ────────────────────────────────── */
-.progress-bar {
-  height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; margin: 6px 0;
-}
-.progress-fill { height: 100%; border-radius: 4px; transition: width .5s ease; }
-
-/* ── Spinner ─────────────────────────────────────── */
-.spinner { display: inline-block; width: 16px; height: 16px;
-  border: 2px solid #fff; border-top-color: transparent;
-  border-radius: 50%; animation: spin .6s linear infinite; }
+/* Misc */
+.spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid currentColor;
+  border-top-color: transparent; border-radius: 50%; animation: spin .6s linear infinite; vertical-align: middle; }
 @keyframes spin { to { transform: rotate(360deg); } }
-
-/* ── Utility ─────────────────────────────────────── */
-.tag {
-  display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 10px;
-  font-weight: 800; margin-left: 6px; vertical-align: middle;
-}
-.tag-1  { background: #fef3c7; color: #92400e; }
-.tag-2  { background: #fee2e2; color: #991b1b; }
-.tag-ai { background: #ede9fe; color: #5b21b6; }
-
+.hidden { display: none !important; }
 .separator { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 
-.hidden { display: none !important; }
+/* Approved badge */
+.approved-badge { display: inline-flex; align-items: center; gap: 6px;
+  background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;
+  border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 700;
+  margin-left: 10px; animation: slideDown .3s ease; }
+
+/* History table */
+.history-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
+.history-table th { background: var(--light); padding: 8px 10px; text-align: left;
+  font-weight: 700; color: #555; border-bottom: 2px solid var(--border); }
+.history-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+.history-table tr:last-child td { border-bottom: none; }
+
+/* Word count */
+.text-stats { font-size: 11px; color: #888; margin-top: 6px; display: flex; gap: 16px; }
+
+/* Epi filters */
+.filter-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 14px; }
+.filter-row .form-group { flex: 1; min-width: 150px; }
+
+/* Audit log */
+.audit-entry { background: var(--light); border-left: 3px solid var(--ai);
+  padding: 8px 12px; margin: 6px 0; border-radius: 0 6px 6px 0; font-size: 12px; }
+
+/* Editable struct */
+.struct-editable { width: 100%; border: 1px solid var(--border); border-radius: 6px;
+  padding: 6px 8px; font-size: 12px; resize: vertical; min-height: 60px; font-family: inherit; }
+
+/* Toast system */
+.toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999;
+  display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.toast { min-width: 280px; max-width: 380px; padding: 12px 16px; border-radius: 8px;
+  font-size: 13px; font-weight: 600; box-shadow: 0 4px 16px rgba(0,0,0,.18);
+  display: flex; align-items: flex-start; gap: 10px; pointer-events: all; cursor: pointer;
+  animation: toastIn .3s ease; transition: opacity .3s ease, transform .3s ease; }
+.toast.hiding { opacity: 0; transform: translateX(20px); }
+@keyframes toastIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
+.toast-success { background: #f0fdf4; border: 1px solid #86efac; color: #166534; }
+.toast-error   { background: #fef2f2; border: 1px solid #f87171; color: #991b1b; }
+.toast-warn    { background: #fffbeb; border: 1px solid #fbbf24; color: #92400e; }
+.toast-info    { background: #eff6ff; border: 1px solid #93c5fd; color: #1e40af; }
+
+/* Modal system */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 5000;
+  display: flex; align-items: center; justify-content: center; animation: fadeIn .2s ease; padding: 16px; }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+.modal { background: #fff; border-radius: 12px; padding: 28px; max-width: 560px; width: 100%;
+  max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.3);
+  animation: modalIn .25s ease; }
+@keyframes modalIn { from { opacity:0; transform:scale(.95) translateY(-10px); } to { opacity:1; transform:scale(1) translateY(0); } }
+.modal-title  { font-size: 18px; font-weight: 800; color: var(--dark); margin-bottom: 16px; }
+.modal-body   { font-size: 13px; line-height: 1.7; color: var(--text); }
+.modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap; }
+.modal label  { font-size: 13px; color: var(--text); font-weight: 400; }
+
+/* Checklist */
+.checklist { list-style: none; padding: 0; margin: 10px 0; }
+.checklist li { display: flex; align-items: center; gap: 8px; padding: 6px 0;
+  border-bottom: 1px solid var(--border); }
+.checklist li:last-child { border-bottom: none; }
+
+/* Print */
+@media print { .no-print { display: none !important; } }
 </style>
 </head>
 <body>
 
-<!-- ── HEADER ─────────────────────────────────────── -->
-<div class="app-header">
-  <h1>HC Digital ·  <span>IA</span> Integrada</h1>
-  <span class="phase-badge">Demo interactivo — IPS Imagenología</span>
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Header -->
+<div class="app-header no-print">
+  <h1>HC Digital &middot; <span>IA</span> Integrada</h1>
+  <span class="phase-badge">Demo interactivo &mdash; IPS Imagenologia</span>
 </div>
 
-<!-- ── TABS ───────────────────────────────────────── -->
-<div class="tabs">
-  <div class="tab active" onclick="showPanel('p1', this)">
-    <span class="tab-phase">FASE 1 · Anti-Glosa</span>
-    🧾 Auditor Pre-Facturación
-  </div>
-  <div class="tab" onclick="showPanel('p2', this)">
-    <span class="tab-phase">FASE 2 · Seguridad</span>
-    🛑 Alerta Temprana Contraste
-  </div>
-  <div class="tab" onclick="showPanel('p3', this)">
-    <span class="tab-phase">FASE 3 · Eficiencia</span>
-    🎙 Asistente de Dictado
-  </div>
-  <div class="tab" onclick="showPanel('p4', this)">
-    <span class="tab-phase">FASE 4 · Datos</span>
-    📊 Epidemiología Local
+<!-- Tabs -->
+<div class="tabs-wrapper no-print">
+  <div class="tabs" id="tabsRow">
+    <div class="tab active" data-panel="p1">
+      <span class="tab-phase">FASE 1 &middot; Anti-Glosa</span>
+      Auditor Pre-Facturacion
+    </div>
+    <div class="tab" data-panel="p2">
+      <span class="tab-phase">FASE 2 &middot; Seguridad</span>
+      Alerta Temprana Contraste
+    </div>
+    <div class="tab" data-panel="p3">
+      <span class="tab-phase">FASE 3 &middot; Eficiencia</span>
+      Asistente de Dictado
+    </div>
+    <div class="tab" data-panel="p4">
+      <span class="tab-phase">FASE 4 &middot; Datos</span>
+      Epidemiologia Local
+    </div>
   </div>
 </div>
 
 
-<!-- ═══════════════════════════════════════════════
-     PANEL 1 — AUDITOR ANTI-GLOSA
-═══════════════════════════════════════════════ -->
+<!-- ===== PANEL 1: AUDITOR ANTI-GLOSA ===== -->
 <div class="panel active" id="p1">
   <div class="panel-header">
-    <h2>🧾 Opción 1 — Auditor IA Pre-Facturación</h2>
-    <p>La IA lee el texto libre del informe radiológico y lo compara con el código CIE-10 y CUPS registrado antes de que la cuenta sea radicada ante la EPS. Detecta inconsistencias que generan glosas.</p>
-    <div class="how-it-works">🤖 <strong>Tecnología:</strong> NLP (procesamiento de lenguaje natural) — extrae entidades clínicas del texto libre y las cruza con ontologías CIE-10/CUPS.</div>
+    <h2>Auditor IA Pre-Facturacion</h2>
+    <p>La IA lee el texto libre del informe radiologico y lo compara con el codigo CIE-10 y CUPS registrado antes de que la cuenta sea radicada ante la EPS. Detecta inconsistencias que generan glosas.</p>
+    <div class="how-it-works"><strong>Tecnologia:</strong> NLP &mdash; extrae entidades clinicas del texto libre y las cruza con ontologias CIE-10/CUPS.</div>
   </div>
 
   <div class="card">
-    <div class="card-title">📋 Datos del Estudio a Auditar</div>
+    <div class="card-title">Datos del Estudio a Auditar</div>
     <div class="form-row three">
       <div class="form-group">
-        <label>Tipo de estudio</label>
+        <label>Tipo de estudio *</label>
         <select id="tipoEstudio">
           <option value="">Seleccionar...</option>
-          <option value="eco_abdomen">Ecografía abdominal</option>
-          <option value="rx_torax">Radiografía de tórax PA</option>
+          <option value="eco_abdomen">Ecografia abdominal</option>
+          <option value="rx_torax">Radiografia de torax PA</option>
           <option value="rm_rodilla">RM de rodilla</option>
           <option value="tac_abdomen">TAC abdomen-pelvis con contraste</option>
-          <option value="mamografia">Mamografía bilateral</option>
+          <option value="mamografia">Mamografia bilateral</option>
         </select>
       </div>
       <div class="form-group">
-        <label>Código CUPS facturado</label>
+        <label>Codigo CUPS facturado *</label>
         <select id="cups">
           <option value="">Seleccionar...</option>
-          <option value="890201">890201 — Ecografía abdominal</option>
-          <option value="371100">371100 — Rx tórax</option>
-          <option value="731600">731600 — RM rodilla</option>
-          <option value="392801">392801 — TAC abdomen con contraste</option>
-          <option value="870201">870201 — Mamografía bilateral</option>
+          <option value="890201">890201 &mdash; Ecografia abdominal</option>
+          <option value="371100">371100 &mdash; Rx torax</option>
+          <option value="731600">731600 &mdash; RM rodilla</option>
+          <option value="392801">392801 &mdash; TAC abdomen con contraste</option>
+          <option value="870201">870201 &mdash; Mamografia bilateral</option>
         </select>
       </div>
       <div class="form-group">
-        <label>CIE-10 diagnóstico</label>
+        <label>CIE-10 diagnostico *</label>
         <select id="cie10">
           <option value="">Seleccionar...</option>
-          <option value="R10">R10 — Dolor abdominal inespecífico</option>
-          <option value="K76">K76 — Esteatosis hepática</option>
-          <option value="C64">C64 — Tumor maligno riñón</option>
-          <option value="M23">M23 — Lesión interna de rodilla</option>
-          <option value="R04">R04 — Hemoptisis</option>
-          <option value="N18">N18 — Enfermedad renal crónica</option>
-          <option value="Z12">Z12 — Tamización / Screening oncológico</option>
+          <option value="R10">R10 &mdash; Dolor abdominal inespecifico</option>
+          <option value="K76">K76 &mdash; Esteatosis hepatica</option>
+          <option value="C64">C64 &mdash; Tumor maligno rinon</option>
+          <option value="M23">M23 &mdash; Lesion interna de rodilla</option>
+          <option value="R04">R04 &mdash; Hemoptisis</option>
+          <option value="N18">N18 &mdash; Enfermedad renal cronica</option>
+          <option value="Z12">Z12 &mdash; Tamisacion / Screening oncologico</option>
         </select>
       </div>
     </div>
     <div class="form-row full">
       <div class="form-group">
-        <label>📝 Texto libre del informe radiológico (copia el informe aquí)</label>
-        <textarea id="informeTexto" placeholder="Ej: Se realiza ecografía abdominal superior. Se identifica imagen nodular sólida en polo superior del riñón derecho de 3.2 cm, de contornos irregulares y vascularidad aumentada al Doppler. Hallazgos sugestivos de neoplasia renal. Se sugiere TAC de abdomen con contraste para caracterización..."></textarea>
+        <label>Texto libre del informe radiologico *</label>
+        <textarea id="informeTexto" rows="5" placeholder="Ej: Se realiza ecografia abdominal superior. Se identifica imagen nodular solida en polo superior del rinon derecho de 3.2 cm..."></textarea>
       </div>
     </div>
-
     <div class="btn-row">
-      <button class="btn btn-ai" onclick="cargarEjemplo()">⚡ Cargar ejemplo con inconsistencia</button>
-      <button class="btn btn-primary" onclick="auditarFactura()">🔍 Auditar con IA antes de facturar</button>
+      <button class="btn btn-ai" id="btn-p1-ejemplo">Cargar ejemplo con inconsistencia</button>
+      <button class="btn btn-primary" id="btn-p1-auditar">Auditar con IA antes de facturar</button>
+      <button class="btn btn-outline" id="btn-p1-limpiar">Limpiar formulario</button>
     </div>
   </div>
 
-  <!-- Resultado del auditor -->
   <div id="resultadoAuditoria"></div>
+
+  <div class="card" id="card-p1-history" style="display:none;">
+    <div class="card-title">Historial de auditorias anteriores</div>
+    <table class="history-table">
+      <thead><tr><th>Fecha</th><th>Auditor</th><th>Estudio</th><th>Resultado</th><th>Accion tomada</th></tr></thead>
+      <tbody>
+        <tr><td>2025-05-20</td><td>Dr. Ramirez</td><td>TAC abdomen</td><td><span class="factor f-red">Glosa detectada</span></td><td>CIE-10 corregido a C64</td></tr>
+        <tr><td>2025-05-18</td><td>Dra. Lopez</td><td>Ecografia hepatica</td><td><span class="factor f-warn">Inconsistencia moderada</span></td><td>Codigo secundario K76.0 agregado</td></tr>
+        <tr><td>2025-05-15</td><td>Dr. Torres</td><td>Mamografia bilateral</td><td><span class="factor f-ok">Aprobado</span></td><td>Enviado a facturacion</td></tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 
-<!-- ═══════════════════════════════════════════════
-     PANEL 2 — ALERTA TEMPRANA CONTRASTE
-═══════════════════════════════════════════════ -->
+<!-- ===== PANEL 2: ALERTA CONTRASTE ===== -->
 <div class="panel" id="p2">
   <div class="panel-header">
-    <h2>🛑 Opción 2 — Alerta Temprana de Seguridad en Contraste</h2>
-    <p>La IA calcula un Score de Riesgo de Nefropatía cruzando TFG, medicamentos activos, edad, peso y antecedentes. No solo bloquea los casos obvios — detecta la zona gris de riesgo moderado-alto que los protocolos estándar no capturan.</p>
-    <div class="how-it-works">🤖 <strong>Tecnología:</strong> Modelado predictivo con reglas clínicas ponderadas (CKD-EPI, criterios ESUR/ACR para contraste yodado).</div>
+    <h2>Alerta Temprana de Seguridad en Contraste</h2>
+    <p>La IA calcula un Score de Riesgo de Nefropatia cruzando TFG, medicamentos activos, edad, peso y antecedentes. Detecta la zona gris de riesgo moderado-alto que los protocolos estandar no capturan.</p>
+    <div class="how-it-works"><strong>Tecnologia:</strong> Modelado predictivo con reglas clinicas ponderadas (CKD-EPI, criterios ESUR/ACR para contraste yodado).</div>
   </div>
 
   <div class="card">
-    <div class="card-title">👤 Datos del Paciente — Evaluación Pre-Contraste</div>
+    <div class="card-title">Datos del Paciente &mdash; Evaluacion Pre-Contraste</div>
     <div class="form-row three">
-      <div class="form-group">
-        <label>Edad (años)</label>
-        <input type="number" id="edad" placeholder="Ej: 68" min="1" max="120"/>
-      </div>
-      <div class="form-group">
-        <label>Peso (kg)</label>
-        <input type="number" id="peso" placeholder="Ej: 85" min="20" max="250"/>
-      </div>
-      <div class="form-group">
-        <label>Sexo biológico</label>
-        <select id="sexo">
-          <option value="M">Masculino</option>
-          <option value="F">Femenino</option>
-        </select>
+      <div class="form-group"><label>Edad (anos) *</label><input type="number" id="edad" placeholder="Ej: 68" min="1" max="120"/></div>
+      <div class="form-group"><label>Peso (kg) *</label><input type="number" id="peso" placeholder="Ej: 85" min="20" max="250"/></div>
+      <div class="form-group"><label>Sexo biologico</label>
+        <select id="sexo"><option value="M">Masculino</option><option value="F">Femenino</option></select>
       </div>
     </div>
     <div class="form-row three">
-      <div class="form-group">
-        <label>TFG / eGFR (mL/min/1.73m²)</label>
-        <input type="number" id="tfg" placeholder="Ej: 48" min="0" max="150"/>
-      </div>
-      <div class="form-group">
-        <label>Creatinina sérica (mg/dL)</label>
-        <input type="number" id="creatinina" placeholder="Ej: 1.4" step="0.1"/>
-      </div>
-      <div class="form-group">
-        <label>Volumen de contraste planificado (mL)</label>
-        <input type="number" id="volContraste" placeholder="Ej: 100" min="10" max="300"/>
-      </div>
+      <div class="form-group"><label>TFG / eGFR (mL/min/1.73m2) *</label><input type="number" id="tfg" placeholder="Ej: 48" min="0" max="150"/></div>
+      <div class="form-group"><label>Creatinina serica (mg/dL)</label><input type="number" id="creatinina" placeholder="Ej: 1.4" step="0.1"/></div>
+      <div class="form-group"><label>Volumen de contraste (mL) *</label><input type="number" id="volContraste" placeholder="Ej: 100" min="10" max="300"/></div>
     </div>
     <div class="form-row">
-      <div class="form-group">
-        <label>Antecedente de alergia a contraste</label>
+      <div class="form-group"><label>Antecedente de alergia a contraste</label>
         <select id="alergia">
           <option value="no">No</option>
-          <option value="leve">Sí — reacción leve (urticaria)</option>
-          <option value="grave">Sí — reacción grave (anafilaxia)</option>
+          <option value="leve">Si &mdash; reaccion leve (urticaria)</option>
+          <option value="grave">Si &mdash; reaccion grave (anafilaxia)</option>
           <option value="no_sabe">No sabe / No recuerda</option>
         </select>
       </div>
-      <div class="form-group">
-        <label>Diabetes mellitus</label>
+      <div class="form-group"><label>Diabetes mellitus</label>
         <select id="diabetes">
           <option value="no">No</option>
-          <option value="si_metformina">Sí — toma Metformina</option>
-          <option value="si_otro">Sí — otro hipoglucemiante</option>
+          <option value="si_metformina">Si &mdash; toma Metformina</option>
+          <option value="si_otro">Si &mdash; otro hipoglucemiante</option>
         </select>
       </div>
     </div>
@@ -422,75 +372,68 @@ textarea { resize: vertical; min-height: 80px; }
       <div class="form-group">
         <label>Comorbilidades adicionales</label>
         <select id="comorbilidades" multiple style="height:80px;">
-          <option value="hta">Hipertensión arterial</option>
-          <option value="icc">Insuficiencia cardíaca congestiva</option>
-          <option value="mieloma">Mieloma múltiple</option>
-          <option value="deshidratacion">Deshidratación / ayuno prolongado</option>
-          <option value="nefropatia_prev">Nefropatía previa por contraste</option>
+          <option value="hta">Hipertension arterial</option>
+          <option value="icc">Insuficiencia cardiaca congestiva</option>
+          <option value="mieloma">Mieloma multiple</option>
+          <option value="deshidratacion">Deshidratacion / ayuno prolongado</option>
+          <option value="nefropatia_prev">Nefropatia previa por contraste</option>
         </select>
-        <small style="color:#888;font-size:11px">Ctrl+clic para selección múltiple</small>
+        <small style="color:#888;font-size:11px">Ctrl+clic para seleccion multiple</small>
       </div>
-      <div class="form-group">
-        <label>Tipo de estudio</label>
+      <div class="form-group"><label>Tipo de estudio</label>
         <select id="tipoEstudio2">
           <option value="tac">TAC con contraste yodado</option>
           <option value="rm_gadolinio">RM con gadolinio</option>
-          <option value="angio">Angiografía</option>
+          <option value="angio">Angiografia</option>
         </select>
       </div>
     </div>
-
     <div class="btn-row">
-      <button class="btn btn-ai" onclick="cargarEjemploRiesgo()">⚡ Cargar caso de riesgo (zona gris)</button>
-      <button class="btn btn-primary" onclick="calcularRiesgo()">🛡 Calcular Score de Riesgo IA</button>
+      <button class="btn btn-ai" id="btn-p2-ejemplo">Cargar caso de riesgo (zona gris)</button>
+      <button class="btn btn-primary" id="btn-p2-calcular">Calcular Score de Riesgo IA</button>
+      <button class="btn btn-outline" id="btn-p2-limpiar">Limpiar</button>
     </div>
   </div>
-
   <div id="resultadoRiesgo"></div>
 </div>
 
 
-<!-- ═══════════════════════════════════════════════
-     PANEL 3 — ASISTENTE DE DICTADO
-═══════════════════════════════════════════════ -->
+<!-- ===== PANEL 3: ASISTENTE DE DICTADO ===== -->
 <div class="panel" id="p3">
   <div class="panel-header">
-    <h2>🎙 Opción 3 — Asistente de Estructuración Clínica</h2>
-    <p>El radiólogo dicta los hallazgos en lenguaje libre. La IA estructura el texto en los campos del informe, sugiere la categoría de clasificación (BI-RADS, TI-RADS, etc.) y alerta si faltan campos obligatorios.</p>
-    <div class="how-it-works">🤖 <strong>Tecnología:</strong> Speech-to-Text médico + NLP de estructuración + ontologías de clasificación radiológica (ACR).</div>
+    <h2>Asistente de Estructuracion Clinica</h2>
+    <p>El radiologo dicta los hallazgos en lenguaje libre. La IA estructura el texto en los campos del informe, sugiere la categoria de clasificacion (BI-RADS, TI-RADS, etc.) y alerta si faltan campos obligatorios.</p>
+    <div class="how-it-works"><strong>Tecnologia:</strong> Speech-to-Text medico + NLP de estructuracion + ontologias de clasificacion radiologica (ACR).</div>
   </div>
 
   <div class="card">
-    <div class="card-title">⚙️ Configuración del Informe</div>
+    <div class="card-title">Configuracion del Informe</div>
     <div class="form-row">
       <div class="form-group">
         <label>Tipo de estudio</label>
-        <select id="tipoEstudio3" onchange="actualizarPlaceholder()">
-          <option value="mama">Mamografía bilateral</option>
-          <option value="tiroides">Ecografía de tiroides</option>
-          <option value="prostata">RM de próstata</option>
-          <option value="higado">RM de hígado</option>
-          <option value="torax_tac">TAC de tórax</option>
+        <select id="tipoEstudio3">
+          <option value="mama">Mamografia bilateral</option>
+          <option value="tiroides">Ecografia de tiroides</option>
+          <option value="prostata">RM de prostata</option>
+          <option value="higado">RM de higado</option>
+          <option value="torax_tac">TAC de torax</option>
         </select>
       </div>
       <div class="form-group">
         <label>Paciente</label>
-        <input type="text" value="García Martínez, Ana (52 años, F)" readonly style="background:#f9f9f9;"/>
+        <input type="text" value="Garcia Martinez, Ana (52 anos, F)" readonly style="background:#f9f9f9;"/>
       </div>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-title">🎙 Dictado libre del radiólogo</div>
+    <div class="card-title">Dictado libre del radiologo</div>
     <p style="font-size:12px;color:#666;margin-bottom:10px">Escribe o pega el dictado libre como si fuera el texto transcrito desde voz:</p>
-    <div style="position:relative;">
-      <textarea id="dictadoLibre" rows="5"
-        placeholder="Ej: Se realizó mamografía bilateral con proyecciones CC y MLO. En mama derecha cuadrante superior externo se identifican microcalcificaciones agrupadas de morfología pleomórfica en un área de 8mm. Sin adenopatías axilares. Mama izquierda sin alteraciones."
-        style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;font-size:13px;"></textarea>
-    </div>
+    <textarea id="dictadoLibre" rows="5" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;font-size:13px;"></textarea>
+    <div class="text-stats"><span id="wordCount">0 palabras</span><span id="readTime">~0 min de lectura</span></div>
     <div class="btn-row">
-      <button class="btn btn-ai" onclick="cargarDictadoEjemplo()">⚡ Cargar ejemplo de dictado</button>
-      <button class="btn btn-primary" onclick="estructurarDictado()">✨ Estructurar con IA</button>
+      <button class="btn btn-ai" id="btn-p3-ejemplo">Cargar ejemplo de dictado</button>
+      <button class="btn btn-primary" id="btn-p3-estructurar">Estructurar con IA</button>
     </div>
   </div>
 
@@ -498,754 +441,1043 @@ textarea { resize: vertical; min-height: 80px; }
 </div>
 
 
-<!-- ═══════════════════════════════════════════════
-     PANEL 4 — EPIDEMIOLOGÍA LOCAL
-═══════════════════════════════════════════════ -->
+<!-- ===== PANEL 4: EPIDEMIOLOGIA ===== -->
 <div class="panel" id="p4">
   <div class="panel-header">
-    <h2>📊 Opción 4 — Minería de Datos para Salud Pública</h2>
-    <p>La IA procesa todas las historias clínicas acumuladas para identificar tendencias epidemiológicas locales, generar alertas de salud pública y producir reportes automáticos para entes de control.</p>
-    <div class="how-it-works">🤖 <strong>Tecnología:</strong> Data Mining + análisis de series de tiempo + clustering geográfico. Requiere integración HIS/PACS en Fase 3.</div>
+    <h2>Mineria de Datos para Salud Publica</h2>
+    <p>La IA procesa todas las historias clinicas acumuladas para identificar tendencias epidemiologicas locales, generar alertas de salud publica y producir reportes automaticos para entes de control.</p>
+    <div class="how-it-works"><strong>Tecnologia:</strong> Data Mining + analisis de series de tiempo + clustering geografico. Requiere integracion HIS/PACS en Fase 3.</div>
   </div>
 
-  <!-- KPIs -->
   <div class="epi-grid">
-    <div class="kpi-card">
-      <div class="kpi-label">Estudios este mes</div>
-      <div class="kpi-val">1,247</div>
-      <div class="kpi-trend up">↑ 8.3% vs. mes anterior</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Hallazgos incidentales</div>
-      <div class="kpi-val">183</div>
-      <div class="kpi-trend up">↑ 14% — Esteatosis hepática</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Alertas epidemiológicas</div>
-      <div class="kpi-val" style="color:var(--warn)">2</div>
-      <div class="kpi-trend" style="color:var(--warn)">⚠ Activas — ver abajo</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Tasa eventos adversos</div>
-      <div class="kpi-val" style="color:var(--success)">0.4%</div>
-      <div class="kpi-trend down">↓ Bajo umbral (< 1%)</div>
-    </div>
+    <div class="kpi-card"><div class="kpi-label">Estudios este mes</div><div class="kpi-val">1,247</div><div class="kpi-trend up">Sube 8.3% vs. mes anterior</div></div>
+    <div class="kpi-card"><div class="kpi-label">Hallazgos incidentales</div><div class="kpi-val">183</div><div class="kpi-trend up">Sube 14% &mdash; Esteatosis hepatica</div></div>
+    <div class="kpi-card"><div class="kpi-label">Alertas epidemiologicas</div><div class="kpi-val" style="color:var(--warn)">2</div><div class="kpi-trend" style="color:var(--warn)">Activas &mdash; ver abajo</div></div>
+    <div class="kpi-card"><div class="kpi-label">Tasa eventos adversos</div><div class="kpi-val" style="color:var(--success)">0.4%</div><div class="kpi-trend down">Bajo umbral (menos del 1%)</div></div>
   </div>
 
-  <!-- Alertas epidemiológicas generadas por IA -->
   <div class="card">
-    <div class="card-title">🤖 Alertas epidemiológicas generadas por IA — últimos 30 días</div>
-
-    <div class="alert alert-warn show" style="margin-top:0">
-      <div class="alert-title">📊 Alerta #1 — Incremento de Esteatosis Hepática</div>
-      <p>En los últimos 30 días se detectó un incremento del <strong>14%</strong> en hallazgos de esteatosis hepática severa (grado 3) en pacientes <strong>masculinos de 40–50 años procedentes de la zona norte</strong> del área de influencia. Total casos: 34 (vs. 29 el mes anterior).</p>
-      <p style="margin-top:8px;font-size:12px;color:#92400e;"><strong>Recomendación IA:</strong> Notificar a la Secretaría de Salud municipal. Generar reporte epidemiológico automático. Considerar campaña de tamización con EPS aliadas.</p>
+    <div class="card-title">Alertas epidemiologicas generadas por IA &mdash; ultimos 30 dias</div>
+    <div class="alert alert-warn show" style="margin-top:0" id="alerta1">
+      <div class="alert-title">Alerta #1 &mdash; Incremento de Esteatosis Hepatica</div>
+      <p>En los ultimos 30 dias se detecto un incremento del <strong>14%</strong> en hallazgos de esteatosis hepatica severa (grado 3) en pacientes masculinos de 40&ndash;50 anos procedentes de la zona norte. Total casos: 34 (vs. 29 el mes anterior).</p>
+      <p style="margin-top:8px;font-size:12px;color:#92400e;"><strong>Recomendacion IA:</strong> Notificar a la Secretaria de Salud municipal. Generar reporte epidemiologico automatico.</p>
       <div class="alert-actions">
-        <button class="a-btn-blue" onclick="generarReporte(1)">📄 Generar reporte para Secretaría</button>
-        <button class="a-btn-warn">📧 Notificar a EPS aliadas</button>
-        <button class="a-btn-ghost">Desestimar</button>
+        <button class="a-btn-blue" id="btn-p4-reporte1">Generar reporte para Secretaria</button>
+        <button class="a-btn-warn" id="btn-p4-notifeps">Notificar a EPS aliadas</button>
+        <button class="a-btn-ghost" id="btn-p4-desestimar1">Desestimar</button>
       </div>
     </div>
-
-    <div class="alert alert-danger show">
-      <div class="alert-title">🛑 Alerta #2 — Nódulos Pulmonares Indeterminados</div>
-      <p>Se identificaron <strong>12 nódulos pulmonares indeterminados (Lung-RADS 3)</strong> en los últimos 15 días en pacientes entre 55–70 años. El <strong>75% no tiene orden de seguimiento registrada</strong> en el sistema.</p>
-      <p style="margin-top:8px;font-size:12px;color:#991b1b;"><strong>Acción requerida:</strong> Verificar que el médico remitente recibió el informe. Activar protocolo de seguimiento (TAC de control en 3–6 meses según Lung-RADS).</p>
+    <div class="alert alert-danger show" id="alerta2">
+      <div class="alert-title">Alerta #2 &mdash; Nodulos Pulmonares Indeterminados</div>
+      <p>Se identificaron <strong>12 nodulos pulmonares indeterminados (Lung-RADS 3)</strong> en los ultimos 15 dias en pacientes entre 55&ndash;70 anos. El <strong>75% no tiene orden de seguimiento registrada</strong> en el sistema.</p>
+      <p style="margin-top:8px;font-size:12px;color:#991b1b;"><strong>Accion requerida:</strong> Verificar que el medico remitente recibio el informe. Activar protocolo de seguimiento (TAC de control en 3&ndash;6 meses).</p>
       <div class="alert-actions">
-        <button class="a-btn-red">📋 Ver lista de pacientes sin seguimiento</button>
-        <button class="a-btn-blue">📧 Enviar recordatorio a remitentes</button>
+        <button class="a-btn-red" id="btn-p4-sinSeg">Ver lista de pacientes sin seguimiento</button>
+        <button class="a-btn-blue" id="btn-p4-recordatorio">Enviar recordatorio a remitentes</button>
       </div>
     </div>
   </div>
 
-  <!-- Heatmap de carga -->
   <div class="card">
-    <div class="card-title">🗓 Carga de estudios por día y hora — Últimas 4 semanas</div>
+    <div class="card-title">Carga de estudios por dia y hora &mdash; Ultimas 4 semanas</div>
+    <div class="filter-row">
+      <div class="form-group">
+        <label>Mes</label>
+        <select id="filtroMes">
+          <option value="5">Mayo 2025</option>
+          <option value="4">Abril 2025</option>
+          <option value="3">Marzo 2025</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Departamento</label>
+        <select id="filtroDpto">
+          <option value="todos">Todos</option>
+          <option value="imagen">Imagenologia</option>
+          <option value="urgencias">Urgencias</option>
+          <option value="consulta">Consulta externa</option>
+        </select>
+      </div>
+      <button class="btn btn-outline" id="btn-p4-filtrar" style="margin-bottom:4px;">Aplicar filtro</button>
+    </div>
     <div id="heatmapGrid"></div>
-    <p style="font-size:12px;color:#888;margin-top:10px;">
-      🤖 <strong>Insight IA:</strong> Los martes y miércoles de 10–12h concentran el 28% de los estudios pero solo el 18% del personal técnico. Recomendación: reforzar turno de mañana martes y miércoles con un tecnólogo adicional.
-    </p>
+    <p style="font-size:12px;color:#888;margin-top:10px;"><strong>Insight IA:</strong> Los martes y miercoles de 10&ndash;12h concentran el 28% de los estudios pero solo el 18% del personal tecnico. Recomendacion: reforzar turno de manana martes y miercoles.</p>
   </div>
 
-  <!-- Distribución diagnóstica -->
   <div class="card">
-    <div class="card-title">🔬 Top hallazgos incidentales del mes</div>
+    <div class="card-title">Top hallazgos incidentales del mes</div>
     <div id="chartIncidentales"></div>
     <div class="btn-row" style="margin-top:16px;">
-      <button class="btn btn-primary" onclick="generarReporte(4)">📄 Generar reporte mensual de calidad</button>
-      <button class="btn btn-outline">📊 Exportar datos a Excel</button>
+      <button class="btn btn-primary" id="btn-p4-reporteMensual">Generar reporte mensual de calidad</button>
+      <button class="btn btn-outline" id="btn-p4-excel">Exportar datos a Excel</button>
     </div>
   </div>
 </div>
 
 
-<!-- ═══════════════════════════════════════════════
-     JAVASCRIPT
-═══════════════════════════════════════════════ -->
 <script>
-/* ── Toast system ──────────────────────────────── */
-function showToast(message, type = 'info') {
-  const icons = { success:'✅', error:'❌', warn:'⚠️', info:'ℹ️' };
-  let container = document.getElementById('toast-container');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'toast-container';
-    container.style.cssText = 'position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;';
-    document.body.appendChild(container);
-  }
-  const toast = document.createElement('div');
-  toast.style.cssText = `background:#1a2e44;color:#fff;padding:12px 16px;border-radius:8px;font-size:13px;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,.25);pointer-events:all;display:flex;align-items:center;gap:10px;min-width:260px;max-width:360px;animation:toastIn .3s ease;border-left:4px solid ${{success:'#16a34a',error:'#dc2626',warn:'#d97706',info:'#3b82f6'}[type]||'#3b82f6'};`;
-  toast.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span style="flex:1">${message}</span><span style="margin-left:auto;cursor:pointer;opacity:.6;font-size:16px;" onclick="this.parentElement.remove()">✕</span>`;
-  container.appendChild(toast);
-  setTimeout(() => { toast.style.opacity='0'; toast.style.transform='translateX(20px)'; toast.style.transition='all .3s'; setTimeout(()=>toast.remove(),350); }, 4000);
-}
+'use strict';
 
-/* ── Modal system ──────────────────────────────── */
-function showModal(title, bodyHTML, buttons = []) {
-  let overlay = document.getElementById('globalModalOverlay');
-  if (!overlay) {
-    overlay = document.createElement('div');
-    overlay.id = 'globalModalOverlay';
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s ease;';
-    document.body.appendChild(overlay);
-    overlay.addEventListener('click', e => { if(e.target===overlay) overlay.remove(); });
-  }
-  overlay.innerHTML = `
-    <div style="background:#fff;border-radius:12px;width:100%;max-width:520px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:90vh;overflow-y:auto;">
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #d1dce8;">
-        <h2 style="font-size:16px;font-weight:700;color:#1a2e44;">${title}</h2>
-        <button onclick="document.getElementById('globalModalOverlay').remove()" style="cursor:pointer;font-size:20px;color:#888;background:none;border:none;">✕</button>
-      </div>
-      <div style="padding:20px;">${bodyHTML}</div>
-      <div style="padding:14px 20px;border-top:1px solid #d1dce8;display:flex;justify-content:flex-end;gap:10px;" id="modalBtns"></div>
-    </div>`;
-  const btnContainer = overlay.querySelector('#modalBtns');
-  buttons.forEach(b => {
-    const btn = document.createElement('button');
-    btn.style.cssText = `display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:${b.cls?.includes('outline') ? '1px solid #d1dce8' : 'none'};border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;background:${b.cls?.includes('primary') ? '#0f5fa8' : b.cls?.includes('danger') ? '#dc2626' : '#fff'};color:${b.cls?.includes('primary')||b.cls?.includes('danger') ? '#fff' : '#2d3748'};`;
-    btn.textContent = b.label;
-    btn.onclick = b.action;
-    btnContainer.appendChild(btn);
+/* ── Timeout registry ── */
+var _timeouts = {};
+function _storeTimeout(key, fn, delay) {
+  if (_timeouts[key]) clearTimeout(_timeouts[key]);
+  _timeouts[key] = setTimeout(fn, delay);
+}
+function _clearPanelTimeouts(panelId) {
+  Object.keys(_timeouts).forEach(function(k) {
+    if (k.indexOf(panelId) === 0) { clearTimeout(_timeouts[k]); delete _timeouts[k]; }
   });
 }
 
-/* ── Tabs ──────────────────────────────────────── */
-const activeTimeouts = {};
-
-function showPanel(id, tabEl) {
-  // Cancelar timeouts pendientes al cambiar de pestaña
-  Object.values(activeTimeouts).forEach(clearTimeout);
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  if (tabEl) tabEl.classList.add('active');
-}
-
-/* ════════════════════════════════════════════════
-   PANEL 1 — AUDITOR ANTI-GLOSA
-════════════════════════════════════════════════ */
-function cargarEjemplo() {
-  document.getElementById('tipoEstudio').value = 'eco_abdomen';
-  document.getElementById('cups').value = '890201';
-  document.getElementById('cie10').value = 'R10';
-  document.getElementById('informeTexto').value =
-    'Se realiza ecografía abdominal superior. Hígado con ecoestructura homogénea. Vesícula biliar sin cálculos. '+
-    'Se identifica imagen nodular sólida en polo superior del riñón derecho de 3.2 cm, de contornos irregulares '+
-    'y vascularidad aumentada al Doppler color. Los hallazgos son altamente sugestivos de neoplasia renal primaria. '+
-    'Se recomienda complementar con TAC abdomen-pelvis con contraste trifásico para estadificación. '+
-    'Riñón izquierdo sin alteraciones. No se observan adenopatías retroperitoneales.';
-}
-
-function auditarFactura() {
-  const tipo  = document.getElementById('tipoEstudio').value;
-  const cups  = document.getElementById('cups').value;
-  const cie10 = document.getElementById('cie10').value;
-  const texto = document.getElementById('informeTexto').value.trim();
-  const res   = document.getElementById('resultadoAuditoria');
-
-  if (!tipo || !cups || !cie10 || !texto) {
-    res.innerHTML = `<div class="alert alert-warn show"><div class="alert-title">⚠ Datos incompletos</div>Completa todos los campos para ejecutar la auditoría.</div>`;
-    return;
+/* ── Toast system ── */
+function showToast(message, type, duration) {
+  type = type || 'info';
+  duration = duration || 4000;
+  var icons = { success:'OK', error:'ERR', warn:'WARN', info:'INFO' };
+  var container = document.getElementById('toastContainer');
+  var toast = document.createElement('div');
+  toast.className = 'toast toast-' + type;
+  toast.innerHTML = '<span style="flex:1">' + message + '</span><span style="margin-left:auto;opacity:.6;font-size:14px;flex-shrink:0;">x</span>';
+  container.appendChild(toast);
+  function dismiss() {
+    toast.classList.add('hiding');
+    setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
   }
-
-  res.innerHTML = `<div class="alert alert-ai show"><div class="alert-title"><span class="spinner"></span> Analizando informe con IA...</div></div>`;
-
-  setTimeout(() => {
-    const inconsistencias = detectarInconsistencias(tipo, cups, cie10, texto);
-    res.innerHTML = inconsistencias;
-  }, 1800);
+  toast.addEventListener('click', dismiss);
+  setTimeout(dismiss, duration);
 }
 
-function detectarInconsistencias(tipo, cups, cie10, texto) {
-  const t = texto.toLowerCase();
-
-  // Caso: Informe sugiere neoplasia renal pero CIE-10 es dolor abdominal inespecífico
-  const tieneNeoplasia = t.includes('neoplasia') || t.includes('tumor') || t.includes('masa') || t.includes('maligno') || t.includes('carcinoma');
-  const cie10Inespecifico = ['R10','R04','M23'].includes(cie10);
-  const tieneEsteatosis  = t.includes('esteatosis') || t.includes('hígado graso') || t.includes('infiltración grasa');
-
-  if (tieneNeoplasia && cie10Inespecifico) {
-    return `
-      <div class="alert alert-danger show">
-        <div class="alert-title">⚠️ GLOSA POTENCIAL DETECTADA — Riesgo: Alto</div>
-        <p>La IA identificó una <strong>inconsistencia crítica entre el contenido del informe y la codificación diagnóstica</strong>:</p>
-        <br>
-        <p>📍 <strong>El informe describe:</strong> "imagen nodular sólida... altamente sugestivos de neoplasia renal primaria"</p>
-        <p>📍 <strong>CIE-10 registrado:</strong> <code>R10 — Dolor abdominal y pélvico inespecífico</code></p>
-        <br>
-        <p>⚠ <strong>Riesgo de glosa:</strong> La EPS puede objetar por falta de pertinencia médica — el diagnóstico de facturación no justifica el estudio realizado ni el hallazgo informado.</p>
-        <div class="factors" style="margin-top:10px;">
-          <span class="factor f-red">🔴 Hallazgo oncológico no codificado</span>
-          <span class="factor f-red">🔴 CIE-10 inespecífico</span>
-          <span class="factor f-warn">🟡 Recomendación de seguimiento sin código CUPS</span>
-        </div>
-        <hr style="margin:14px 0;border-color:#fca5a5;">
-        <p><strong>Acciones sugeridas por la IA:</strong></p>
-        <div class="alert-actions">
-          <button class="a-btn-blue" onclick="mostrarSugerenciaCIE('C64')">✏️ Corregir a C64 — Tumor riñón</button>
-          <button class="a-btn-blue" onclick="mostrarSugerenciaCIE('D41.0')">✏️ Sugerir D41.0 — Tumor incierto riñón</button>
-          <button class="a-btn-warn" onclick="showToast('Expediente enviado a revisión de calidad','warn')">📧 Enviar a revisión de calidad</button>
-          <button class="a-btn-ghost" onclick="showToast('Facturación bloqueada. Expediente en cola de revisión.','error')">🔒 Bloquear facturación</button>
-        </div>
-      </div>`;
-  }
-
-  if (tieneEsteatosis && cie10 === 'R10') {
-    return `
-      <div class="alert alert-warn show">
-        <div class="alert-title">⚠️ Inconsistencia moderada detectada — Riesgo: Medio</div>
-        <p>El informe describe hallazgos de esteatosis hepática pero el código CIE-10 registrado (R10) corresponde a dolor abdominal inespecífico.</p>
-        <p style="margin-top:8px;"><strong>Sugerencia:</strong> Agregar código secundario <code>K76.0 — Hígado graso no clasificado en otra parte</code>.</p>
-        <div class="alert-actions">
-          <button class="a-btn-blue" onclick="mostrarSugerenciaCIE('K76.0')">✏️ Agregar K76.0 como diagnóstico secundario</button>
-          <button class="a-btn-ghost">Mantener como está (acepto el riesgo)</button>
-        </div>
-      </div>`;
-  }
-
-  return `
-    <div class="alert alert-success show">
-      <div class="alert-title">✅ Informe aprobado — Sin inconsistencias detectadas</div>
-      <p>La IA analizó el texto del informe y lo encontró <strong>coherente con el código CUPS y el CIE-10 registrados</strong>. El expediente puede proceder a facturación.</p>
-      <div class="factors" style="margin-top:10px;">
-        <span class="factor f-ok">✅ Diagnóstico alineado con hallazgos</span>
-        <span class="factor f-ok">✅ CUPS correcto para el estudio</span>
-        <span class="factor f-ok">✅ Sin términos de riesgo oncológico no codificado</span>
-      </div>
-      <div class="alert-actions">
-        <button class="a-btn-blue" onclick="showToast('Expediente aprobado para facturación. Registro auditado.','success')">🧾 Aprobar para facturación</button>
-      </div>
-    </div>`;
-}
-
-function mostrarSugerenciaCIE(codigo) {
-  alert(`✅ CIE-10 actualizado a ${codigo}. El expediente puede proceder a facturación.\n\nNota: El cambio queda auditado con fecha, hora y usuario responsable.`);
-}
-
-/* ════════════════════════════════════════════════
-   PANEL 2 — SCORE DE RIESGO CONTRASTE
-════════════════════════════════════════════════ */
-function cargarEjemploRiesgo() {
-  document.getElementById('edad').value = 68;
-  document.getElementById('peso').value = 92;
-  document.getElementById('sexo').value = 'M';
-  document.getElementById('tfg').value = 45;
-  document.getElementById('creatinina').value = 1.5;
-  document.getElementById('volContraste').value = 120;
-  document.getElementById('alergia').value = 'no';
-  document.getElementById('diabetes').value = 'si_metformina';
-  document.getElementById('tipoEstudio2').value = 'tac';
-  // Seleccionar comorbilidades
-  const sel = document.getElementById('comorbilidades');
-  for (let opt of sel.options) {
-    opt.selected = opt.value === 'hta' || opt.value === 'deshidratacion';
-  }
-}
-
-function calcularRiesgo() {
-  const edad       = parseInt(document.getElementById('edad').value) || 0;
-  const peso       = parseFloat(document.getElementById('peso').value) || 0;
-  const tfg        = parseFloat(document.getElementById('tfg').value) || 999;
-  const creat      = parseFloat(document.getElementById('creatinina').value) || 0;
-  const alergia    = document.getElementById('alergia').value;
-  const diabetes   = document.getElementById('diabetes').value;
-  const tipoEst    = document.getElementById('tipoEstudio2').value;
-  const comorbSel  = [...document.getElementById('comorbilidades').selectedOptions].map(o=>o.value);
-  const vol        = parseFloat(document.getElementById('volContraste').value) || 0;
-  const res        = document.getElementById('resultadoRiesgo');
-
-  if (!edad || !tfg || !vol) {
-    res.innerHTML = `<div class="alert alert-warn show"><div class="alert-title">⚠ Faltan datos</div>Ingresa al menos edad, TFG y volumen de contraste.</div>`;
-    return;
-  }
-
-  res.innerHTML = `<div class="alert alert-ai show"><div class="alert-title"><span class="spinner"></span> Calculando Score de Riesgo IA...</div></div>`;
-
-  setTimeout(() => {
-    // Calcular score ponderado
-    let score = 0;
-    const factores = [];
-
-    if (tfg < 30)       { score += 40; factores.push({t:'TFG < 30 (IR severa)',c:'f-red'}); }
-    else if (tfg < 45)  { score += 30; factores.push({t:'TFG 30–45 (IR moderada-grave)',c:'f-red'}); }
-    else if (tfg < 60)  { score += 18; factores.push({t:'TFG 45–60 (IR moderada)',c:'f-warn'}); }
-
-    if (creat > 1.7)    { score += 15; factores.push({t:'Creatinina > 1.7 mg/dL',c:'f-red'}); }
-    else if (creat > 1.3){ score += 8; factores.push({t:'Creatinina limítrofe (1.3–1.7)',c:'f-warn'}); }
-
-    if (diabetes === 'si_metformina') { score += 15; factores.push({t:'Metformina activa (riesgo acidosis láctica)',c:'f-red'}); }
-    else if (diabetes === 'si_otro')  { score += 6; factores.push({t:'Diabetes mellitus',c:'f-warn'}); }
-
-    if (edad > 65)      { score += 10; factores.push({t:'Edad > 65 años',c:'f-warn'}); }
-    if (edad > 80)      { score += 5; }
-
-    if (alergia === 'grave')  { score += 25; factores.push({t:'Alergia grave previa (anafilaxia)',c:'f-red'}); }
-    else if (alergia === 'leve') { score += 12; factores.push({t:'Reacción leve previa al contraste',c:'f-warn'}); }
-    else if (alergia === 'no_sabe') { score += 8; factores.push({t:'Antecedente alérgico desconocido',c:'f-warn'}); }
-
-    if (comorbSel.includes('icc'))             { score += 12; factores.push({t:'Insuficiencia cardíaca congestiva',c:'f-warn'}); }
-    if (comorbSel.includes('mieloma'))         { score += 10; factores.push({t:'Mieloma múltiple',c:'f-red'}); }
-    if (comorbSel.includes('deshidratacion'))  { score += 10; factores.push({t:'Deshidratación / ayuno prolongado',c:'f-warn'}); }
-    if (comorbSel.includes('nefropatia_prev')) { score += 20; factores.push({t:'Nefropatía previa por contraste',c:'f-red'}); }
-    if (comorbSel.includes('hta'))             { score += 5; factores.push({t:'Hipertensión arterial',c:'f-warn'}); }
-
-    // Volumen relativo (ratio volumen/TFG × 100)
-    const ratioVol = (vol / Math.max(tfg,1)) * 100;
-    if (ratioVol > 300) { score += 15; factores.push({t:`Ratio V/TFG alto (${ratioVol.toFixed(0)}%)`,c:'f-red'}); }
-    else if (ratioVol > 200) { score += 8; factores.push({t:`Ratio V/TFG elevado (${ratioVol.toFixed(0)}%)`,c:'f-warn'}); }
-
-    if (!factores.length) factores.push({t:'Sin factores de riesgo identificados',c:'f-ok'});
-
-    score = Math.min(score, 100);
-    const nivel = score >= 70 ? 'high' : score >= 40 ? 'medium' : 'low';
-    const label = score >= 70 ? '🛑 RIESGO ALTO' : score >= 40 ? '⚠ RIESGO MODERADO' : '✅ RIESGO BAJO';
-    const alertClass = score >= 70 ? 'alert-danger' : score >= 40 ? 'alert-warn' : 'alert-success';
-
-    const recomendaciones = generarRecomendaciones(score, tfg, diabetes, alergia, vol, tipoEst, comorbSel);
-
-    res.innerHTML = `
-      <div class="alert ${alertClass} show">
-        <div class="alert-title">${label}</div>
-        <div class="score-display">
-          <div class="score-ring ${nivel}">${score}%</div>
-          <div class="score-detail">
-            <strong>Score de Riesgo de Nefropatía: ${score}/100</strong>
-            ${score >= 70 ? '⛔ Se requiere intervención antes de proceder con el contraste.' : ''}
-            ${score >= 40 && score < 70 ? '⚠ Zona gris: el protocolo estándar no bloquearía este caso, pero la IA detecta riesgo acumulado.' : ''}
-            ${score < 40 ? 'El paciente puede recibir el contraste bajo protocolo estándar.' : ''}
-          </div>
-        </div>
-        <div class="factors">
-          ${factores.map(f=>`<span class="factor ${f.c}">${f.t}</span>`).join('')}
-        </div>
-        <hr style="margin:14px 0;opacity:.3;">
-        <strong>Recomendaciones de la IA:</strong>
-        <ul style="margin-top:8px;padding-left:18px;font-size:12px;line-height:2;">
-          ${recomendaciones.map(r=>`<li>${r}</li>`).join('')}
-        </ul>
-        <div class="alert-actions">
-          ${score >= 70 ? `
-            <button class="a-btn-red" onclick="bloquearContraste()">🔒 Bloquear contraste + Notificar radiólogo</button>
-            <button class="a-btn-blue" onclick="activarHidratacion()">💉 Activar protocolo hidratación IV</button>
-          ` : score >= 40 ? `
-            <button class="a-btn-warn" onclick="consultarRadiologo()">⚠ Consultar al radiólogo antes de inyectar</button>
-            <button class="a-btn-blue" onclick="showToast('Protocolo de precaución activado. Enfermería notificada.','warn')">🛡 Activar protocolo precaución</button>
-            <button class="a-btn-ghost" onclick="procederConRiesgo()">Proceder (acepto el riesgo)</button>
-          ` : `
-            <button class="a-btn-blue" onclick="showToast('Contraste autorizado. Registro auditado con timestamp.','success')">✅ Autorizar contraste</button>
-          `}
-        </div>
-      </div>`;
-  }, 1500);
-}
-
-function generarRecomendaciones(score, tfg, diabetes, alergia, vol, tipo, comorbilidades) {
-  const r = [];
-  if (tfg < 60) r.push('Verificar TFG con examen de laboratorio reciente (máx. 3 meses).');
-  if (tfg < 45) r.push('Considerar protocolo de contraste iso-osmolar o reducir volumen al mínimo diagnóstico.');
-  if (diabetes === 'si_metformina') r.push('Suspender Metformina 48h antes y 48h después del procedimiento con contraste yodado (riesgo de acidosis láctica).');
-  if (alergia === 'leve') r.push('Protocolo de premedicación: Metilprednisolona 32mg VO 12h y 2h antes + Difenhidramina 50mg IM 1h antes.');
-  if (alergia === 'grave') r.push('⛔ CONTRAINDICACIÓN RELATIVA: Discutir con el radiólogo la necesidad del contraste. Si es imprescindible: premedicación obligatoria + UCI en standby.');
-  if (comorbilidades.includes('deshidratacion')) r.push('Hidratación previa IV: NaCl 0.9% 1mL/kg/h por 6h antes y 6h después (protocolo ESUR).');
-  if (comorbilidades.includes('icc')) r.push('Monitorizar carga de volumen; la hidratación previa debe ser ajustada con cardiología.');
-  if (score >= 40) r.push('Medir creatinina basal y a las 48h post-procedimiento.');
-  if (r.length === 0) r.push('Proceder con protocolo estándar. No se requieren medidas adicionales.');
-  return r;
-}
-
-/* ════════════════════════════════════════════════
-   PANEL 3 — ESTRUCTURACIÓN DE DICTADO
-════════════════════════════════════════════════ */
-const placeholders = {
-  mama:      'Ej: Se realizó mamografía bilateral con proyecciones CC y MLO. En mama derecha cuadrante superior externo se identifican microcalcificaciones agrupadas de morfología pleomórfica en un área de 8mm. Sin adenopatías axilares. Mama izquierda sin alteraciones.',
-  tiroides:  'Ej: Ecografía tiroidea. Lóbulo derecho con nódulo sólido hipoecoico de 1.1 cm con bordes irregulares y calcificaciones puntiformes. Lóbulo izquierdo homogéneo. Sin adenopatías cervicales.',
-  prostata:  'Ej: RM multiparamétrica de próstata. En zona de transición se identifica área de restricción a la difusión con correlato en mapa ADC de 0.8 × 0.7 cm, localizada en sector anterolateral derecho. PI-RADS 4.',
-  higado:    'Ej: RM de hígado con contraste dinámico. Se identifica lesión de 2.3 cm en segmento VI con realce arterial y lavado en fase venosa portal, compatible con hepatocarcinoma. LI-RADS LR-5.',
-  torax_tac: 'Ej: TAC de tórax de alta resolución. Nódulo pulmonar sólido de 8mm en lóbulo superior derecho sin calcificaciones. No se observan adenopatías mediastínicas. Hallazgos adicionales: derrame pleural izquierdo laminar.'
-};
-
-function actualizarPlaceholder() {
-  const tipo = document.getElementById('tipoEstudio3').value;
-  document.getElementById('dictadoLibre').placeholder = placeholders[tipo] || '';
-}
-
-function cargarDictadoEjemplo() {
-  const tipo = document.getElementById('tipoEstudio3').value;
-  document.getElementById('dictadoLibre').value = placeholders[tipo] || placeholders.mama;
-}
-
-function estructurarDictado() {
-  const texto = document.getElementById('dictadoLibre').value.trim();
-  const tipo  = document.getElementById('tipoEstudio3').value;
-  const res   = document.getElementById('resultadoEstructura');
-
-  if (!texto) {
-    res.innerHTML = `<div class="alert alert-warn show"><div class="alert-title">⚠</div>Ingresa el texto del dictado.</div>`;
-    return;
-  }
-
-  res.innerHTML = `<div class="alert alert-ai show"><div class="alert-title"><span class="spinner"></span> Estructurando dictado con IA...</div></div>`;
-
-  setTimeout(() => {
-    const estructura = procesarDictado(texto, tipo);
-    res.innerHTML = estructura;
-  }, 2000);
-}
-
-function procesarDictado(texto, tipo) {
-  const t = texto.toLowerCase();
-
-  // Detectar sistema de clasificación
-  let sistema = '', categoria = '', justificacion = '';
-
-  if (tipo === 'mama') {
-    if (t.includes('pleomórfi') || t.includes('pleomorfic')) {
-      sistema = 'BI-RADS'; categoria = '4B';
-      justificacion = 'Microcalcificaciones de morfología pleomórfica agrupadas → sospecha intermedia-alta de malignidad';
-    } else if (t.includes('birads')) {
-      sistema = 'BI-RADS'; categoria = 'detección en texto';
-    } else {
-      sistema = 'BI-RADS'; categoria = '3 (sugerido)';
-      justificacion = 'Sin descriptores de alta sospecha — probable hallazgo benigno';
+/* ── Modal system ── */
+function showModal(opts) {
+  var overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  var btns = (opts.buttons || []).map(function(b) {
+    return '<button class="btn ' + (b.cls || 'btn-outline') + '" data-action="' + (b.action || '') + '">' + b.label + '</button>';
+  }).join('');
+  overlay.innerHTML = '<div class="modal"><div class="modal-title">' + opts.title + '</div>' +
+    '<div class="modal-body">' + opts.body + '</div>' +
+    '<div class="modal-footer">' + btns + '<button class="btn btn-outline" data-action="close">Cancelar</button></div></div>';
+  overlay.addEventListener('click', function(e) {
+    var action = e.target.getAttribute('data-action');
+    if (action === 'close' || e.target === overlay) {
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      if (opts.onClose) opts.onClose();
+    } else if (action) {
+      var btn = (opts.buttons || []).filter(function(b) { return b.action === action; })[0];
+      if (btn && btn.onClick) btn.onClick(overlay);
     }
-  } else if (tipo === 'tiroides') {
-    sistema = 'TI-RADS ACR';
-    if (t.includes('hipoecoico') && t.includes('irregular') && t.includes('calcificac')) {
-      categoria = '4 (TR4)'; justificacion = 'Nódulo sólido hipoecoico + bordes irregulares + calcificaciones puntiformes = 7 puntos ACR';
-    } else { categoria = '3 (TR3)'; justificacion = 'Nódulo sólido sin características de alta sospecha'; }
-  } else if (tipo === 'prostata') {
-    sistema = 'PI-RADS v2.1';
-    if (t.includes('pi-rads 4') || t.includes('pirads 4')) { categoria = '4'; justificacion = 'Hallazgo clínicamente significativo probable'; }
-    else if (t.includes('restricción a la difusión') || t.includes('adc')) { categoria = '4 (sugerido)'; justificacion = 'Restricción a la difusión + correlato ADC en zona de transición'; }
-    else { categoria = '3'; justificacion = 'Sin característica definitoria de alta sospecha'; }
-  } else if (tipo === 'higado') {
-    sistema = 'LI-RADS';
-    if (t.includes('lr-5') || t.includes('lr5')) { categoria = 'LR-5'; justificacion = 'Hepatocarcinoma definitivo — realce arterial + lavado + tamaño > 2cm'; }
-    else if (t.includes('realce arterial') && t.includes('lavado')) { categoria = 'LR-5 (sugerido)'; justificacion = 'Patrón de realce arterial con lavado portal compatible con HCC'; }
-    else { categoria = 'LR-3'; justificacion = 'Hallazgo intermedio, requiere caracterización adicional'; }
-  } else if (tipo === 'torax_tac') {
-    sistema = 'Lung-RADS';
-    if (t.includes('8mm') || t.includes('8 mm')) { categoria = '3'; justificacion = 'Nódulo sólido ≥ 6mm y < 8mm sin alta sospecha → seguimiento TAC en 3-6 meses'; }
-    else if (t.includes('espiculado') || t.includes('irregular')) { categoria = '4A'; justificacion = 'Nódulo con morfología sospechosa'; }
-    else { categoria = '2'; justificacion = 'Hallazgo probablemente benigno'; }
+  });
+  document.body.appendChild(overlay);
+  return overlay;
+}
+
+/* ── Tab navigation ── */
+document.addEventListener('DOMContentLoaded', function() {
+
+  document.querySelectorAll('.tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      var panelId = this.getAttribute('data-panel');
+      document.querySelectorAll('.panel.active').forEach(function(p) { _clearPanelTimeouts(p.id); });
+      document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+      document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+      document.getElementById(panelId).classList.add('active');
+      this.classList.add('active');
+    });
+  });
+
+  /* ════════════════ PANEL 1 ════════════════ */
+  document.getElementById('btn-p1-ejemplo').addEventListener('click', cargarEjemplo);
+  document.getElementById('btn-p1-auditar').addEventListener('click', auditarFactura);
+  document.getElementById('btn-p1-limpiar').addEventListener('click', limpiarP1);
+
+  function limpiarP1() {
+    ['tipoEstudio','cups','cie10'].forEach(function(id) { document.getElementById(id).value = ''; });
+    document.getElementById('informeTexto').value = '';
+    document.getElementById('resultadoAuditoria').innerHTML = '';
+    document.getElementById('card-p1-history').style.display = 'none';
+    showToast('Formulario limpiado', 'info');
   }
 
-  // Extraer secciones del texto (simplificado)
-  const lineas = texto.split('. ');
-  const tecnica = lineas.filter(l => l.match(/se realiz|proyecci|protocolo|estudi/i)).join('. ') || 'Según técnica estándar del departamento.';
-  const conclusion = lineas.filter(l => l.match(/compatibl|suggest|conclusi|se recomend|impresion/i)).join('. ') || `Hallazgos descritos — clasificación ${sistema} ${categoria}.`;
-  const hallazgos = lineas.filter(l => !l.match(/se realiz|proyecci|se recomend/i)).join('. ');
+  function cargarEjemplo() {
+    document.getElementById('tipoEstudio').value = 'eco_abdomen';
+    document.getElementById('cups').value = '890201';
+    document.getElementById('cie10').value = 'R10';
+    document.getElementById('informeTexto').value =
+      'Se realiza ecografia abdominal superior. Higado con ecoestructura homogenea. Vesicula biliar sin calculos. ' +
+      'Se identifica imagen nodular solida en polo superior del rinon derecho de 3.2 cm, de contornos irregulares ' +
+      'y vascularidad aumentada al Doppler color. Los hallazgos son altamente sugestivos de neoplasia renal primaria. ' +
+      'Se recomienda complementar con TAC abdomen-pelvis con contraste trifasico para estadificacion. ' +
+      'Rinon izquierdo sin alteraciones. No se observan adenopatias retroperitoneales.';
+    showToast('Ejemplo cargado con inconsistencia CIE-10', 'info');
+  }
 
-  const faltantes = [];
-  if (!sistema) faltantes.push('Sistema de clasificación');
-  if (tipo === 'mama' && !t.includes('adenopat')) faltantes.push('Estado de adenopatías axilares');
-  if (tipo === 'torax_tac' && !t.includes('mediastin')) faltantes.push('Evaluación del mediastino');
-  if (tipo === 'torax_tac' && !t.includes('derrame') && !t.includes('pleural')) faltantes.push('Estado de espacios pleurales');
+  function auditarFactura() {
+    var tipo  = document.getElementById('tipoEstudio').value;
+    var cups  = document.getElementById('cups').value;
+    var cie10 = document.getElementById('cie10').value;
+    var texto = document.getElementById('informeTexto').value.trim();
+    var res   = document.getElementById('resultadoAuditoria');
 
-  return `
-    <div class="card">
-      <div class="card-title">✨ Informe estructurado por IA</div>
-      <div class="structured-grid">
-        <div class="struct-box">
-          <div class="struct-label">Técnica</div>
-          <p>${tecnica || 'Extraída del dictado.'}</p>
-        </div>
-        <div class="struct-box">
-          <div class="struct-label">Conclusión</div>
-          <p>${conclusion}</p>
-        </div>
-        <div class="struct-box" style="grid-column:1/-1;">
-          <div class="struct-label">Hallazgos</div>
-          <p>${hallazgos}</p>
-        </div>
-      </div>
+    if (!tipo)  { showToast('Selecciona el tipo de estudio', 'warn'); return; }
+    if (!cups)  { showToast('Selecciona el codigo CUPS', 'warn'); return; }
+    if (!cie10) { showToast('Selecciona el codigo CIE-10', 'warn'); return; }
+    if (!texto) { showToast('Ingresa el texto del informe radiologico', 'warn'); return; }
 
-      ${sistema ? `
-      <div class="alert alert-ai show" style="margin-top:14px;">
-        <div class="ai-bubble-label">🤖 Sugerencia de clasificación IA</div>
-        <p>Basado en los hallazgos descritos, ¿deseas clasificar este informe como <strong>${sistema} ${categoria}</strong>?</p>
-        <p style="font-size:12px;margin-top:4px;color:#5b21b6;"><em>Justificación: ${justificacion}</em></p>
-        <div class="alert-actions">
-          <button class="a-btn-blue" onclick="aceptarClasificacion('${sistema}','${categoria}')">✅ Confirmar ${sistema} ${categoria}</button>
-          <button class="a-btn-ghost" onclick="alert('Puedes modificar la categoría manualmente en el campo de clasificación.')">Cambiar categoría</button>
-        </div>
-      </div>` : ''}
+    res.innerHTML = '<div class="alert alert-ai show"><div class="alert-title"><span class="spinner"></span> Analizando informe con IA...</div></div>';
 
-      ${faltantes.length ? `
-      <div class="alert alert-warn show" style="margin-top:10px;">
-        <div class="alert-title">⚠ Campos obligatorios no detectados en el dictado</div>
-        <p>El informe podría estar incompleto. La IA no encontró mención de:</p>
-        <ul style="margin-top:6px;padding-left:18px;font-size:12px;line-height:1.8;">
-          ${faltantes.map(f=>`<li>${f}</li>`).join('')}
-        </ul>
-        <div class="alert-actions">
-          <button class="a-btn-warn" onclick="alert('Campos marcados como pendientes en el formulario.')">📝 Completar campos faltantes</button>
-          <button class="a-btn-ghost">Confirmar que no aplica</button>
-        </div>
-      </div>` : `
-      <div class="alert alert-success show" style="margin-top:10px;">
-        <div class="alert-title">✅ Informe completo</div>
-        <p>Todos los campos obligatorios para este tipo de estudio están cubiertos en el dictado.</p>
-      </div>`}
+    _storeTimeout('p1-audit', function() {
+      res.innerHTML = buildAuditResult(tipo, cups, cie10, texto);
+      document.getElementById('card-p1-history').style.display = 'block';
+      attachP1ResultListeners();
+    }, 1800);
+  }
 
-      <div class="btn-row">
-        <button class="btn btn-success" id="btnGuardarBorrador" onclick="guardarBorradorDictado(this)">💾 Guardar borrador estructurado</button>
-        <button class="btn btn-outline" onclick="showToast('Modo edición manual activado en el área de dictado','info')">✏️ Editar manualmente</button>
-        <button class="btn btn-primary" onclick="mostrarFirmaInforme()">🖊 Firmar y publicar</button>
-      </div>
-    </div>`;
-}
+  function buildAuditResult(tipo, cups, cie10, texto) {
+    var t = texto.toLowerCase();
+    var tieneNeoplasia = /neoplasia|tumor|masa\b|maligno|carcinoma/.test(t);
+    var cie10Inesp = ['R10','R04','M23'].indexOf(cie10) !== -1;
+    var tieneEsteatosis = /esteatosis|h.gado graso|infiltraci.n grasa/.test(t);
 
-function aceptarClasificacion(sistema, cat) {
-  showToast(`✅ ${sistema} ${cat} registrado en el informe. Editable antes de firmar.`, 'success');
-}
+    if (tieneNeoplasia && cie10Inesp) {
+      return '<div class="alert alert-danger show">' +
+        '<div class="alert-title">GLOSA POTENCIAL DETECTADA &mdash; Riesgo: Alto</div>' +
+        '<p>La IA identifico una <strong>inconsistencia critica entre el contenido del informe y la codificacion diagnostica</strong>:</p><br>' +
+        '<p><strong>El informe describe:</strong> "imagen nodular solida... altamente sugestivos de neoplasia renal primaria"</p>' +
+        '<p><strong>CIE-10 registrado:</strong> <code>' + cie10 + ' &mdash; ' + (cie10==='R10'?'Dolor abdominal inespecifico':cie10) + '</code></p><br>' +
+        '<p><strong>Riesgo de glosa:</strong> La EPS puede objetar por falta de pertinencia medica.</p>' +
+        '<div class="factors" style="margin-top:10px;">' +
+          '<span class="factor f-red">Hallazgo oncologico no codificado</span>' +
+          '<span class="factor f-red">CIE-10 inespecifico</span>' +
+          '<span class="factor f-warn">Recomendacion de seguimiento sin codigo CUPS</span>' +
+        '</div>' +
+        '<hr style="margin:14px 0;border-color:#fca5a5;">' +
+        '<p><strong>Acciones sugeridas por la IA:</strong></p>' +
+        '<div class="alert-actions">' +
+          '<button class="a-btn-blue" data-action="corregir-c64">Corregir a C64 &mdash; Tumor rinon</button>' +
+          '<button class="a-btn-blue" data-action="corregir-d410">Sugerir D41.0 &mdash; Tumor incierto rinon</button>' +
+          '<button class="a-btn-warn" data-action="revision-calidad">Enviar a revision de calidad</button>' +
+          '<button class="a-btn-ghost" data-action="bloquear-facturacion">Bloquear facturacion</button>' +
+          '<button class="a-btn-green" data-action="aprobar">Aprobar para facturacion</button>' +
+        '</div></div>';
+    }
 
-function bloquearContraste() {
-  showModal('🔒 Bloquear contraste — Confirmar', `
-    <p style="margin-bottom:12px;font-size:13px;">Esta acción bloqueará la administración del contraste y notificará al radiólogo. Ingresa la justificación:</p>
-    <div style="margin-bottom:10px;">
-      <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Radiólogo a notificar</label>
-      <select style="width:100%;padding:7px;border:1px solid #d1dce8;border-radius:5px;font-size:13px;">
-        <option>Dr. Suárez (Radiólogo de turno)</option>
-        <option>Dra. Martínez</option>
-        <option>Dr. López</option>
-      </select>
-    </div>
-    <div>
-      <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Justificación clínica</label>
-      <textarea style="width:100%;padding:8px;border:1px solid #d1dce8;border-radius:5px;font-size:13px;resize:vertical;min-height:80px;" placeholder="Ej: TFG 45 + Metformina activa + Edad > 65. Score de riesgo 78%. Protocolo de hidratación requerido."></textarea>
-    </div>
-  `, [
-    { label: 'Cancelar', action: () => document.getElementById('globalModalOverlay').remove() },
-    { label: '🔒 Confirmar bloqueo', cls: 'btn-primary', action: () => {
-      document.getElementById('globalModalOverlay').remove();
-      showToast('Contraste bloqueado. Radiólogo notificado. Registro auditado.', 'error');
-    }}
-  ]);
-}
+    if (tieneEsteatosis && cie10 === 'R10') {
+      return '<div class="alert alert-warn show">' +
+        '<div class="alert-title">Inconsistencia moderada detectada &mdash; Riesgo: Medio</div>' +
+        '<p>El informe describe hallazgos de esteatosis hepatica pero el CIE-10 registrado (R10) corresponde a dolor abdominal inespecifico.</p>' +
+        '<p style="margin-top:8px;"><strong>Sugerencia:</strong> Agregar codigo secundario <code>K76.0 &mdash; Higado graso no clasificado en otra parte</code>.</p>' +
+        '<div class="alert-actions">' +
+          '<button class="a-btn-blue" data-action="corregir-k760">Agregar K76.0 como diagnostico secundario</button>' +
+          '<button class="a-btn-ghost" data-action="aprobar">Mantener como esta (acepto el riesgo)</button>' +
+        '</div></div>';
+    }
 
-function activarHidratacion() {
-  showModal('💉 Protocolo de Hidratación IV — ESUR', `
-    <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:12px;font-size:13px;line-height:1.8;">
-      <strong>Protocolo estándar (ESUR Guidelines):</strong><br>
-      • Solución: NaCl 0.9%<br>
-      • Tasa: 1 mL/kg/hora<br>
-      • Inicio: 6 horas ANTES del procedimiento<br>
-      • Duración POST: 6 horas después de la administración<br>
-      • En ICC: ajustar a 0.5 mL/kg/h — consultar cardiología<br>
-    </div>
-    <div style="margin-top:12px;">
-      <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Enfermera responsable</label>
-      <input type="text" placeholder="Nombre de la enfermera..." style="width:100%;padding:7px;border:1px solid #d1dce8;border-radius:5px;font-size:13px;"/>
-    </div>
-  `, [
-    { label: 'Cerrar', action: () => document.getElementById('globalModalOverlay').remove() },
-    { label: '✅ Activar protocolo', cls: 'btn-primary', action: () => {
-      document.getElementById('globalModalOverlay').remove();
-      showToast('Protocolo de hidratación IV activado. Enfermería notificada.', 'success');
-    }}
-  ]);
-}
+    return '<div class="alert alert-success show">' +
+      '<div class="alert-title">Informe aprobado &mdash; Sin inconsistencias detectadas</div>' +
+      '<p>La IA analizo el texto del informe y lo encontro <strong>coherente con el codigo CUPS y el CIE-10 registrados</strong>. El expediente puede proceder a facturacion.</p>' +
+      '<div class="factors" style="margin-top:10px;">' +
+        '<span class="factor f-ok">Diagnostico alineado con hallazgos</span>' +
+        '<span class="factor f-ok">CUPS correcto para el estudio</span>' +
+        '<span class="factor f-ok">Sin terminos de riesgo oncologico no codificado</span>' +
+      '</div>' +
+      '<div class="alert-actions"><button class="a-btn-green" data-action="aprobar">Aprobar para facturacion</button></div>' +
+      '</div>';
+  }
 
-function consultarRadiologo() {
-  showModal('⚠ Consulta al Radiólogo', `
-    <p style="margin-bottom:12px;font-size:13px;">El sistema detectó riesgo moderado-alto. Envía una consulta al radiólogo antes de proceder:</p>
-    <div style="margin-bottom:10px;">
-      <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Radiólogo</label>
-      <select style="width:100%;padding:7px;border:1px solid #d1dce8;border-radius:5px;font-size:13px;">
-        <option>Dr. Suárez (en turno)</option><option>Dra. Martínez</option>
-      </select>
-    </div>
-    <div>
-      <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Mensaje</label>
-      <textarea style="width:100%;padding:8px;border:1px solid #d1dce8;border-radius:5px;font-size:13px;resize:vertical;min-height:80px;">Paciente con TFG 45, en tratamiento con Metformina, edad 68 años. Score IA: riesgo moderado. Solicito autorización para proceder con contraste yodado o indicación de protocolo alternativo.</textarea>
-    </div>
-  `, [
-    { label: 'Cancelar', action: () => document.getElementById('globalModalOverlay').remove() },
-    { label: '📨 Enviar consulta', cls: 'btn-primary', action: () => {
-      document.getElementById('globalModalOverlay').remove();
-      showToast('Consulta enviada al radiólogo. Esperando respuesta.', 'warn');
-    }}
-  ]);
-}
+  function attachP1ResultListeners() {
+    var res = document.getElementById('resultadoAuditoria');
+    res.querySelectorAll('[data-action]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var action = this.getAttribute('data-action');
+        if (action === 'aprobar') {
+          this.disabled = true;
+          this.textContent = 'Aprobado';
+          var badge = document.createElement('span');
+          badge.className = 'approved-badge';
+          badge.textContent = 'Aprobado para facturacion';
+          this.parentElement.appendChild(badge);
+          showToast('Historia aprobada para facturacion', 'success');
 
-function procederConRiesgo() {
-  showModal('⚠ Aceptar riesgo — Registro de responsabilidad', `
-    <div style="background:#fffbeb;border:1px solid #fbbf24;border-radius:8px;padding:12px;font-size:13px;margin-bottom:12px;">
-      Esta acción queda registrada con tu nombre, fecha y hora como evidencia de decisión clínica informada.
-    </div>
-    <div style="margin-bottom:10px;">
-      <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Justificación clínica obligatoria</label>
-      <textarea id="justificacionRiesgo" style="width:100%;padding:8px;border:1px solid #d1dce8;border-radius:5px;font-size:13px;resize:vertical;min-height:80px;" placeholder="Describe la razón clínica para proceder a pesar del riesgo identificado..."></textarea>
-    </div>
-    <div>
-      <label style="font-size:12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
-        <input type="checkbox" id="chkRiesgo"/> Confirmo que soy consciente del riesgo y asumo la responsabilidad clínica
-      </label>
-    </div>
-  `, [
-    { label: 'Cancelar', action: () => document.getElementById('globalModalOverlay').remove() },
-    { label: '⚠ Proceder con riesgo aceptado', cls: 'btn-primary', action: () => {
-      const just = document.getElementById('justificacionRiesgo')?.value.trim();
-      const chk  = document.getElementById('chkRiesgo')?.checked;
-      if (!just) { showToast('La justificación clínica es obligatoria','error'); return; }
-      if (!chk)  { showToast('Debes confirmar que eres consciente del riesgo','error'); return; }
-      document.getElementById('globalModalOverlay').remove();
-      showToast('Decisión registrada con auditoría. Puede proceder.', 'warn');
-    }}
-  ]);
-}
+        } else if (action === 'corregir-c64' || action === 'corregir-d410' || action === 'corregir-k760') {
+          var mapa = {
+            'corregir-c64':  { val: 'C64',   label: 'C64 &mdash; Tumor maligno de rinon' },
+            'corregir-d410': { val: 'D41.0',  label: 'D41.0 &mdash; Tumor de comportamiento incierto del rinon' },
+            'corregir-k760': { val: 'K76.0',  label: 'K76.0 &mdash; Higado graso' }
+          };
+          var codigo = mapa[action];
+          var sel = document.getElementById('cie10');
+          var opt = Array.from(sel.options).filter(function(o) { return o.value === codigo.val; })[0];
+          if (opt) sel.value = codigo.val;
+          showToast('CIE-10 actualizado a ' + codigo.label.replace(/&mdash;/, '-'), 'success');
+          var entry = document.createElement('div');
+          entry.className = 'audit-entry';
+          entry.innerHTML = '<strong>Auditoria ' + new Date().toLocaleString('es-CO') + ':</strong> CIE-10 corregido a ' + codigo.label + ' por usuario actual.';
+          res.appendChild(entry);
 
-/* ════════════════════════════════════════════════
-   PANEL 4 — HEATMAP Y GRÁFICOS
-════════════════════════════════════════════════ */
-function generarReporte(n) {
-  const nombre = n === 1 ? 'Epidemiológico para Secretaría de Salud' : 'Mensual de Calidad IPS';
-  showModal(`📄 Reporte ${nombre}`, `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
-      <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Fecha inicio</label>
-        <input type="date" value="2025-05-01" style="width:100%;padding:7px;border:1px solid #d1dce8;border-radius:5px;font-size:13px;"/></div>
-      <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Fecha fin</label>
-        <input type="date" value="2025-05-29" style="width:100%;padding:7px;border:1px solid #d1dce8;border-radius:5px;font-size:13px;"/></div>
-    </div>
-    <div style="background:#f8fafc;border:1px solid #d1dce8;border-radius:6px;padding:12px;font-size:12px;color:#555;line-height:1.8;">
-      <strong>Vista previa:</strong><br>
-      IPS Imagen Salud — Reporte ${nombre}<br>
-      Período: 01/05/2025 – 29/05/2025<br>
-      Estudios procesados: 1.247 · Alertas generadas: 2<br>
-      Tasa de eventos adversos: 0.4% (meta &lt; 1%) ✅<br>
-      Generado por: Jefe de Calidad · Firmado digitalmente
-    </div>
-  `, [
-    { label: 'Cancelar', action: () => document.getElementById('globalModalOverlay').remove() },
-    { label: '⬇ Descargar PDF', cls: 'btn-primary', action: () => {
-      document.getElementById('globalModalOverlay').remove();
-      showToast('Generando PDF...', 'info');
-      setTimeout(() => showToast(`Reporte descargado: Reporte_${nombre.replace(/ /g,'_')}_mayo2025.pdf`, 'success'), 1800);
-    }}
-  ]);
-}
+        } else if (action === 'revision-calidad') {
+          showModal({
+            title: 'Enviar a revision de calidad',
+            body: '<p style="margin-bottom:12px">Selecciona el revisor de calidad:</p>' +
+              '<div class="form-group"><label>Revisor asignado</label>' +
+              '<select id="modal-revisor"><option value="dr_garcia">Dr. Garcia &mdash; Jefe de Calidad</option>' +
+              '<option value="dra_lopez">Dra. Lopez &mdash; Auditora Medica</option>' +
+              '<option value="dr_torres">Dr. Torres &mdash; Coordinador IPS</option></select></div>' +
+              '<div class="form-group" style="margin-top:10px;"><label>Observacion</label>' +
+              '<textarea id="modal-obs" rows="3" placeholder="Describe el motivo de la revision..."></textarea></div>',
+            buttons: [{ label: 'Enviar a revision', cls: 'btn-primary', action: 'enviar', onClick: function(ov) {
+              ov.parentNode.removeChild(ov);
+              showToast('Caso enviado al revisor de calidad exitosamente', 'success');
+            }}]
+          });
 
-function mostrarSugerenciaCIE(codigo) {
-  showToast(`CIE-10 actualizado a ${codigo}. Cambio auditado con timestamp.`, 'success');
-}
-
-function guardarBorradorDictado(btn) {
-  const dictado = document.getElementById('dictadoLibre')?.value.trim();
-  if (!dictado) { showToast('No hay contenido para guardar','error'); return; }
-  try { localStorage.setItem('hcd_borrador_dictado', JSON.stringify({ texto: dictado, fecha: new Date().toISOString() })); } catch(e) {}
-  btn.textContent = '✅ Borrador guardado';
-  btn.disabled = true;
-  showToast('Borrador guardado localmente','success');
-}
-
-function mostrarFirmaInforme() {
-  showModal('🖊 Firmar y Publicar Informe', `
-    <div style="background:#fef2f2;border:1px solid #f87171;border-radius:8px;padding:12px;font-size:13px;margin-bottom:14px;">
-      ⚠ <strong>Esta acción es irreversible.</strong> El informe será publicado y el paciente podrá verlo en su portal.
-    </div>
-    <div style="margin-bottom:10px;">
-      <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Confirma tu contraseña de firma</label>
-      <input type="password" id="claveFirema" placeholder="••••••••" style="width:100%;padding:8px;border:1px solid #d1dce8;border-radius:5px;font-size:13px;"/>
-    </div>
-    <label style="font-size:12px;display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:8px;">
-      <input type="checkbox" id="chkPublicarPortal"/> Publicar informe amigable en el portal del paciente simultáneamente
-    </label>
-  `, [
-    { label: 'Cancelar', action: () => document.getElementById('globalModalOverlay').remove() },
-    { label: '🖊 Firmar y publicar', cls: 'btn-primary', action: () => {
-      const clave = document.getElementById('claveFirema')?.value;
-      if (!clave) { showToast('Ingresa tu contraseña de firma','error'); return; }
-      document.getElementById('globalModalOverlay').remove();
-      showToast('Informe firmado digitalmente y publicado','success');
-    }}
-  ]);
-}
-
-// Inicialización DOM-safe
-document.addEventListener('DOMContentLoaded', function() {
-  actualizarPlaceholder(); // Fix #4: inicializar placeholder al cargar
-});
-
-// Heatmap y gráfico — DOM-safe
-document.addEventListener('DOMContentLoaded', function() {
-
-  // Heatmap
-  const dias = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
-  const horas = ['8–10h','10–12h','12–14h','14–16h','16–18h'];
-  const datosHM = [
-    [18,32,28,22,20,8,3],
-    [22,45,41,30,25,10,2],
-    [20,38,35,28,22,9,2],
-    [19,28,30,26,20,7,1],
-    [15,22,25,20,18,5,1],
-  ];
-  const maxHM = 45;
-  const grid = document.getElementById('heatmapGrid');
-  if (grid) {
-    grid.className = 'heatmap';
-    grid.innerHTML = '<div class="hm-label"></div>';
-    dias.forEach(d => grid.innerHTML += `<div class="hm-label" style="justify-content:center;">${d}</div>`);
-    horas.forEach((h, hi) => {
-      grid.innerHTML += `<div class="hm-label">${h}</div>`;
-      datosHM[hi].forEach(v => {
-        const pct = v / maxHM;
-        const r = Math.round(239 + (220 - 239) * pct);
-        const g = Math.round(246 + (38 - 246) * pct);
-        const b = Math.round(255 + (38 - 255) * pct);
-        const textColor = pct > 0.55 ? '#fff' : '#374151';
-        grid.innerHTML += `<div class="hm-cell" style="background:rgb(${r},${g},${b});color:${textColor}">${v}</div>`;
+        } else if (action === 'bloquear-facturacion') {
+          showModal({
+            title: 'Bloquear facturacion',
+            body: '<p>Esta accion bloqueara el expediente hasta que sea resuelto. Se generara un registro de auditoria.</p>' +
+              '<div class="audit-entry" style="margin-top:12px;"><strong>Registro de auditoria:</strong><br>' +
+              'Fecha: ' + new Date().toLocaleString('es-CO') + '<br>Accion: Bloqueo de facturacion<br>' +
+              'Motivo: Inconsistencia CIE-10 detectada por IA<br>Usuario: Auditor en sesion</div>' +
+              '<div class="form-group" style="margin-top:12px;"><label>Motivo del bloqueo *</label>' +
+              '<textarea id="modal-motivo-bloqueo" rows="2" placeholder="Describe el motivo del bloqueo..."></textarea></div>',
+            buttons: [{ label: 'Confirmar bloqueo', cls: 'btn-danger', action: 'confirmar', onClick: function(ov) {
+              var motivo = document.getElementById('modal-motivo-bloqueo').value.trim();
+              if (!motivo) { showToast('Ingresa el motivo del bloqueo', 'warn'); return; }
+              ov.parentNode.removeChild(ov);
+              showToast('Facturacion bloqueada. Registro auditado.', 'warn');
+            }}]
+          });
+        }
       });
     });
   }
 
-  // Gráfico de barras
-  const datosChart = [
-    { label:'Esteatosis hepática', val:34, color:'#f59e0b' },
-    { label:'Nódulo pulmonar (Lung-RADS 3)', val:18, color:'#ef4444' },
-    { label:'Quistes renales simples', val:15, color:'#3b82f6' },
-    { label:'Litiasis vesicular asx.', val:12, color:'#8b5cf6' },
-    { label:'Angiomiolipoma renal', val:7, color:'#10b981' },
-    { label:'Nódulo tiroideo (TI-RADS ≥3)', val:6, color:'#f97316' },
-  ];
-  const maxChart = 34;
-  const chartEl = document.getElementById('chartIncidentales');
-  if (chartEl) {
-    chartEl.innerHTML = datosChart.map(d => `
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:12px;">
-        <div style="width:200px;text-align:right;color:#555;flex-shrink:0;">${d.label}</div>
-        <div style="flex:1;background:#e5e7eb;border-radius:4px;height:24px;overflow:hidden;">
-          <div style="width:${(d.val/maxChart*100).toFixed(0)}%;background:${d.color};height:100%;
-                      border-radius:4px;display:flex;align-items:center;padding-left:8px;
-                      color:#fff;font-weight:700;font-size:11px;transition:width .8s ease;">
-            ${d.val}
-          </div>
-        </div>
-      </div>`).join('');
+  /* ════════════════ PANEL 2 ════════════════ */
+  document.getElementById('btn-p2-ejemplo').addEventListener('click', cargarEjemploRiesgo);
+  document.getElementById('btn-p2-calcular').addEventListener('click', calcularRiesgo);
+  document.getElementById('btn-p2-limpiar').addEventListener('click', limpiarP2);
+
+  function limpiarP2() {
+    ['edad','peso','tfg','creatinina','volContraste'].forEach(function(id) { document.getElementById(id).value = ''; });
+    document.getElementById('alergia').value = 'no';
+    document.getElementById('diabetes').value = 'no';
+    document.getElementById('tipoEstudio2').value = 'tac';
+    document.getElementById('sexo').value = 'M';
+    Array.from(document.getElementById('comorbilidades').options).forEach(function(o) { o.selected = false; });
+    document.getElementById('resultadoRiesgo').innerHTML = '';
+    showToast('Formulario limpiado', 'info');
   }
 
-});
-</script>
+  function cargarEjemploRiesgo() {
+    document.getElementById('edad').value = 68;
+    document.getElementById('peso').value = 92;
+    document.getElementById('sexo').value = 'M';
+    document.getElementById('tfg').value = 45;
+    document.getElementById('creatinina').value = 1.5;
+    document.getElementById('volContraste').value = 120;
+    document.getElementById('alergia').value = 'no';
+    document.getElementById('diabetes').value = 'si_metformina';
+    document.getElementById('tipoEstudio2').value = 'tac';
+    Array.from(document.getElementById('comorbilidades').options).forEach(function(o) {
+      o.selected = (o.value === 'hta' || o.value === 'deshidratacion');
+    });
+    showToast('Caso de zona gris cargado', 'info');
+  }
 
+  function calcularRiesgo() {
+    var edad     = parseInt(document.getElementById('edad').value) || 0;
+    var peso     = parseFloat(document.getElementById('peso').value) || 0;
+    var tfg      = parseFloat(document.getElementById('tfg').value) || 0;
+    var creat    = parseFloat(document.getElementById('creatinina').value) || 0;
+    var alergia  = document.getElementById('alergia').value;
+    var diabetes = document.getElementById('diabetes').value;
+    var tipoEst  = document.getElementById('tipoEstudio2').value;
+    var comorbSel= Array.from(document.getElementById('comorbilidades').selectedOptions).map(function(o){return o.value;});
+    var vol      = parseFloat(document.getElementById('volContraste').value) || 0;
+    var res      = document.getElementById('resultadoRiesgo');
+
+    if (!edad) { showToast('Ingresa la edad del paciente', 'warn'); return; }
+    if (!peso) { showToast('Ingresa el peso del paciente', 'warn'); return; }
+    if (!tfg)  { showToast('Ingresa el valor de TFG', 'warn'); return; }
+    if (!vol)  { showToast('Ingresa el volumen de contraste planificado', 'warn'); return; }
+
+    res.innerHTML = '<div class="alert alert-ai show"><div class="alert-title"><span class="spinner"></span> Calculando Score de Riesgo IA...</div></div>';
+
+    _storeTimeout('p2-calc', function() {
+      var score = 0;
+      var factores = [];
+
+      if (tfg < 30)       { score += 40; factores.push({t:'TFG < 30 (IR severa)', c:'f-red'}); }
+      else if (tfg < 45)  { score += 30; factores.push({t:'TFG 30-45 (IR moderada-grave)', c:'f-red'}); }
+      else if (tfg < 60)  { score += 18; factores.push({t:'TFG 45-60 (IR moderada)', c:'f-warn'}); }
+
+      if (creat > 1.7)    { score += 15; factores.push({t:'Creatinina > 1.7 mg/dL', c:'f-red'}); }
+      else if (creat > 1.3){ score += 8; factores.push({t:'Creatinina limitrofe (1.3-1.7)', c:'f-warn'}); }
+
+      if (diabetes === 'si_metformina') { score += 15; factores.push({t:'Metformina activa (riesgo acidosis lactica)', c:'f-red'}); }
+      else if (diabetes === 'si_otro')  { score += 6;  factores.push({t:'Diabetes mellitus', c:'f-warn'}); }
+
+      if (edad > 80)      { score += 15; factores.push({t:'Edad > 80 anos', c:'f-warn'}); }
+      else if (edad > 65) { score += 10; factores.push({t:'Edad > 65 anos', c:'f-warn'}); }
+
+      if (alergia === 'grave')    { score += 25; factores.push({t:'Alergia grave previa (anafilaxia)', c:'f-red'}); }
+      else if (alergia === 'leve'){ score += 12; factores.push({t:'Reaccion leve previa al contraste', c:'f-warn'}); }
+      else if (alergia === 'no_sabe') { score += 8; factores.push({t:'Antecedente alergico desconocido', c:'f-warn'}); }
+
+      if (comorbSel.indexOf('icc') !== -1)            { score += 12; factores.push({t:'Insuficiencia cardiaca congestiva', c:'f-warn'}); }
+      if (comorbSel.indexOf('mieloma') !== -1)        { score += 10; factores.push({t:'Mieloma multiple', c:'f-red'}); }
+      if (comorbSel.indexOf('deshidratacion') !== -1) { score += 10; factores.push({t:'Deshidratacion / ayuno prolongado', c:'f-warn'}); }
+      if (comorbSel.indexOf('nefropatia_prev') !== -1){ score += 20; factores.push({t:'Nefropatia previa por contraste', c:'f-red'}); }
+      if (comorbSel.indexOf('hta') !== -1)            { score += 5;  factores.push({t:'Hipertension arterial', c:'f-warn'}); }
+
+      var ratioVol = (vol / Math.max(tfg, 1)) * 100;
+      if (ratioVol > 300)      { score += 15; factores.push({t:'Ratio V/TFG alto (' + ratioVol.toFixed(0) + '%)', c:'f-red'}); }
+      else if (ratioVol > 200) { score += 8;  factores.push({t:'Ratio V/TFG elevado (' + ratioVol.toFixed(0) + '%)', c:'f-warn'}); }
+
+      if (!factores.length) factores.push({t:'Sin factores de riesgo identificados', c:'f-ok'});
+      score = Math.min(score, 100);
+
+      var nivel = score >= 70 ? 'high' : score >= 40 ? 'medium' : 'low';
+      var label = score >= 70 ? 'RIESGO ALTO' : score >= 40 ? 'RIESGO MODERADO' : 'RIESGO BAJO';
+      var alertClass = score >= 70 ? 'alert-danger' : score >= 40 ? 'alert-warn' : 'alert-success';
+      var recs = buildRecs(score, tfg, diabetes, alergia, vol, tipoEst, comorbSel);
+
+      var accionesBtns = '';
+      if (score >= 70) {
+        accionesBtns = '<button class="a-btn-red" data-action="bloquear-contraste">Bloquear contraste + Notificar radiologo</button>' +
+          '<button class="a-btn-blue" data-action="hidratacion-iv">Activar protocolo hidratacion IV</button>';
+      } else if (score >= 40) {
+        accionesBtns = '<button class="a-btn-warn" data-action="consultar-radiologo">Consultar al radiologo</button>' +
+          '<button class="a-btn-blue" data-action="hidratacion-iv">Activar protocolo precaucion</button>' +
+          '<button class="a-btn-ghost" data-action="proceder-riesgo">Proceder (acepto el riesgo)</button>';
+      } else {
+        accionesBtns = '<button class="a-btn-green" data-action="autorizar">Autorizar contraste</button>';
+      }
+
+      res.innerHTML = '<div class="alert ' + alertClass + ' show">' +
+        '<div class="alert-title">' + label + '</div>' +
+        '<div class="score-display">' +
+          '<div class="score-ring ' + nivel + '">' + score + '%</div>' +
+          '<div class="score-detail"><strong>Score de Riesgo de Nefropatia: ' + score + '/100</strong>' +
+          (score >= 70 ? ' Se requiere intervencion antes de proceder con el contraste.' : '') +
+          (score >= 40 && score < 70 ? ' Zona gris: el protocolo estandar no bloquearia este caso, pero la IA detecta riesgo acumulado.' : '') +
+          (score < 40 ? ' El paciente puede recibir el contraste bajo protocolo estandar.' : '') +
+          '</div></div>' +
+        '<div class="factors">' + factores.map(function(f){return '<span class="factor '+f.c+'">'+f.t+'</span>';}).join('') + '</div>' +
+        '<hr style="margin:14px 0;opacity:.3;">' +
+        '<strong>Recomendaciones de la IA:</strong>' +
+        '<ul style="margin-top:8px;padding-left:18px;font-size:12px;line-height:2;">' + recs.map(function(r){return '<li>'+r+'</li>';}).join('') + '</ul>' +
+        '<div class="alert-actions" id="p2-actions">' + accionesBtns +
+          '<button class="a-btn-blue" data-action="imprimir-hoja">Imprimir Hoja de Riesgo</button>' +
+        '</div></div>';
+
+      attachP2ResultListeners(score, factores, recs);
+    }, 1500);
+  }
+
+  function buildRecs(score, tfg, diabetes, alergia, vol, tipo, comorbs) {
+    var r = [];
+    if (tfg < 60) r.push('Verificar TFG con examen de laboratorio reciente (max. 3 meses).');
+    if (tfg < 45) r.push('Considerar protocolo de contraste iso-osmolar o reducir volumen al minimo diagnostico.');
+    if (diabetes === 'si_metformina') r.push('Suspender Metformina 48h antes y 48h despues del procedimiento con contraste yodado.');
+    if (alergia === 'leve') r.push('Protocolo de premedicacion: Metilprednisolona 32mg VO 12h y 2h antes + Difenhidramina 50mg IM 1h antes.');
+    if (alergia === 'grave') r.push('CONTRAINDICACION RELATIVA: Discutir con radiologo. Si imprescindible: premedicacion obligatoria + UCI en standby.');
+    if (comorbs.indexOf('deshidratacion') !== -1) r.push('Hidratacion previa IV: NaCl 0.9% 1mL/kg/h por 6h antes y 6h despues (protocolo ESUR).');
+    if (comorbs.indexOf('icc') !== -1) r.push('Monitorizar carga de volumen; la hidratacion previa debe ser ajustada con cardiologia.');
+    if (score >= 40) r.push('Medir creatinina basal y a las 48h post-procedimiento.');
+    if (!r.length) r.push('Proceder con protocolo estandar. No se requieren medidas adicionales.');
+    return r;
+  }
+
+  function attachP2ResultListeners(score, factores, recs) {
+    var actions = document.getElementById('p2-actions');
+    if (!actions) return;
+    actions.querySelectorAll('[data-action]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var action = this.getAttribute('data-action');
+
+        if (action === 'bloquear-contraste') {
+          showModal({
+            title: 'Bloquear contraste + Notificar radiologo',
+            body: '<p style="margin-bottom:10px">Se enviara la siguiente notificacion:</p>' +
+              '<div class="alert alert-danger show" style="margin-top:0;font-size:12px;">' +
+              'Paciente: Garcia Martinez, Ana &mdash; 52 anos<br>' +
+              'Score de riesgo: ' + score + '/100 &mdash; RIESGO ALTO<br>' +
+              'Factores: ' + factores.filter(function(f){return f.c==='f-red';}).map(function(f){return f.t;}).join(', ') +
+              '</div>' +
+              '<div class="form-group" style="margin-top:12px;"><label>Aprobado por (nombre) *</label>' +
+              '<input type="text" id="modal-aprobador" placeholder="Dr. / Dra. ..."/></div>',
+            buttons: [{ label: 'Confirmar bloqueo y notificar', cls: 'btn-danger', action: 'confirmar', onClick: function(ov) {
+              var aprobador = document.getElementById('modal-aprobador').value.trim();
+              if (!aprobador) { showToast('Ingresa el nombre del aprobador', 'warn'); return; }
+              ov.parentNode.removeChild(ov);
+              showToast('Contraste bloqueado. Radiologo notificado exitosamente.', 'error');
+            }}]
+          });
+
+        } else if (action === 'hidratacion-iv') {
+          showModal({
+            title: 'Protocolo de Hidratacion IV',
+            body: '<div style="line-height:2;font-size:13px;">' +
+              '<p><strong>Fluido:</strong> Solucion salina NaCl 0.9%</p>' +
+              '<p><strong>Tasa:</strong> 1 mL/kg/h</p>' +
+              '<p><strong>Inicio:</strong> 6 horas antes del procedimiento</p>' +
+              '<p><strong>Duracion post:</strong> 6 horas despues del contraste</p>' +
+              '<p><strong>Volumen total estimado (92 kg):</strong> ~1,104 mL pre + 552 mL post</p>' +
+              '<hr style="margin:10px 0;">' +
+              '<p><strong>Pre-procedimiento:</strong> Medir creatinina y TFG basales</p>' +
+              '<p><strong>Post-procedimiento:</strong> Creatinina a las 48h</p>' +
+              '<div class="form-group" style="margin-top:12px;"><label>Enfermera responsable *</label>' +
+              '<input type="text" id="modal-enfermera" placeholder="Nombre de la enfermera..."/></div>' +
+              '</div>',
+            buttons: [{ label: 'Activar protocolo', cls: 'btn-primary', action: 'activar', onClick: function(ov) {
+              var enf = document.getElementById('modal-enfermera').value.trim();
+              if (!enf) { showToast('Ingresa el nombre de la enfermera responsable', 'warn'); return; }
+              ov.parentNode.removeChild(ov);
+              showToast('Protocolo de hidratacion IV activado. Enfermeria notificada.', 'success');
+            }}]
+          });
+
+        } else if (action === 'consultar-radiologo') {
+          showModal({
+            title: 'Consultar al Radiologo',
+            body: '<div class="form-group"><label>Radiologo</label>' +
+              '<select id="modal-radiologo">' +
+              '<option value="dr_vargas">Dr. Vargas &mdash; Radiologo de turno</option>' +
+              '<option value="dr_rios">Dr. Rios &mdash; Jefe de radiologia</option>' +
+              '<option value="dra_castro">Dra. Castro &mdash; Radiologo intervencionista</option></select></div>' +
+              '<div class="form-group" style="margin-top:10px;"><label>Mensaje de consulta *</label>' +
+              '<textarea id="modal-consulta-msg" rows="4">Paciente con score de riesgo ' + score + '/100. Se solicita evaluacion antes de administrar contraste yodado.</textarea></div>',
+            buttons: [{ label: 'Enviar consulta', cls: 'btn-primary', action: 'enviar', onClick: function(ov) {
+              var msg = document.getElementById('modal-consulta-msg').value.trim();
+              if (!msg) { showToast('Escribe el mensaje de consulta', 'warn'); return; }
+              ov.parentNode.removeChild(ov);
+              showToast('Consulta enviada al radiologo exitosamente', 'success');
+            }}]
+          });
+
+        } else if (action === 'proceder-riesgo') {
+          showModal({
+            title: 'Proceder aceptando el riesgo',
+            body: '<div class="alert alert-warn show" style="margin-top:0">Esta accion quedara registrada en el expediente del paciente.</div>' +
+              '<div class="form-group" style="margin-top:12px;"><label>Justificacion clinica obligatoria *</label>' +
+              '<textarea id="modal-justificacion" rows="4" placeholder="Describe la razon clinica para proceder a pesar del riesgo..."></textarea></div>' +
+              '<div style="margin-top:12px;display:flex;align-items:flex-start;gap:8px;">' +
+              '<input type="checkbox" id="modal-confirmo" style="margin-top:2px;width:auto;">' +
+              '<label for="modal-confirmo" style="font-size:13px;font-weight:600;">Confirmo que soy consciente del riesgo y que el beneficio clinico supera el riesgo estimado</label></div>',
+            buttons: [{ label: 'Registrar y proceder', cls: 'btn-warn', action: 'confirmar', onClick: function(ov) {
+              var justif = document.getElementById('modal-justificacion').value.trim();
+              var conf = document.getElementById('modal-confirmo').checked;
+              if (!justif) { showToast('Escribe la justificacion clinica', 'warn'); return; }
+              if (!conf)   { showToast('Debes confirmar que eres consciente del riesgo', 'warn'); return; }
+              ov.parentNode.removeChild(ov);
+              showToast('Decision registrada con justificacion en el expediente.', 'warn');
+            }}]
+          });
+
+        } else if (action === 'autorizar') {
+          this.disabled = true;
+          this.textContent = 'Autorizado';
+          showToast('Contraste autorizado bajo protocolo estandar. Registro auditado.', 'success');
+
+        } else if (action === 'imprimir-hoja') {
+          showModal({
+            title: 'Hoja de Riesgo Pre-Contraste',
+            body: '<div style="font-size:12px;line-height:2;">' +
+              '<p style="text-align:center;font-weight:800;">IPS Imagenologia &mdash; Hoja de Evaluacion de Riesgo Pre-Contraste</p>' +
+              '<p><strong>Fecha:</strong> ' + new Date().toLocaleString('es-CO') + '</p>' +
+              '<p><strong>Paciente:</strong> Garcia Martinez, Ana &mdash; 52 anos</p>' +
+              '<p><strong>Score de riesgo IA:</strong> ' + score + '/100 &mdash; ' + (score>=70?'ALTO':score>=40?'MODERADO':'BAJO') + '</p>' +
+              '<p><strong>Factores identificados:</strong></p>' +
+              '<ul style="padding-left:18px;">' + factores.map(function(f){return '<li>'+f.t+'</li>';}).join('') + '</ul>' +
+              '<p><strong>Recomendaciones:</strong></p>' +
+              '<ul style="padding-left:18px;">' + recs.map(function(r){return '<li>'+r+'</li>';}).join('') + '</ul>' +
+              '<p style="margin-top:12px;"><strong>Firma del radiologo: ___________________________</strong></p>' +
+              '</div>',
+            buttons: [{ label: 'Imprimir', cls: 'btn-primary', action: 'print', onClick: function(ov) {
+              window.print();
+            }}]
+          });
+        }
+      });
+    });
+  }
+
+  /* ════════════════ PANEL 3 ════════════════ */
+  var placeholders = {
+    mama:     'Se realizo mamografia bilateral con proyecciones CC y MLO. En mama derecha cuadrante superior externo se identifican microcalcificaciones agrupadas de morfologia pleomofica en un area de 8mm. Sin adenopatias axilares. Mama izquierda sin alteraciones.',
+    tiroides: 'Ecografia tiroidea. Lobulo derecho con nodulo solido hipoecoico de 1.1 cm con bordes irregulares y calcificaciones puntiformes. Lobulo izquierdo homogeneo. Sin adenopatias cervicales.',
+    prostata: 'RM multiparametrica de prostata. En zona de transicion se identifica area de restriccion a la difusion con correlato en mapa ADC de 0.8 x 0.7 cm, localizada en sector anterolateral derecho. PI-RADS 4.',
+    higado:   'RM de higado con contraste dinamico. Se identifica lesion de 2.3 cm en segmento VI con realce arterial y lavado en fase venosa portal, compatible con hepatocarcinoma. LI-RADS LR-5.',
+    torax_tac:'TAC de torax de alta resolucion. Nodulo pulmonar solido de 8mm en lobulo superior derecho sin calcificaciones. No se observan adenopatias mediastinicas. Derrame pleural izquierdo laminar.'
+  };
+
+  function actualizarPlaceholder() {
+    var tipo = document.getElementById('tipoEstudio3').value;
+    document.getElementById('dictadoLibre').placeholder = placeholders[tipo] || '';
+  }
+  document.getElementById('tipoEstudio3').addEventListener('change', actualizarPlaceholder);
+  actualizarPlaceholder();
+
+  document.getElementById('dictadoLibre').addEventListener('input', updateTextStats);
+  function updateTextStats() {
+    var text = document.getElementById('dictadoLibre').value.trim();
+    var words = text ? text.split(/\s+/).length : 0;
+    var mins = Math.max(1, Math.round(words / 200));
+    document.getElementById('wordCount').textContent = words + ' palabras';
+    document.getElementById('readTime').textContent = '~' + mins + ' min de lectura';
+  }
+
+  document.getElementById('btn-p3-ejemplo').addEventListener('click', function() {
+    var tipo = document.getElementById('tipoEstudio3').value;
+    document.getElementById('dictadoLibre').value = placeholders[tipo] || placeholders.mama;
+    updateTextStats();
+    showToast('Ejemplo de dictado cargado', 'info');
+  });
+
+  document.getElementById('btn-p3-estructurar').addEventListener('click', estructurarDictado);
+
+  function estructurarDictado() {
+    var texto = document.getElementById('dictadoLibre').value.trim();
+    var tipo  = document.getElementById('tipoEstudio3').value;
+    var res   = document.getElementById('resultadoEstructura');
+
+    if (!texto) { showToast('Ingresa el texto del dictado antes de estructurar', 'warn'); return; }
+
+    res.innerHTML = '<div class="alert alert-ai show"><div class="alert-title"><span class="spinner"></span> Estructurando dictado con IA...</div></div>';
+
+    _storeTimeout('p3-struct', function() {
+      res.innerHTML = buildStructuredOutput(texto, tipo);
+      attachP3ResultListeners();
+    }, 2000);
+  }
+
+  function buildStructuredOutput(texto, tipo) {
+    var t = texto.toLowerCase();
+    var sistema = '', categoria = '', justificacion = '';
+
+    if (tipo === 'mama') {
+      if (/pleom[oó]rf/i.test(t) || /pleomofi/i.test(t)) {
+        sistema = 'BI-RADS'; categoria = '4B';
+        justificacion = 'Microcalcificaciones de morfologia pleomorfica agrupadas - sospecha intermedia-alta de malignidad';
+      } else {
+        sistema = 'BI-RADS'; categoria = '3 (sugerido)';
+        justificacion = 'Sin descriptores de alta sospecha - probable hallazgo benigno';
+      }
+    } else if (tipo === 'tiroides') {
+      sistema = 'TI-RADS ACR';
+      if (t.indexOf('hipoecoico') !== -1 && t.indexOf('irregular') !== -1 && t.indexOf('calcificac') !== -1) {
+        categoria = '4 (TR4)'; justificacion = 'Nodulo solido hipoecoico + bordes irregulares + calcificaciones puntiformes = 7 puntos ACR';
+      } else { categoria = '3 (TR3)'; justificacion = 'Nodulo solido sin caracteristicas de alta sospecha'; }
+    } else if (tipo === 'prostata') {
+      sistema = 'PI-RADS v2.1';
+      if (/pi-?rads\s*4/i.test(t)) { categoria = '4'; justificacion = 'Hallazgo clinicamente significativo probable'; }
+      else if (t.indexOf('restriccion') !== -1 || t.indexOf('adc') !== -1) { categoria = '4 (sugerido)'; justificacion = 'Restriccion a la difusion + correlato ADC en zona de transicion'; }
+      else { categoria = '3'; justificacion = 'Sin caracteristica definitoria de alta sospecha'; }
+    } else if (tipo === 'higado') {
+      sistema = 'LI-RADS';
+      if (/lr-?5/i.test(t)) { categoria = 'LR-5'; justificacion = 'Hepatocarcinoma definitivo - realce arterial + lavado + tamano > 2cm'; }
+      else if (t.indexOf('realce arterial') !== -1 && t.indexOf('lavado') !== -1) { categoria = 'LR-5 (sugerido)'; justificacion = 'Patron de realce arterial con lavado portal compatible con HCC'; }
+      else { categoria = 'LR-3'; justificacion = 'Hallazgo intermedio, requiere caracterizacion adicional'; }
+    } else if (tipo === 'torax_tac') {
+      sistema = 'Lung-RADS';
+      if (/\b8\s*mm/.test(t)) { categoria = '3'; justificacion = 'Nodulo solido >= 6mm y < 8mm sin alta sospecha - seguimiento TAC en 3-6 meses'; }
+      else if (t.indexOf('espiculado') !== -1 || t.indexOf('irregular') !== -1) { categoria = '4A'; justificacion = 'Nodulo con morfologia sospechosa'; }
+      else { categoria = '2'; justificacion = 'Hallazgo probablemente benigno'; }
+    }
+
+    // Sentence-based parsing using regex instead of fragile '. ' split
+    var sentences = texto.match(/[^.!?]+[.!?]*/g) || [texto];
+    var tecnicaArr = sentences.filter(function(s) { return /se realiz|proyecci[oó]n|protocolo|estudio|secuencia/i.test(s); });
+    var conclusionArr = sentences.filter(function(s) { return /compatib|sugestiv|conclusi[oó]n|se recomiend|diagn[oó]stico/i.test(s); });
+    var hallazgosArr = sentences.filter(function(s) {
+      return tecnicaArr.indexOf(s) === -1 && conclusionArr.indexOf(s) === -1;
+    });
+
+    var tecnica    = tecnicaArr.join(' ').trim() || 'Segun tecnica estandar del departamento.';
+    var conclusion = conclusionArr.join(' ').trim() || 'Hallazgos descritos - clasificacion ' + sistema + ' ' + categoria + '.';
+    var hallazgos  = hallazgosArr.join(' ').trim() || texto;
+
+    var faltantes = [];
+    if (tipo === 'mama' && !/adenopat/i.test(texto)) faltantes.push('Estado de adenopatias axilares');
+    if (tipo === 'torax_tac' && !/mediastin/i.test(texto)) faltantes.push('Evaluacion del mediastino');
+    if (tipo === 'torax_tac' && !/derrame|pleural/i.test(texto)) faltantes.push('Estado de espacios pleurales');
+
+    var sistemaHTML = '';
+    if (sistema) {
+      sistemaHTML = '<div class="alert alert-ai show" style="margin-top:14px;">' +
+        '<div class="struct-label">Sugerencia de clasificacion IA</div>' +
+        '<p>Basado en los hallazgos: <strong id="clasificacion-display">' + sistema + ' ' + categoria + '</strong></p>' +
+        '<p style="font-size:12px;margin-top:4px;color:#5b21b6;"><em>' + justificacion + '</em></p>' +
+        '<div class="alert-actions">' +
+          '<button class="a-btn-blue" data-action="confirmar-birads" data-sistema="' + sistema + '" data-cat="' + categoria + '">Confirmar ' + sistema + ' ' + categoria + '</button>' +
+          '<button class="a-btn-ghost" data-action="cambiar-categoria" data-sistema="' + sistema + '">Cambiar categoria</button>' +
+        '</div></div>';
+    }
+
+    var faltantesHTML = '';
+    if (faltantes.length) {
+      faltantesHTML = '<div class="alert alert-warn show" style="margin-top:10px;">' +
+        '<div class="alert-title">Campos obligatorios no detectados</div>' +
+        '<ul style="margin-top:6px;padding-left:18px;font-size:12px;line-height:1.8;">' +
+        faltantes.map(function(f){return '<li>'+f+'</li>';}).join('') + '</ul></div>';
+    } else {
+      faltantesHTML = '<div class="alert alert-success show" style="margin-top:10px;">' +
+        '<div class="alert-title">Informe completo</div>' +
+        '<p>Todos los campos obligatorios para este tipo de estudio estan cubiertos.</p></div>';
+    }
+
+    return '<div class="card" id="card-p3-result">' +
+      '<div class="card-title">Informe estructurado por IA</div>' +
+      '<div class="structured-grid">' +
+        '<div class="struct-box"><div class="struct-label">Tecnica</div><p id="struct-tecnica-text">' + tecnica + '</p></div>' +
+        '<div class="struct-box"><div class="struct-label">Conclusion</div><p id="struct-conclusion-text">' + conclusion + '</p></div>' +
+        '<div class="struct-box" style="grid-column:1/-1;"><div class="struct-label">Hallazgos</div><p id="struct-hallazgos-text">' + hallazgos + '</p></div>' +
+      '</div>' +
+      sistemaHTML + faltantesHTML +
+      '<div class="btn-row">' +
+        '<button class="btn btn-success" id="btn-p3-borrador">Guardar borrador</button>' +
+        '<button class="btn btn-outline" id="btn-p3-editar">Editar manualmente</button>' +
+        '<button class="btn btn-primary" id="btn-p3-firmar">Firmar y publicar</button>' +
+      '</div></div>';
+  }
+
+  function attachP3ResultListeners() {
+    var res = document.getElementById('resultadoEstructura');
+    if (!res) return;
+
+    res.querySelectorAll('[data-action="confirmar-birads"]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var sistema = this.getAttribute('data-sistema');
+        var cat = this.getAttribute('data-cat');
+        var display = document.getElementById('clasificacion-display');
+        if (display) {
+          display.style.background = '#d1fae5';
+          display.style.padding = '2px 8px';
+          display.style.borderRadius = '4px';
+          display.textContent = sistema + ' ' + cat + ' (Confirmado)';
+        }
+        showToast('Clasificacion ' + sistema + ' ' + cat + ' confirmada en el informe', 'success');
+      });
+    });
+
+    res.querySelectorAll('[data-action="cambiar-categoria"]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var sistema = this.getAttribute('data-sistema');
+        var esBirads = sistema === 'BI-RADS';
+        var opciones = esBirads
+          ? ['0 - Evaluacion adicional necesaria','1 - Negativo','2 - Benigno','3 - Probablemente benigno','4A - Sospecha baja','4B - Sospecha intermedia','4C - Sospecha moderada-alta','5 - Alta sospecha de malignidad','6 - Biopsia probada maligna']
+          : ['TR1 - Benigno','TR2 - Sin sospecha','TR3 - Levemente sospechoso','TR4 - Moderadamente sospechoso','TR5 - Alta sospecha'];
+        showModal({
+          title: 'Cambiar categoria ' + sistema,
+          body: '<div class="form-group"><label>Selecciona la nueva categoria</label>' +
+            '<select id="modal-nueva-cat">' + opciones.map(function(o){
+              var val = o.split(' - ')[0];
+              return '<option value="'+val+'">'+o+'</option>';
+            }).join('') + '</select></div>',
+          buttons: [{ label: 'Aplicar categoria', cls: 'btn-primary', action: 'aplicar', onClick: function(ov) {
+            var nueva = document.getElementById('modal-nueva-cat').value;
+            var display = document.getElementById('clasificacion-display');
+            if (display) display.textContent = sistema + ' ' + nueva;
+            ov.parentNode.removeChild(ov);
+            showToast('Categoria actualizada a ' + sistema + ' ' + nueva, 'success');
+          }}]
+        });
+      });
+    });
+
+    var btnBorrador = document.getElementById('btn-p3-borrador');
+    if (btnBorrador) {
+      btnBorrador.addEventListener('click', function() {
+        var tecnicaEl = document.getElementById('struct-tecnica-text') || document.getElementById('struct-tecnica-text-edit');
+        var hallazgosEl = document.getElementById('struct-hallazgos-text') || document.getElementById('struct-hallazgos-text-edit');
+        var conclusionEl = document.getElementById('struct-conclusion-text') || document.getElementById('struct-conclusion-text-edit');
+        var draft = {
+          tecnica: tecnicaEl ? (tecnicaEl.textContent || tecnicaEl.value) : '',
+          hallazgos: hallazgosEl ? (hallazgosEl.textContent || hallazgosEl.value) : '',
+          conclusion: conclusionEl ? (conclusionEl.textContent || conclusionEl.value) : '',
+          timestamp: new Date().toISOString()
+        };
+        try { localStorage.setItem('dictado_borrador', JSON.stringify(draft)); } catch(e) {}
+        this.textContent = 'Borrador guardado';
+        this.disabled = true;
+        showToast('Borrador guardado correctamente en almacenamiento local', 'success');
+      });
+    }
+
+    var editMode = false;
+    var btnEditar = document.getElementById('btn-p3-editar');
+    if (btnEditar) {
+      btnEditar.addEventListener('click', function() {
+        editMode = !editMode;
+        var campos = ['struct-tecnica-text','struct-hallazgos-text','struct-conclusion-text'];
+        campos.forEach(function(id) {
+          if (editMode) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            var ta = document.createElement('textarea');
+            ta.className = 'struct-editable';
+            ta.value = el.textContent;
+            ta.id = id + '-edit';
+            el.parentNode.replaceChild(ta, el);
+          } else {
+            var ta2 = document.getElementById(id + '-edit');
+            if (!ta2) return;
+            var p = document.createElement('p');
+            p.id = id;
+            p.textContent = ta2.value;
+            ta2.parentNode.replaceChild(p, ta2);
+          }
+        });
+        this.textContent = editMode ? 'Confirmar edicion' : 'Editar manualmente';
+        if (!editMode) showToast('Edicion guardada en el informe', 'success');
+      });
+    }
+
+    var btnFirmar = document.getElementById('btn-p3-firmar');
+    if (btnFirmar) {
+      btnFirmar.addEventListener('click', function() {
+        showModal({
+          title: 'Firmar y publicar informe',
+          body: '<p style="margin-bottom:12px">Esta accion publicara el informe en el sistema HIS.</p>' +
+            '<div class="form-group"><label>Radiologo firmante</label>' +
+            '<select id="modal-firmante"><option>Dr. Garcia &mdash; Radiologo General</option>' +
+            '<option>Dra. Lopez &mdash; Radiologia Intervencionista</option></select></div>' +
+            '<div class="form-group" style="margin-top:10px;"><label>Clave de firma digital *</label>' +
+            '<input type="password" id="modal-clave" placeholder="Ingresa tu clave de firma..."/></div>',
+          buttons: [{ label: 'Firmar y publicar', cls: 'btn-success', action: 'firmar', onClick: function(ov) {
+            var clave = document.getElementById('modal-clave').value;
+            if (!clave) { showToast('Ingresa tu clave de firma digital', 'warn'); return; }
+            ov.parentNode.removeChild(ov);
+            showToast('Informe firmado y publicado exitosamente en el HIS', 'success');
+            btnFirmar.textContent = 'Publicado';
+            btnFirmar.disabled = true;
+          }}]
+        });
+      });
+    }
+  }
+
+  /* ════════════════ PANEL 4 ════════════════ */
+  document.getElementById('btn-p4-reporte1').addEventListener('click', function() { mostrarModalReporte('Secretaria de Salud'); });
+  document.getElementById('btn-p4-reporteMensual').addEventListener('click', function() { mostrarModalReporte('Reporte Mensual de Calidad'); });
+  document.getElementById('btn-p4-notifeps').addEventListener('click', notificarEPS);
+  document.getElementById('btn-p4-sinSeg').addEventListener('click', verSinSeguimiento);
+  document.getElementById('btn-p4-recordatorio').addEventListener('click', enviarRecordatorio);
+  document.getElementById('btn-p4-filtrar').addEventListener('click', aplicarFiltroHeatmap);
+  document.getElementById('btn-p4-excel').addEventListener('click', exportarExcel);
+  document.getElementById('btn-p4-desestimar1').addEventListener('click', function() {
+    var alerta = document.getElementById('alerta1');
+    if (alerta) alerta.style.display = 'none';
+    showToast('Alerta desestimada y registrada en el log', 'info');
+  });
+
+  function mostrarModalReporte(tipo) {
+    showModal({
+      title: 'Generar reporte &mdash; ' + tipo,
+      body: '<p style="margin-bottom:12px;font-size:13px;">Vista previa del reporte automatico:</p>' +
+        '<div style="background:#f8f9fa;border:1px solid var(--border);border-radius:8px;padding:16px;font-size:12px;line-height:1.8;">' +
+        '<p style="text-align:center;font-weight:800;font-size:14px;">IPS Imagenologia &mdash; Reporte Epidemiologico</p>' +
+        '<p style="text-align:center;color:#888;">' + tipo + '</p><hr style="margin:8px 0;">' +
+        '<p><strong>Periodo:</strong> <select id="modal-periodo" style="padding:2px 6px;font-size:11px;"><option>Mayo 2025</option><option>Abril 2025</option><option>Marzo 2025</option></select></p>' +
+        '<p><strong>Total estudios:</strong> 1,247</p>' +
+        '<p><strong>Hallazgos incidentales:</strong> 183 (14.7%)</p>' +
+        '<p><strong>Alertas generadas:</strong> 2</p>' +
+        '<p><strong>Tasa eventos adversos:</strong> 0.4%</p>' +
+        '</div>',
+      buttons: [{ label: 'Descargar PDF', cls: 'btn-primary', action: 'descargar', onClick: function(ov) {
+        var periodo = document.getElementById('modal-periodo').value;
+        ov.parentNode.removeChild(ov);
+        showToast('Generando PDF &mdash; ' + tipo + ' ' + periodo + '...', 'info');
+        _storeTimeout('p4-pdf', function() {
+          showToast('Archivo listo: reporte_' + periodo.replace(' ','_') + '.pdf', 'success');
+        }, 1500);
+      }}]
+    });
+  }
+
+  function notificarEPS() {
+    var epsList = ['EPS Sura','Compensar','Nueva EPS','Sanitas','Coomeva','Salud Total'];
+    var epsItems = epsList.map(function(eps) {
+      var eid = 'eps_' + eps.replace(/\s/g,'_');
+      return '<li><input type="checkbox" id="' + eid + '" checked style="width:auto;"> <label for="' + eid + '" style="font-weight:600;">' + eps + '</label></li>';
+    }).join('');
+    showModal({
+      title: 'Notificar a EPS aliadas',
+      body: '<p style="margin-bottom:10px;font-size:13px;">Selecciona las EPS a notificar:</p>' +
+        '<ul class="checklist">' + epsItems + '</ul>' +
+        '<div class="form-group" style="margin-top:12px;"><label>Mensaje</label>' +
+        '<textarea rows="3" id="modal-msg-eps">Estimado aliado: Se ha detectado un incremento del 14% en esteatosis hepatica severa en la poblacion de su cobertura. Se adjunta reporte epidemiologico para toma de acciones preventivas.</textarea></div>',
+      buttons: [{ label: 'Enviar notificacion', cls: 'btn-primary', action: 'enviar', onClick: function(ov) {
+        var seleccionadas = epsList.filter(function(eps) {
+          var el = document.getElementById('eps_' + eps.replace(/\s/g,'_'));
+          return el && el.checked;
+        });
+        ov.parentNode.removeChild(ov);
+        showToast('Notificacion enviada a ' + seleccionadas.length + ' EPS aliadas', 'success');
+      }}]
+    });
+  }
+
+  function verSinSeguimiento() {
+    var pacientes = [
+      { nombre: 'Rodriguez Perez, Carlos', edad: 62, hallazgo: 'Lung-RADS 3 &mdash; 7mm', fecha: '2025-05-14' },
+      { nombre: 'Martinez Gomez, Maria',   edad: 58, hallazgo: 'Lung-RADS 3 &mdash; 6.5mm', fecha: '2025-05-12' },
+      { nombre: 'Lopez Herrera, Juan',     edad: 67, hallazgo: 'Lung-RADS 3 &mdash; 8mm', fecha: '2025-05-10' },
+      { nombre: 'Sanchez Torres, Ana',     edad: 55, hallazgo: 'Lung-RADS 3 &mdash; 7.2mm', fecha: '2025-05-08' },
+      { nombre: 'Garcia Ruiz, Pedro',      edad: 70, hallazgo: 'Lung-RADS 3 &mdash; 6.8mm', fecha: '2025-05-06' },
+    ];
+    var rows = pacientes.map(function(p, i) {
+      return '<tr style="border-bottom:1px solid var(--border);">' +
+        '<td style="padding:8px;">' + p.nombre + '<br><small style="color:#888;">' + p.edad + ' anos</small></td>' +
+        '<td style="padding:8px;">' + p.hallazgo + '</td>' +
+        '<td style="padding:8px;">' + p.fecha + '</td>' +
+        '<td style="padding:8px;"><button class="btn btn-outline" style="font-size:11px;padding:4px 8px;" ' +
+        'id="btn-notif-pac-' + i + '">Notificar medico</button></td>' +
+        '</tr>';
+    }).join('');
+
+    showModal({
+      title: 'Pacientes sin seguimiento registrado',
+      body: '<table style="width:100%;border-collapse:collapse;font-size:12px;">' +
+        '<thead><tr style="background:var(--light);">' +
+        '<th style="padding:8px;text-align:left;">Paciente</th>' +
+        '<th style="padding:8px;text-align:left;">Hallazgo</th>' +
+        '<th style="padding:8px;text-align:left;">Fecha</th>' +
+        '<th style="padding:8px;text-align:left;">Accion</th>' +
+        '</tr></thead><tbody>' + rows + '</tbody></table>',
+      buttons: [{ label: 'Notificar todos', cls: 'btn-primary', action: 'todos', onClick: function(ov) {
+        ov.parentNode.removeChild(ov);
+        showToast(pacientes.length + ' medicos remitentes notificados', 'success');
+      }}],
+      onClose: function() {}
+    });
+
+    // Attach per-patient buttons after modal is in DOM
+    setTimeout(function() {
+      pacientes.forEach(function(p, i) {
+        var btn = document.getElementById('btn-notif-pac-' + i);
+        if (btn) {
+          btn.addEventListener('click', function() {
+            this.textContent = 'Notificado';
+            this.disabled = true;
+            showToast('Medico remitente notificado para ' + p.nombre.split(',')[0], 'success');
+          });
+        }
+      });
+    }, 100);
+  }
+
+  function enviarRecordatorio() {
+    var medicos = [
+      { nombre: 'Dr. Alvarez &mdash; Neumologia', email: 'calvarez@clinica.co' },
+      { nombre: 'Dra. Mendoza &mdash; Medicina Interna', email: 'rmendoza@clinica.co' },
+      { nombre: 'Dr. Vega &mdash; Medicina Familiar', email: 'jvega@clinica.co' },
+    ];
+    var items = medicos.map(function(m) {
+      return '<li><input type="checkbox" id="med_' + m.email + '" checked style="width:auto;"> ' +
+        '<label for="med_' + m.email + '" style="font-weight:600;">' + m.nombre + '</label> ' +
+        '<small style="color:#888;margin-left:8px;">' + m.email + '</small></li>';
+    }).join('');
+    showModal({
+      title: 'Enviar recordatorio a medicos remitentes',
+      body: '<p style="margin-bottom:10px;font-size:13px;">Medicos con pacientes sin seguimiento:</p>' +
+        '<ul class="checklist">' + items + '</ul>' +
+        '<hr style="margin:12px 0;">' +
+        '<p style="font-size:12px;font-weight:700;color:#555;margin-bottom:6px;">Vista previa del recordatorio:</p>' +
+        '<div style="background:#f8f9fa;border:1px solid var(--border);border-radius:6px;padding:12px;font-size:12px;line-height:1.6;">' +
+        '<p><strong>Asunto:</strong> Seguimiento requerido &mdash; Nodulo pulmonar Lung-RADS 3</p>' +
+        '<p>Estimado colega, le recordamos que tiene paciente(s) con hallazgos de nodulos pulmonares indeterminados (Lung-RADS 3) que requieren control imagenologico en 3-6 meses segun protocolo ACR.</p>' +
+        '</div>',
+      buttons: [{ label: 'Enviar recordatorios', cls: 'btn-primary', action: 'enviar', onClick: function(ov) {
+        var seleccionados = medicos.filter(function(m) {
+          var el = document.getElementById('med_' + m.email);
+          return el && el.checked;
+        });
+        ov.parentNode.removeChild(ov);
+        showToast('Recordatorio enviado a ' + seleccionados.length + ' medicos remitentes', 'success');
+      }}]
+    });
+  }
+
+  function exportarExcel() {
+    showToast('Exportando datos... preparando archivo Excel', 'info');
+    _storeTimeout('p4-excel', function() {
+      showToast('Archivo listo: datos_epidemiologicos_mayo2025.xlsx', 'success');
+    }, 2000);
+  }
+
+  function aplicarFiltroHeatmap() {
+    var mesEl = document.getElementById('filtroMes');
+    var dptoEl = document.getElementById('filtroDpto');
+    var mesLabel = mesEl.options[mesEl.selectedIndex].text;
+    var dptoLabel = dptoEl.options[dptoEl.selectedIndex].text;
+    showToast('Filtro aplicado: ' + mesLabel + ' - ' + dptoLabel, 'info');
+    buildHeatmap();
+  }
+
+  /* ════════════════ HEATMAP ════════════════ */
+  function buildHeatmap() {
+    var dias = ['Lun','Mar','Mie','Jue','Vie','Sab','Dom'];
+    var horas = ['8-10h','10-12h','12-14h','14-16h','16-18h'];
+    var datos = [
+      [18,32,28,22,20,8,3],
+      [22,45,41,30,25,10,2],
+      [20,38,35,28,22,9,2],
+      [19,28,30,26,20,7,1],
+      [15,22,25,20,18,5,1]
+    ];
+    var max = 45;
+    var grid = document.getElementById('heatmapGrid');
+    if (!grid) return;
+    grid.className = 'heatmap';
+    grid.innerHTML = '';
+
+    grid.innerHTML += '<div class="hm-label"></div>';
+    dias.forEach(function(d) { grid.innerHTML += '<div class="hm-label" style="justify-content:center;">' + d + '</div>'; });
+
+    horas.forEach(function(h, hi) {
+      grid.innerHTML += '<div class="hm-label">' + h + '</div>';
+      datos[hi].forEach(function(v) {
+        var pct = v / max;
+        var r = Math.round(239 + (220 - 239) * pct);
+        var g = Math.round(246 + (38  - 246) * pct);
+        var b = Math.round(255 + (38  - 255) * pct);
+        var color = 'rgb(' + r + ',' + g + ',' + b + ')';
+        var textColor = pct > 0.55 ? '#fff' : '#374151';
+        grid.innerHTML += '<div class="hm-cell" style="background:' + color + ';color:' + textColor + '">' + v + '</div>';
+      });
+    });
+  }
+
+  /* ════════════════ CHART ════════════════ */
+  function buildChart() {
+    var datos = [
+      { label: 'Esteatosis hepatica', val: 34, color: '#f59e0b' },
+      { label: 'Nodulo pulmonar (Lung-RADS 3)', val: 18, color: '#ef4444' },
+      { label: 'Quistes renales simples', val: 15, color: '#3b82f6' },
+      { label: 'Litiasis vesicular asx.', val: 12, color: '#8b5cf6' },
+      { label: 'Angiomiolipoma renal', val: 7, color: '#10b981' },
+      { label: 'Nodulo tiroideo (TI-RADS >=3)', val: 6, color: '#f97316' },
+    ];
+    var max = 34;
+    var el = document.getElementById('chartIncidentales');
+    if (!el) return;
+    el.innerHTML = datos.map(function(d) {
+      return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:12px;">' +
+        '<div style="width:200px;text-align:right;color:#555;flex-shrink:0;">' + d.label + '</div>' +
+        '<div style="flex:1;background:#e5e7eb;border-radius:4px;height:24px;overflow:hidden;">' +
+        '<div style="width:' + (d.val/max*100).toFixed(0) + '%;background:' + d.color + ';height:100%;' +
+        'border-radius:4px;display:flex;align-items:center;padding-left:8px;' +
+        'color:#fff;font-weight:700;font-size:11px;transition:width .8s ease;">' + d.val + '</div></div></div>';
+    }).join('');
+  }
+
+  buildHeatmap();
+  buildChart();
+
+}); // end DOMContentLoaded
+</script>
 </body>
 </html>
